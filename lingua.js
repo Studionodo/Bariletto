@@ -44,7 +44,7 @@ const VOCI = {
     "crono.segnato": "Cronografo azionato oggi",
 
     "vuoto.oggi": "Non c'è ancora niente da mettere al polso.",
-    "vuoto.presentazione": "Bariletto tiene il conto delle ore che non guardi. Per ogni orologio automatico sa quanta riserva resta, e ti dice quando sta per fermarsi. Per un manuale, ricorda quando l'hai caricato l'ultima volta. Aggiungi la tua collezione, e ogni giorno l'app ti dice solo quello che conta davvero: cosa indossare oggi, cosa rischia di fermarsi domani.",
+    "vuoto.presentazione": "Bariletto conta le ore che non guardi. La riserva di un automatico si consuma in silenzio; un manuale aspetta la tua mano sulla corona; un cronografo aspetta i suoi pulsanti. Ogni calibro ha un modo giusto di essere curato, e Bariletto lo conosce. Aggiungi la tua collezione: da oggi c'è qualcuno che se ne ricorda al posto tuo.",
 
     /* motivi */
     "m.nuovo": "Appena aggiunto. Mettilo al polso una volta e comincio a tenerne il conto.",
@@ -249,7 +249,7 @@ const VOCI = {
     "crono.segnato": "Chronograph run today",
 
     "vuoto.oggi": "Nothing to put on the wrist yet.",
-    "vuoto.presentazione": "Bariletto keeps track of the hours you don't watch. For every automatic watch it knows how much reserve is left, and tells you when it's about to stop. For a hand wound one, it remembers when you last wound it. Add your collection, and every day the app tells you only what actually matters: what to wear today, what risks stopping tomorrow.",
+    "vuoto.presentazione": "Bariletto counts the hours you don't watch. An automatic's reserve runs down in silence; a manual waits for your hand on the crown; a chronograph waits for its pushers. Every calibre has its own right way to be cared for, and Bariletto knows it. Add your collection: from today, someone remembers for you.",
 
     "m.nuovo": "Just added. Wear it once and I'll start keeping count.",
     "m.eco.fermo": "Stopped: {g} without a charge, and the reserve covers {l}.",

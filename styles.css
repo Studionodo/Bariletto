@@ -521,7 +521,7 @@ h1.nome.tagliato {
    qualcuno. */
 .vuoto-spaziatore { flex: 1 1 0; max-height: 220px; }
 .presentazione-vuoto {
-  font-size: .8125rem; line-height: 1.6; color: var(--argento-off);
+  font-size: .8125rem; line-height: 1.6; color: var(--argento); opacity: .92;
   max-width: 320px; text-wrap: balance;
 }
 
