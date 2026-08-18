@@ -156,6 +156,20 @@ function misuraTestata() {
   document.documentElement.style.setProperty("--alta-testata", (h + 12) + "px");
 }
 
+/* position:fixed + inset:0 non si restringe da solo quando si apre la
+   tastiera su Android — resta ancorato all'intero schermo, e un foglio
+   centrato al suo interno finisce con la parte bassa dietro la
+   tastiera, dove i tocchi non arrivano (era il caso della ricerca
+   calibro: le carte in fondo alla lista esistevano ma non si potevano
+   scorrere). visualViewport è l'unica API che riflette lo spazio
+   davvero visibile, tastiera esclusa — dove esiste, la usiamo; dove
+   non esiste, il CSS ha già un fallback su dvh. */
+function misuraViewportVisibile() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  document.documentElement.style.setProperty("--altezza-visibile", vv.height + "px");
+}
+
 function costruisciCornice() {
   const testata = q("#testata");
   if (testata) {
@@ -278,6 +292,10 @@ async function avvio() {
     registro = await leggiTutti("registro");
 
     costruisciCornice();
+    misuraViewportVisibile();
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", misuraViewportVisibile);
+    }
     disegna();
     seguiPagina();
     tingiBarra();

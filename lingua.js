@@ -48,6 +48,7 @@ const VOCI = {
 
     /* motivi */
     "m.nuovo": "Appena aggiunto. Mettilo al polso una volta e comincio a tenerne il conto.",
+    "m.caricatoNonIndossato": "L'hai caricato, ma non ancora indossato. Mettilo al polso quando vuoi iniziare a portarlo davvero.",
     "m.eco.fermo": "Fermo: {g} senza ricarica, e la riserva ne copre {l}.",
     "m.eco.basso": "{g} al buio su {l} di autonomia. Una mattina sul davanzale basta.",
     "m.kin.basso": "{g} senza movimento. Portalo mezza giornata e il condensatore si riprende.",
@@ -252,6 +253,7 @@ const VOCI = {
     "vuoto.presentazione": "Bariletto counts the hours you don't watch. An automatic's reserve runs down in silence; a manual waits for your hand on the crown; a chronograph waits for its pushers. Every calibre has its own right way to be cared for, and Bariletto knows it. Add your collection: from today, someone remembers for you.",
 
     "m.nuovo": "Just added. Wear it once and I'll start keeping count.",
+    "m.caricatoNonIndossato": "You've wound it, but haven't worn it yet. Put it on whenever you're ready to actually wear it.",
     "m.eco.fermo": "Stopped: {g} without a charge, and the reserve covers {l}.",
     "m.eco.basso": "{g} in the dark out of {l} of autonomy. One morning on the windowsill is enough.",
     "m.kin.basso": "{g} without movement. Wear it half a day and the capacitor recovers.",

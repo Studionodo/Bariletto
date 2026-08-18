@@ -876,7 +876,8 @@ h1.nome.tagliato {
    scrollabile apposta.
    ------------------------------------------------------------------ */
 #velo {
-  position: fixed; inset: 0; z-index: 10;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  height: var(--altezza-visibile, 100dvh);
   overflow: hidden;
   background: rgba(8,6,14,0); backdrop-filter: blur(0px);
   transition: background .38s ease, backdrop-filter .38s ease;
@@ -886,7 +887,7 @@ h1.nome.tagliato {
 
 #foglio {
   width: min(440px, calc(100% - var(--bordo) * 2));
-  max-height: min(640px, 82dvh);
+  max-height: min(640px, calc(var(--altezza-visibile, 100dvh) * .82));
   display: flex; flex-direction: column;
   background: var(--wall); background-image: var(--trama);
   border-radius: var(--r-foglio);
@@ -1043,7 +1044,7 @@ h1.nome.tagliato {
 .fonte-derivato  .pallino-fonte { background: var(--arancio); }
 
 .sepa { height: 1px; background: rgba(255,255,255,.07); margin: var(--s4) 0 var(--s3); }
-.esiti { max-height: 42dvh; overflow-y: auto; overscroll-behavior: contain; margin-top: var(--s1); }
+.esiti { margin-top: var(--s1); }
 .esiti .lastra { cursor: pointer; }
 
 .scelte { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--s2) 0 var(--s4); }

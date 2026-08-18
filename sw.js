@@ -1,7 +1,7 @@
 /* Bariletto — service worker.
    Tutto nel guscio, font compresi: dopo l'installazione non serve più la rete. */
 
-const CACHE = "bariletto-v144";
+const CACHE = "bariletto-v145";
 
 /* Portati dentro il service worker: nessuno dei tre tocca il DOM, solo
    IndexedDB e calcolo puro. bisogno() decide chi ha bisogno di

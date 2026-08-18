@@ -113,9 +113,17 @@ function normalizza(o) {
 
 function bisogno(o) {
   /* Un orologio appena aggiunto non è "fermo da 999 giorni": è nuovo.
-     Prima si porta una volta, poi comincia il conteggio. */
-  if (o.ultimoPolso == null)
+     Prima si porta una volta, poi comincia il conteggio. Ma «mai
+     indossato» e «mai toccato» non sono la stessa cosa: se nel
+     frattempo l'hai caricato con «L'ho solo caricato», quel gesto va
+     riconosciuto — altrimenti il messaggio resta "Appena aggiunto"
+     identico a prima anche dopo che qualcosa è successo davvero, e
+     dall'anello sembra che il tocco non abbia fatto nulla. */
+  if (o.ultimoPolso == null) {
+    if (o.ultimaCarica != null)
+      return { punti: 100, stato: "moto", motivo: t("m.caricatoNonIndossato") };
     return { punti: 120, stato: "moto", motivo: t("m.nuovo") };
+  }
 
   const g = Math.max(0, giorniDa(o.ultimoPolso));
   const gg = plurale(g, "giorno_", "giorniPl");
