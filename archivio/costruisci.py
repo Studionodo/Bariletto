@@ -87,7 +87,7 @@ ESCLUSE = {
 def leggi():
     schede = []
     for f in sorted(pathlib.Path(__file__).parent.glob("*.md")):
-        t = f.read_text()
+        t = f.read_text(encoding="utf-8")
         ha_id = "<!-- id:" in t
         for blocco in re.split(r'\n---\n', t):
             blocco = blocco.strip()
@@ -154,7 +154,7 @@ def scrivi(schede):
         righe.append("  },")
     righe.append("];")
     out = pathlib.Path(__file__).parent.parent / "movimenti.js"
-    out.write_text("\n".join(righe) + "\n")
+    out.write_text("\n".join(righe) + "\n", encoding="utf-8")
     return out
 
 

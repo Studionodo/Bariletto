@@ -98,3 +98,25 @@ volesse comunque coprire J800.1 o J880.x, andrebbero classificati
 esplicitamente come varianti ETA/Sellita a marchio Junghans, con
 rimando alle schede ETA 2824-2 e ETA 7750 già in archivio — non come
 schede di manifattura a sé.
+
+**Baume & Mercier**
+**Controllato:** due volte — 17 agosto 2026 (lotto 25, ricerca
+generica su Classima/Clifton in competizione con Frederique Constant;
+poi lo stesso giorno, ricerca specifica per modello dopo la prima
+sconfitta)
+**Perché resta fuori:** non mancanza di un calibro reale dietro i
+modelli — è il caso di opacità comunicativa più netto incontrato in
+questo intero archivio, peggiore di Tissot. Le pagine prodotto
+ufficiali baume-et-mercier.com non citano il numero di calibro
+nemmeno per il Baumatic BM14, il movimento che il marchio presenta
+come manifattura propria e di cui va più fiero — si fermano a "Swiss
+Made, Energy: Automatic, Frequency: 28.800 vph". Anche il manuale
+utente ufficiale descrive solo le funzioni, mai la sigla. I modelli
+più accessibili montano basi ETA 2892-A2, Sellita SW200-1 o SW260-1
+a seconda dell'anno (tutte già in archivio nella loro forma
+originale), ma senza una dichiarazione diretta del marchio che leghi
+un modello specifico a una sigla precisa, non c'è una fonte solida
+quanto quella già trovata per gli altri marchi Swiss coperti. Una
+fonte indipendente nota esplicitamente che è un comportamento
+comunicativo anomalo: un marchio davvero orgoglioso di un calibro
+proprio di solito lo nomina, non lo nasconde.

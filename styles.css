@@ -508,7 +508,7 @@ h1.nome.tagliato {
    si avvicinano invece di sovrapporsi: min-height si accorcia da sé se
    il contenuto reale supera lo spazio, la pagina scorre come sempre. */
 .vuoto-pieno {
-  min-height: calc(100dvh - var(--alta-testata) - var(--alta-indice));
+  min-height: min(calc(100dvh - var(--alta-testata) - var(--alta-indice)), 560px);
   justify-content: space-between;
   padding-top: var(--s5); padding-bottom: var(--s5);
 }
@@ -793,6 +793,8 @@ h1.nome.tagliato {
 .attrezzo .freccia { color: var(--oro); opacity: .78; }
 .attrezzo.armato { color: #FFD9C6; }
 .attrezzo.armato .freccia { color: #FFD9C6; opacity: .8; }
+.attrezzo.acceso { color: var(--oro); }
+.attrezzo.acceso .freccia { color: var(--oro); opacity: .8; }
 .esito {
   margin-top: var(--s2); font-size: .8125rem; line-height: 1.5; color: var(--oro);
 }

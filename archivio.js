@@ -45,6 +45,60 @@ const cancella = (n, k) => tx(n, "readwrite", (s) => s.delete(k));
 
 const svuota = (n) => tx(n, "readwrite", (s) => s.clear());
 
+/* ============================ notifiche ============================
+   Controlli periodici in background, senza server: il sistema decide
+   lui l'intervallo reale in base a quanto usi l'app davvero, non è un
+   timer preciso che rispetta sempre le ore richieste. Esiste solo su
+   Chrome per Android, per app installate — su iOS, desktop o altri
+   browser questa funzione semplicemente non c'è, e va dichiarato
+   subito invece di far finta che il bottone funzioni ovunque. */
+
+const TAG_SYNC = "controlla-riserve";
+
+async function notifichePossibili() {
+  if (!("serviceWorker" in navigator) || !("Notification" in self)) return false;
+  /* Se nessun service worker controlla ancora la pagina (primo avvio,
+     prima che l'installazione sia completa), non aspettare: "ready"
+     potrebbe non risolversi mai in quel momento, e l'app non deve
+     restare appesa per una funzione accessoria. */
+  if (!navigator.serviceWorker.controller) return false;
+  const reg = await navigator.serviceWorker.ready;
+  return "periodicSync" in reg;
+}
+
+async function notificheAttive() {
+  if (!(await notifichePossibili())) return false;
+  const reg = await navigator.serviceWorker.ready;
+  const tag = await reg.periodicSync.getTags();
+  return tag.includes(TAG_SYNC);
+}
+
+async function attivaNotifiche() {
+  if (!(await notifichePossibili())) return { ok: false, motivo: "non-supportato" };
+  const permesso = await Notification.requestPermission();
+  if (permesso !== "granted") return { ok: false, motivo: "rifiutato" };
+  try {
+    /* Firefox non implementa questa query: si prova comunque a
+       registrare, e se il browser non supporta periodicSync l'errore
+       viene preso sotto, non qui. */
+    const stato = await navigator.permissions.query({ name: "periodic-background-sync" });
+    if (stato.state !== "granted") return { ok: false, motivo: "rifiutato" };
+  } catch (e) { /* ignorato apposta */ }
+  const reg = await navigator.serviceWorker.ready;
+  try {
+    await reg.periodicSync.register(TAG_SYNC, { minInterval: 12 * 3600000 });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, motivo: "errore" };
+  }
+}
+
+async function disattivaNotifiche() {
+  if (!(await notifichePossibili())) return;
+  const reg = await navigator.serviceWorker.ready;
+  await reg.periodicSync.unregister(TAG_SYNC);
+}
+
 
 /* ============================== backup ============================
    Fino a qui non esisteva: se il browser svuotava i dati, o il telefono

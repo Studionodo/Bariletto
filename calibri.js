@@ -27,7 +27,7 @@ const FAMIGLIE = [
   { id: "seiko-4r",  marca: "Seiko",   nome: "Seiko 4R / NH",      tipo: "automatico",  mano: true,  arresto: true,  data: true,  giorno: false, riserva: 41,   ah: 21600, giri: 30, finestra: [21, 1], fonte: "comunita" },
   { id: "seiko-6r",  marca: "Seiko",   nome: "Seiko 6R",           tipo: "automatico",  mano: true,  arresto: true,  data: true,  giorno: false, riserva: 70,   ah: 21600, fonte: "comunita" },
   { id: "seiko-8r",  marca: "Seiko",   nome: "Seiko 8R cronografi",tipo: "cronografo",  mano: true,  arresto: true,  data: true,  giorno: false, riserva: 45,   ah: 28800, fonte: "comunita" },
-  { id: "seiko-8l",  marca: "Seiko",   nome: "Seiko 8L",           tipo: "automatico",  mano: false, arresto: false, data: true,  giorno: false, riserva: 50,   ah: 28800, fonte: "comunita" },
+  { id: "seiko-8l",  marca: "Seiko",   nome: "Seiko 8L",           tipo: "automatico",  mano: true, arresto: true, data: true,  giorno: false, riserva: 50,   ah: 28800, fonte: "comunita" },
   { id: "seiko-9s",  marca: "Seiko",   nome: "Grand Seiko 9S",     tipo: "automatico",  mano: true,  arresto: true,  data: true,  giorno: false, riserva: 72,   ah: 28800, fonte: "comunita" },
   { id: "seiko-5r",  marca: "Seiko",   nome: "Spring Drive 5R/9R", tipo: "springdrive", mano: true,  arresto: true,  data: true,  giorno: false, riserva: 72,   ah: 0, fonte: "comunita" },
   { id: "seiko-vint",marca: "Seiko",   nome: "Seiko manuali d'epoca", tipo: "manuale",  mano: true,  arresto: false, data: true,  giorno: false, riserva: 45,   ah: 18000, fonte: "derivato" },
@@ -96,6 +96,76 @@ const FAMIGLIE = [
      invece di ereditare il default generico. */
   { id: "tagheuer-fam", marca: "TAG Heuer", nome: "TAG Heuer manifattura", tipo: "cronografo", crono: true, mano: true, arresto: true, data: true, giorno: false, riserva: 80, ah: 28800, fonte: "comunita" },
   { id: "longines-fam", marca: "Longines", nome: "Longines (base ETA A31.L11)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 72, ah: 25200, finestra: [20, 3], fonte: "comunita" },
+  /* Lotto 23: tre marchi, stessa famiglia ETA C07 — 80 ore di riserva,
+     21.600 A/H (non 28.800: la frequenza abbassata è proprio ciò che
+     rende possibile la riserva lunga). Fonte diversa per ciascuno:
+     Certina la dichiara apertamente sul proprio sito, Tissot e
+     Hamilton no — nessuna delle due arriva a "ufficiale". */
+  { id: "tissot-c07-fam", marca: "Tissot", nome: "Tissot Powermatic 80 (ETA C07)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 80, ah: 21600, fonte: "comunita" },
+  { id: "hamilton-c07-fam", marca: "Hamilton", nome: "Hamilton H-10 (ETA C07)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 80, ah: 21600, fonte: "comunita" },
+  { id: "certina-c07-fam", marca: "Certina", nome: "Certina Powermatic 80 (ETA C07)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 80, ah: 21600, fonte: "comunita" },
+  /* Lotto 24: Mido chiude il quartetto C07 (fonte ufficiale stavolta —
+     è il più esplicito dei quattro marchi, non Certina come si pensava
+     dopo il lotto 23). Frederique Constant è tutt'altra famiglia:
+     stessa sigla FC-303 ha coperto nel tempo sia ETA 2824-2 sia
+     Sellita SW200-1 — riserva standard 38h, non gonfiata a 80. */
+  { id: "mido-c07-fam", marca: "Mido", nome: "Mido Caliber 80 (ETA C07)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 80, ah: 21600, fonte: "ufficiale" },
+  { id: "fc-fam", marca: "Frederique Constant", nome: "Frederique Constant (base ETA/Sellita)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 38, ah: 28800, fonte: "ufficiale" },
+  /* Lotto 25: Rado è il quinto marchio C07 (fonte ufficiale, come
+     Mido e Certina). Maurice Lacroix ha la stessa base SW200 di
+     Frederique Constant ma è un marchio diverso — famiglia propria,
+     non condivisa, per tenere corretta la marca in ogni scheda. */
+  { id: "rado-c07-fam", marca: "Rado", nome: "Rado (ETA C07)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 80, ah: 21600, fonte: "ufficiale" },
+  { id: "ml-fam", marca: "Maurice Lacroix", nome: "Maurice Lacroix (base Sellita SW200-1)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 38, ah: 28800, fonte: "ufficiale" },
+  /* Lotto 26: Victorinox copre solo la linea I.N.O.X. Automatic
+     (Sellita SW200-1) — le altre due basi trovate (ETA 2824-2 su
+     I.N.O.X. Mechanical, ETA 2892 su Alliance) restano solo nella
+     prosa della scheda, non hanno una voce propria nel picker.
+     Bulgari BVL 138: manifattura vera, niente data, arresto non
+     confermato da nessuna fonte — resta false, non un'assunzione. */
+  { id: "victorinox-fam", marca: "Victorinox Swiss Army", nome: "Victorinox I.N.O.X. (Sellita SW200-1)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 40, ah: 28800, fonte: "ufficiale" },
+  { id: "bulgari-fam", marca: "Bulgari", nome: "Bulgari Octo Finissimo", tipo: "automatico", mano: true, arresto: false, data: false, giorno: false, riserva: 55, ah: 21600, fonte: "ufficiale" },
+  /* Lotto 27: Piaget manuale, riserva 40h — scelta prudente fra le
+     due cifre in contraddizione dichiarate dalla stessa Piaget (40 o
+     44), la scheda riporta entrambe senza sciogliere il dubbio, qui
+     serve un numero solo e prendo il più basso. Ulysse Nardin UN-118:
+     arresto e data non confermati come base, restano false. */
+  { id: "piaget-fam", marca: "Piaget", nome: "Piaget Altiplano Ultimate", tipo: "manuale", mano: true, arresto: false, data: false, giorno: false, riserva: 40, ah: 28800, fonte: "ufficiale" },
+  { id: "un-fam", marca: "Ulysse Nardin", nome: "Ulysse Nardin Marine (UN-118)", tipo: "automatico", mano: true, arresto: false, data: false, giorno: false, riserva: 60, ah: 28800, fonte: "ufficiale" },
+  /* Lotto 28: Breguet 777A, automatico con data standard. Blancpain
+     1315: tre bariletti in serie, 120 ore — la riserva più lunga di
+     tutto l'archivio finora. Correzione data bidirezionale non ha un
+     campo dedicato nello schema attuale, resta solo in prosa nella
+     scheda. */
+  { id: "breguet-fam", marca: "Breguet", nome: "Breguet Marine (777A)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 55, ah: 28800, fonte: "ufficiale" },
+  { id: "blancpain-fam", marca: "Blancpain", nome: "Blancpain Fifty Fathoms (1315)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 120, ah: 28800, fonte: "ufficiale" },
+  /* Lotto 29: Bell & Ross condivide la base Sellita SW300-1, riserva
+     40h scelta prudente fra i tre numeri diversi (38/40/54) trovati
+     a seconda del modello — la scheda spiega perché divergono.
+     Glashütte Original 92-14: 100 ore, arresto true confermato. */
+  { id: "bellross-fam", marca: "Bell & Ross", nome: "Bell & Ross (base Sellita SW300-1)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 40, ah: 28800, fonte: "comunita" },
+  { id: "glashutte-fam", marca: "Glashütte Original", nome: "Glashütte Original Pano (92-14)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 100, ah: 28800, fonte: "ufficiale" },
+  /* Lotto 30: Doxa condivide la base Sellita SW200-1 (stessa
+     architettura di Certina/Maurice Lacroix/Frederique Constant, ma
+     marca diversa). Girard-Perregaux GP01800: arresto false, nessuna
+     fonte conferma un dispositivo di arresto per questa versione. */
+  { id: "doxa-fam", marca: "Doxa", nome: "Doxa SUB (Sellita SW200-1)", tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, riserva: 38, ah: 28800, fonte: "comunita" },
+  { id: "gp-fam", marca: "Girard-Perregaux", nome: "Girard-Perregaux Laureato (GP01800)", tipo: "automatico", mano: true, arresto: false, data: true, giorno: false, riserva: 54, ah: 28800, fonte: "ufficiale" },
+  /* Lotto 31: Vulcain V-10, manuale, 18.000 A/H — la sveglia meccanica
+     con bariletto separato non ha un campo dedicato nello schema
+     attuale, resta solo in prosa nella scheda. Casio (modulo 3495)
+     NON entra nel picker: la scheda stessa dichiara riserva/A-H/arresto
+     incompatibili col formato meccanico di questo schema — resta solo
+     in ARCHIVIO come voce di consultazione, non selezionabile. */
+  { id: "vulcain-fam", marca: "Vulcain", nome: "Vulcain Cricket (V-10)", tipo: "manuale", mano: true, arresto: false, data: false, giorno: false, riserva: 42, ah: 18000, fonte: "ufficiale" },
+  /* Lotto 32: JLC 953 riserva 48h — NON nella scheda consegnata (vuoto
+     segnalato), trovata con una ricerca mirata separata e confermata
+     su fonte ufficiale JLC + più fonti indipendenti convergenti.
+     Patek 240 HU: automatico (rotore in oro decentrato, non manuale),
+     niente arresto — la scheda dice esplicitamente che gran parte
+     delle varianti 240 non hanno nemmeno la lancetta dei secondi. */
+  { id: "jlc-mr-fam", marca: "Jaeger-LeCoultre", nome: "Jaeger-LeCoultre Reverso (953, ripetizione minuti)", tipo: "manuale", mano: true, arresto: false, data: false, giorno: false, riserva: 48, ah: 28800, fonte: "ufficiale" },
+  { id: "patek-hu-fam", marca: "Patek Philippe", nome: "Patek Philippe 240 HU (worldtimer)", tipo: "automatico", mano: true, arresto: false, data: false, giorno: false, riserva: 48, ah: 21600, fonte: "ufficiale" },
   /* Lotto 19. Bremont ENG300 entra: manifattura vera (80% del calibro
      ridisegnato e prodotto in Inghilterra, non solo assemblato).
      L'Accutron NON entra qui — è un diapason elettronico a 360 Hz,
@@ -123,6 +193,13 @@ const FAMIGLIE = [
   { id: "eta-unitas",marca: "ETA",     nome: "ETA 6497 / 6498 (Unitas)", tipo: "manuale", mano: true,  arresto: false, data: false, giorno: false, riserva: 46,   ah: 18000, fonte: "comunita" },
   { id: "ronda-q",   marca: "Ronda",   nome: "Ronda quarzo",         tipo: "quarzo",     mano: false, arresto: true,  data: true,  giorno: false, riserva: 43800, ah: 0, fonte: "comunita" },
   { id: "orient-f6",  marca: "Orient",  nome: "Orient F6",           tipo: "automatico", mano: true,  arresto: true,  data: true,  giorno: false, riserva: 40,   ah: 21600, fonte: "comunita" },
+  /* Lotto 22: due famiglie Orient nuove, non una sola — F7F44 (Orient
+     Star, alta gamma) e 46943 (storico) sono meccanicamente troppo
+     diverse fra loro e da F6 per condividerla. Il 46943 in particolare
+     non ha alcuna carica manuale: mano:false qui non è un dato mancante,
+     è confermato dalla scheda. */
+  { id: "orient-star-fam", marca: "Orient", nome: "Orient Star", tipo: "automatico", mano: true, arresto: false, data: false, giorno: false, riserva: 50, ah: 21600, fonte: "comunita" },
+  { id: "orient-46-fam", marca: "Orient", nome: "Orient 46xx (storico)", tipo: "automatico", mano: false, arresto: false, data: true, giorno: true, riserva: 42, ah: 21600, fonte: "comunita" },
   { id: "seagull-st",  marca: "Sea-Gull", nome: "Sea-Gull ST",   tipo: "automatico", mano: true,  arresto: true,  data: true,  giorno: false, riserva: 42,   ah: 21600, fonte: "comunita" },
   { id: "seagull-vm",  marca: "Sea-Gull", nome: "Sea-Gull cronografo manuale", tipo: "cronografo", mano: true, arresto: false, data: false, giorno: false, riserva: 45, ah: 21600, fonte: "comunita" },
   { id: "generic-2813", marca: "Vari",     nome: "Cloni generici cinesi", tipo: "automatico", mano: true,  arresto: true,  data: true,  giorno: false, riserva: 40,   ah: 21600, fonte: "comunita" },
@@ -190,6 +267,9 @@ const CALIBRI = [
 
   /* Seiko alta gamma. */
   { id: "9S65", fam: "seiko-9s", nome: "Grand Seiko 9S65", giri: 55, fonte: "ufficiale" }, // grand-seiko.com
+  { id: "8L35", fam: "seiko-8l", nome: "Seiko 8L35", fonte: "ufficiale" }, // stessa ossatura del Grand Seiko 9S55, costruito nello stesso stabilimento ma senza il nome Grand Seiko
+  { id: "6139", fam: "seiko-chr-v", nome: "Seiko 6139 (Pogue)", fonte: "comunita" }, // niente carica manuale — eredita mano:false dalla famiglia, confermato dalla scheda, non un dato mancante
+  { id: "6138", fam: "seiko-chr-v", nome: "Seiko 6138 (Bullhead)", mano: true, fonte: "comunita" }, // a differenza del 6139, questo HA la carica manuale
   { id: "9S85", fam: "seiko-9s", nome: "Grand Seiko 9S85", ah: 36000, riserva: 55, fonte: "ufficiale" }, // grand-seiko.com
   { id: "5R65", fam: "seiko-5r", nome: "Spring Drive 5R65", fonte: "ufficiale" }, // grand-seiko.com: stesse specifiche del 9R65
   { id: "9R65", fam: "seiko-5r", nome: "Spring Drive 9R65", fonte: "ufficiale" }, // grand-seiko.com
@@ -234,6 +314,26 @@ const CALIBRI = [
   { id: "HEUER02", fam: "tagheuer-fam", nome: "TAG Heuer Heuer 02", fonte: "ufficiale" }, // tagheuer.com — nessuna parentela con lo Zenith El Primero nonostante lo stesso gruppo LVMH
   { id: "L888", fam: "longines-fam", nome: "Longines L888", fonte: "ufficiale" }, // manuale ufficiale longines.com — finestra data 20:00-03:00 dichiarata esplicitamente
   { id: "L888-5", fam: "longines-fam", nome: "Longines L888.5 (silicio, COSC)", fonte: "ufficiale" }, // stessa base del L888, spirale in silicio e certificazione COSC
+  { id: "TISSOTC07", fam: "tissot-c07-fam", nome: "Tissot Powermatic 80", scheda: "tissot-powermatic-80", fonte: "comunita" }, // Tissot non dichiara la sigla ETA sul proprio sito, le immagini ufficiali evitano di inquadrare l'incisione C07
+  { id: "H10", fam: "hamilton-c07-fam", nome: "Hamilton H-10", fonte: "comunita" }, // stessa base C07.611 di Certina, non dichiarata esplicitamente sulle pagine Hamilton
+  { id: "CERTINAC07", fam: "certina-c07-fam", nome: "Certina Powermatic 80", scheda: "certina-powermatic-80", fonte: "ufficiale" }, // certina.com — l'unico dei tre marchi che dichiara apertamente la sigla ETA e la tecnologia Nivachron
+  { id: "MIDOC07", fam: "mido-c07-fam", nome: "Mido Caliber 80", scheda: "mido-caliber-80", fonte: "ufficiale" }, // midowatches.com cita direttamente "ETA C07.621 base" nei propri comunicati — il più esplicito dei quattro marchi C07
+  { id: "FC303", fam: "fc-fam", nome: "Frederique Constant FC-303", scheda: "frederiqueconstant-fc-303", fonte: "ufficiale" }, // us.frederiqueconstant.com dichiara apertamente la base Sellita SW200-1; versioni più vecchie della stessa sigla montavano ETA 2824-2
+  { id: "RADOR763", fam: "rado-c07-fam", nome: "Rado R763", scheda: "rado-r763", fonte: "ufficiale" }, // rado.com/comunicati ufficiali citano "based on ETA C07.611" esplicitamente
+  { id: "ML115", fam: "ml-fam", nome: "Maurice Lacroix ML115", scheda: "mauricelacroix-ml115", fonte: "ufficiale" }, // base Sellita SW200-1 dichiarata apertamente; antiurto Incabloc invece del Novodiac standard del grado Special, motivo non chiarito da nessuna fonte
+  { id: "INOXAUTO", fam: "victorinox-fam", nome: "Victorinox I.N.O.X. Automatic", scheda: "victorinox-inox-automatic", fonte: "ufficiale" }, // victorinox.com dichiara "Sellita caliber SW200-1" per esteso; le linee gemelle Mechanical e Alliance montano basi ETA diverse, non coperte qui
+  { id: "BVL138", fam: "bulgari-fam", nome: "Bulgari BVL 138 Finissimo", scheda: "bulgari-bvl-138", fonte: "ufficiale" }, // manifattura vera, 2,23mm — record di sottigliezza automatico del 2017, superato pochi mesi dopo da Piaget
+  { id: "P900PUC", fam: "piaget-fam", nome: "Piaget 900P-UC (Altiplano Ultimate Concept)", scheda: "piaget-900p-uc", fonte: "ufficiale" }, // 2,00mm l'orologio intero, non solo il movimento — record diverso da quello Bulgari, misura diversa
+  { id: "UN118", fam: "un-fam", nome: "Ulysse Nardin UN-118", scheda: "ulyssenardin-un-118", fonte: "ufficiale" }, // scappamento DIAMonSIL senza lubrificazione — la gamma Diver più economica monta invece l'UN-816, base Sellita SW300
+  { id: "BREGUET777A", fam: "breguet-fam", nome: "Breguet 777A", scheda: "breguet-777a", fonte: "ufficiale" }, // dichiarato in-house ma nato come architettura Lemania, oggi gruppo Swatch — non ebauche esterno comprato oggi, ma nemmeno progetto Breguet puro dal principio
+  { id: "BLANCPAIN1315", fam: "blancpain-fam", nome: "Blancpain 1315", scheda: "blancpain-1315", fonte: "ufficiale" }, // 120 ore da tre bariletti in serie — la riserva più lunga di questo archivio; pagina di calibro dedicata blancpain.com/en/caliber/1315
+  { id: "BRCAL302", fam: "bellross-fam", nome: "Bell & Ross BR-CAL.302", scheda: "bellross-br-cal-302", fonte: "comunita" }, // base Sellita SW300-1, trasparenza a metà — dichiarata in comunicati e riviste ma non nel marketing standard del marchio
+  { id: "GO9214", fam: "glashutte-fam", nome: "Glashütte Original 92-14", scheda: "glashuetteoriginal-92-14", fonte: "ufficiale" }, // 2025, sostituisce il 90-02 con un salto da 42 a 100 ore di riserva; spirale in silicio ma produzione interna non confermata
+  { id: "DOXASUB", fam: "doxa-fam", nome: "Doxa SUB", scheda: "doxa-sub", fonte: "comunita" }, // uno dei marchi più opachi incontrati in archivio — "Swiss mechanical automatic" senza sigla nei materiali standard
+  { id: "GP01800", fam: "gp-fam", nome: "Girard-Perregaux GP01800", scheda: "girardperregaux-gp01800", fonte: "ufficiale" }, // manifattura verticale confermata su fonte diretta, non solo rivendicata; dati di marcia posizionali pubblicati
+  { id: "VULCAINV10", fam: "vulcain-fam", nome: "Vulcain V-10 (Cricket)", scheda: "vulcain-v-10", fonte: "ufficiale" }, // unico calibro dell'archivio con sveglia meccanica, bariletto separato per l'allarme — la doppia riserva resta solo in prosa, nessun campo dedicato
+  { id: "JLC953", fam: "jlc-mr-fam", nome: "Jaeger-LeCoultre 953", scheda: "jaegerlecoultre-953", fonte: "ufficiale" }, // prima ripetizione minuti vera dell'archivio — gong in cristallo saldati allo zaffiro, martelletto a trabucco
+  { id: "PATEK240HU", fam: "patek-hu-fam", nome: "Patek Philippe 240 HU", scheda: "patek-240-hu", fonte: "ufficiale" }, // primo worldtimer vero dell'archivio con corona delle città rotante — non un GMT travestito
   { id: "ENG376", fam: "bremont-fam", nome: "Bremont ENG376", scheda: "bremont-eng300", fonte: "ufficiale" }, // bremont.com — base K1 svizzera (THE+), diritti acquistati e 80% ridisegnato in Inghilterra. Scheda d'archivio sotto il nome di famiglia ENG300, non ENG376: senza questo override i due id non si sarebbero mai agganciati
   { id: "ORIS400", fam: "oris-fam", nome: "Oris Calibre 400", fonte: "ufficiale" }, // oris.ch — resistenza magnetica 2.250 gauss e riserva 5 giorni, entrambi dati tecnici veri
   { id: "LUC9640L", fam: "chopard-fam", nome: "Chopard L.U.C 96.40-L", fonte: "ufficiale" }, // chopard.com — micro-rotore oro 22kt, Poinçon de Genève
@@ -332,12 +432,17 @@ const CALIBRI = [
   { id: "1304", fam: "journe-m", nome: "F.P.Journe 1304 (Chronomètre Souverain)", fonte: "comunita" },
   { id: "F6922", fam: "orient-f6", nome: "Orient F6922", finestra: [20, 4], fonte: "comunita" }, // calibercorner (già in bibliografia, non letta fino in fondo la prima volta): 20-4, più larga dei calibri Orient con la sola data perché qui c'è anche il giorno
   { id: "F6724", fam: "orient-f6", nome: "Orient F6724", fonte: "comunita" },
+  { id: "F7F44", fam: "orient-star-fam", nome: "Orient Star F7F44", fonte: "ufficiale" }, // orient-watch.com — non ha il Poinçon de Genève, solo finiture Côtes de Genève decorative
+  { id: "46943", fam: "orient-46-fam", nome: "Orient 46943", fonte: "comunita" }, // nessuna carica manuale: la corona non arma mai la molla su questo calibro
   { id: "9075", fam: "miyota-90", nome: "Miyota 9075 (GMT)", fonte: "ufficiale" }, // senso di carica: la scheda spec Miyota (uploads/product, non la pagina prodotto) dà la serie 90/91/6T in senso orario, opposto all'82/8N
   { id: "8215", fam: "miyota-82", nome: "Miyota 8215", giri: 40, fonte: "comunita" },
   { id: "8205", fam: "miyota-82", nome: "Miyota 8205", giorno: true, finestra: [21, 1], finestraGiorno: [1, 4.5], fonte: "ufficiale" }, // scheda tecnica Miyota 8205/8215/820A/821A: due finestre distinte, data 21-1 e giorno 1-4:30
+  { id: "82S5", fam: "miyota-82", nome: "Miyota 82S5 (open heart)", fonte: "ufficiale" }, // finestra sul bilanciere, secondi decentrati — arresto incerto secondo l'epoca di produzione, eredita false di famiglia
+  { id: "82S7", fam: "miyota-82", nome: "Miyota 82S7 (open heart, 24h)", fonte: "ufficiale" }, // come 82S5 con indicatore 24 ore aggiuntivo
 
   /* Miyota 9000 — la serie buona. */
   { id: "9015", fam: "miyota-90", nome: "Miyota 9015", fonte: "ufficiale" }, // senso di carica orario: stessa scheda spec Miyota trovata per il 9075, già fra le fonti di questa scheda e non letta fino in fondo
+  { id: "9039", fam: "miyota-90", nome: "Miyota 9039 (senza data)", data: false, fonte: "ufficiale" }, // il 9015 senza data, non la variante open-heart come si pensava all'inizio — quella è la famiglia 82S
   /* Lotto 12: cronografi al quarzo. 0S10/0S20/0S60 con lo zero, non la
      lettera O — sigla corretta contro l'errore diffuso fra i
      rivenditori. 0S20 eredita l'autonomia della famiglia (stessa

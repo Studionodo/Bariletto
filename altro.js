@@ -10,6 +10,7 @@
    solo i due tocchi del ripristino e la riga di esito sotto ai comandi. */
 let importoArmato = false;
 let esitoDati = null;      /* { testo, storto } */
+let notificheStato = null; /* null finché non risolto: "attivo" | "inattivo" | "non-supportato" | "rifiutato" | "errore" */
 
 /* Un titolo di sezione con l'icona info accanto — usato da tutte e
    cinque le sezioni di questa pagina, stessa struttura ogni volta. */
@@ -21,7 +22,7 @@ function titoloConInfo(classe, testo, titoloInfo, testoInfo) {
 
 function costruisciAltro() {
   const d = el("div", "colonna testo");
-  d.append(sezioneRegistro(), sezioneCollezione(), sezioneAttrezzi(), sezioneCarta(), sezioneDati());
+  d.append(sezioneRegistro(), sezioneCollezione(), sezioneAttrezzi(), sezioneCarta(), sezioneDati(), sezioneNotifiche());
   d.append(fondoLingua());
   return d;
 }
@@ -162,6 +163,38 @@ function scegliFileBackup() {
     disegna();
   };
   inp.click();
+}
+
+/* Notifiche: un interruttore solo, con tre esiti possibili invece di
+   un semplice sì/no — "non disponibile" e "permesso negato" sono
+   informazioni utili, non lo stesso silenzio di "spento". Lo stato
+   vero (notificheStato) arriva da un controllo asincrono fatto
+   all'avvio, dopo il primo disegno: non deve mai bloccare l'apertura
+   dell'app se il service worker è lento o assente. */
+function sezioneNotifiche() {
+  const s = el("section", "sezione utility");
+  s.append(titoloConInfo("gruppo", t("notif.gruppo"), t("info.notifiche.titolo"), [t("info.notifiche.testo1"), t("info.notifiche.testo2"), t("info.notifiche.testo3")]));
+  s.append(el("p", "nota", t("notif.nota")));
+
+  const etichetta = notificheStato === "attivo" ? t("notif.attivo")
+                   : notificheStato && notificheStato !== "inattivo"
+                   ? t("notif." + notificheStato)
+                   : t("notif.attiva");
+
+  const v = voceAttrezzo(etichetta, async () => {
+    if (notificheStato === "attivo") {
+      await disattivaNotifiche();
+      notificheStato = "inattivo";
+      disegna();
+      return;
+    }
+    const esito = await attivaNotifiche();
+    notificheStato = esito.ok ? "attivo" : esito.motivo;
+    disegna();
+  });
+  if (notificheStato === "attivo") v.classList.add("acceso");
+  s.append(v);
+  return s;
 }
 
 function fondoLingua() {

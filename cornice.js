@@ -283,6 +283,14 @@ async function avvio() {
     tingiBarra();
     registraAggiornamenti();
 
+    /* Fuori dal percorso critico apposta: se il service worker è lento,
+       assente, o la funzione non è supportata dal browser, l'app deve
+       comunque essere già aperta e usabile. Solo l'interruttore nella
+       pagina Registro nota la differenza, quando la promessa risolve. */
+    notificheAttive()
+      .then((attivo) => { notificheStato = attivo ? "attivo" : "inattivo"; disegna(); })
+      .catch(() => { notificheStato = "inattivo"; });
+
     setInterval(() => {
       const o = oraCorrente();
       if (document.documentElement.dataset.ora !== o) {
