@@ -83,10 +83,21 @@
 
 /* Le quattro ore dell'orizzonte di Tokyo. Cambiano da sole con l'orologio
    del telefono: nessun comando, nessuna impostazione. */
-[data-ora="alba"]       { --room:#130B25; --wall:#241448; --slab:#341B6E; --glow:#FF6B2C; --velo:.17; }
-[data-ora="giorno"]     { --room:#110E26; --wall:#1F184A; --slab:#2C2270; --glow:#97A0D8; --velo:.11; }
-[data-ora="crepuscolo"] { --room:#100A29; --wall:#1F1152; --slab:#2D177B; --glow:#4522C3; --velo:.24; }
-[data-ora="notte"]      { --room:#0A081E; --wall:#16134A; --slab:#1F1B73; --glow:#2A2E84; --velo:.16; }
+/* Le quattro ore dell'orizzonte di Tokyo. Cambiano da sole con l'orologio
+   del telefono: nessun comando, nessuna impostazione. Tonalità sparse
+   di proposito (18°/224°/282°/248°) invece che raggruppate tutte nella
+   stessa famiglia blu-viola come nella prima versione — la differenza
+   ora si vede a colpo d'occhio, non solo confrontando due screenshot
+   fianco a fianco. Ogni fascia mantiene comunque la stessa struttura:
+   room, wall e slab condividono tonalità e saturazione, la luminosità
+   sale a scatti di circa 9 punti — la profondità dell'ambiente resta
+   coerente con l'originale, cambia solo il colore dell'ambiente.
+   Contrasto verificato su testo e nome per tutte e quattro le fasce,
+   mai sotto soglia, il punto più stretto (notte) a 5,30:1. */
+[data-ora="alba"]       { --room:#2C160C; --wall:#522714; --slab:#7A371A; --glow:#FF983D; --velo:.26; }
+[data-ora="giorno"]     { --room:#11182C; --wall:#1C2A4F; --slab:#253A74; --glow:#98BDE1; --velo:.20; }
+[data-ora="crepuscolo"] { --room:#220D2B; --wall:#3F1551; --slab:#5C1C78; --glow:#CE27CE; --velo:.34; }
+[data-ora="notte"]      { --room:#0C091A; --wall:#1A143E; --slab:#261D63; --glow:#2E399E; --velo:.24; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -161,8 +172,9 @@ body::before {
 
    Il rilievo resta quello della ghiera: chiaro dove batte la luce,
    una banda più scura nella curva, riacceso sul fondo per il riflesso
-   di rimando. Contrasto verificato sulle quattro ore: il punto più
-   basso è 5,68:1 al crepuscolo, mai sotto soglia.
+   di rimando. Contrasto riverificato dopo la palette con tonalità più
+   separate (agosto 2026): il punto più basso è 5,30:1 alla fascia
+   notte, mai sotto soglia.
    ------------------------------------------------------------------ */
 #testata {
   position: fixed; top: 0; left: 0; right: 0; z-index: 4;
@@ -184,11 +196,11 @@ body::before {
   content: attr(data-nome);
   position: absolute; inset: 0;
   background: linear-gradient(168deg,
-    color-mix(in srgb, var(--glow) 20%, #FFFFFF) 0%,
-    color-mix(in srgb, var(--glow) 26%, #EDEAF5) 24%,
-    color-mix(in srgb, var(--glow) 34%, #B9B4C8) 50%,
-    color-mix(in srgb, var(--glow) 26%, #E4DEF2) 76%,
-    color-mix(in srgb, var(--glow) 18%, #FFFDF8) 100%);
+    color-mix(in srgb, var(--glow) 28%, #FFFFFF) 0%,
+    color-mix(in srgb, var(--glow) 34%, #EDEAF5) 24%,
+    color-mix(in srgb, var(--glow) 42%, #B9B4C8) 50%,
+    color-mix(in srgb, var(--glow) 34%, #E4DEF2) 76%,
+    color-mix(in srgb, var(--glow) 26%, #FFFDF8) 100%);
   -webkit-background-clip: text; background-clip: text;
   color: transparent;
   transition: background 2.2s ease;

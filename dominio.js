@@ -105,7 +105,20 @@ function normalizza(o) {
     ultimaLuce: istante(o.ultimaLuce),
     ultimoCrono: istante(o.ultimoCrono),
     ultimaCarica: istante(o.ultimaCarica),
+    dataAcquisto: istante(o.dataAcquisto),
+    ultimaRevisione: istante(o.ultimaRevisione),
   };
+}
+
+/* La prossima revisione consigliata: un intervallo fisso di tre anni,
+   calcolato dall'ultima revisione se la conosci, altrimenti dalla data
+   di acquisto. Nessuna lettura dall'archivio per calibro: è la stessa
+   stima per tutti, dichiarata come tale, non una scadenza precisa. */
+function prossimaRevisione(o) {
+  const base = o.ultimaRevisione ?? o.dataAcquisto;
+  if (base == null) return null;
+  const treAnniMs = 3 * 365.25 * 24 * 3600000;
+  return base + treAnniMs;
 }
 
 /* ====================== la logica del custode ===================== */

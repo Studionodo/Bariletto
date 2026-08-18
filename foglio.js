@@ -366,8 +366,11 @@ function apriScheda(esistente, modo) {
     ? { id: esistente.id, nome: esistente.nome, linea: esistente.linea,
         calibro: noto ? esistente.calibro : null,
         manuale: noto ? null : suoi,
+        dataAcquisto: esistente.dataAcquisto ?? null,
+        ultimaRevisione: esistente.ultimaRevisione ?? null,
         conferma: false }
-    : { nome: "", linea: "", calibro: null, manuale: null, conferma: false };
+    : { nome: "", linea: "", calibro: null, manuale: null,
+        dataAcquisto: null, ultimaRevisione: null, conferma: false };
   const velo = el("div"); velo.id = "velo";
   const foglio = el("div"); foglio.id = "foglio";
   velo.append(foglio);
@@ -457,6 +460,12 @@ function disegnaScheda(filtro = "") {
   else if (bozza.calibro) { schedaScelto(corpo); }
   else { schedaRicerca(corpo, filtro); }
 
+  corpo.append(el("span", "gruppo", t("s.manutenzione")));
+  corpo.append(campoData(t("s.acquisto"), bozza.dataAcquisto,
+                         (v) => { bozza.dataAcquisto = v; }, t("s.facoltativo")));
+  corpo.append(campoData(t("s.revisione"), bozza.ultimaRevisione,
+                         (v) => { bozza.ultimaRevisione = v; }, t("s.facoltativo")));
+
   /* Il salvataggio sta in un piede fisso: con la tastiera aperta e un
      elenco lungo, un bottone in fondo al foglio non si raggiunge più. */
   const piede = el("div", "foglio-piede");
@@ -487,6 +496,22 @@ function schedaDettaglio(corpo) {
   riga(t("st.riserva"), etichettaRiserva(o, true));
   if (o.ah) riga(t("ah"), o.ah.toLocaleString(locale()));
   corpo.append(dl);
+
+  /* Una lista a sé, non righe aggiunte a quella sopra: l'etichetta
+     "Prossima revisione consigliata" è molto più lunga delle altre
+     ("Riserva", "A/H"), e in una griglia condivisa la colonna delle
+     etichette si allarga per fare posto a quella più lunga — stringendo
+     la colonna dei valori al punto da far andare a capo "Seiko 7S26".
+     Due griglie separate non si influenzano a vicenda; dopo-corto dà
+     il margine che mancava quando erano solo due blocchi vicini. */
+  const prossima = prossimaRevisione(o);
+  if (prossima != null) {
+    const dlRev = el("dl", "spec dopo-corto");
+    dlRev.append(el("dt", null, t("st.prossimaRevisione")),
+                 el("dd", null, t("st.revisioneCirca", { anno: new Date(prossima).getFullYear() })));
+    corpo.append(dlRev);
+    corpo.append(el("p", "nota dopo-corto", t("nota.revisione")));
+  }
 
   /* Il ponte fra la scheda dell'orologio e l'archivio: le istruzioni brevi
      che l'app dà ogni giorno sono un riassunto, l'archivio è dove si va
@@ -568,6 +593,34 @@ function campo(etichetta, aiuto, valore, max, onCambia, nota) {
   const i = el("input", "campo");
   i.placeholder = aiuto; i.value = valore || ""; i.maxLength = max;
   i.oninput = () => onCambia(i.value);
+  w.append(cap, i);
+  return w;
+}
+
+/* Un timestamp non si scrive a mano in un input di tipo data: serve la
+   stringa AAAA-MM-GG che il browser si aspetta. Mezzogiorno fisso,
+   non mezzanotte: a mezzanotte un fuso orario a ovest di Greenwich
+   farebbe scivolare la data al giorno prima appena convertita. */
+function timestampADataInput(ts) {
+  if (ts == null) return "";
+  return new Date(ts).toISOString().slice(0, 10);
+}
+function dataInputATimestamp(s) {
+  if (!s) return null;
+  const t = new Date(s + "T12:00:00").getTime();
+  return Number.isFinite(t) ? t : null;
+}
+
+function campoData(etichetta, valore, onCambia, nota) {
+  const w = el("label", "campo-blocco");
+  const cap = el("span", "campo-etichetta");
+  cap.append(document.createTextNode(etichetta));
+  if (nota) cap.append(el("em", null, nota));
+  const i = el("input", "campo");
+  i.type = "date";
+  i.value = timestampADataInput(valore);
+  i.max = timestampADataInput(Date.now());
+  i.oninput = () => onCambia(dataInputATimestamp(i.value));
   w.append(cap, i);
   return w;
 }
@@ -832,6 +885,8 @@ async function salvaBozzaOra() {
   } else {
     o = daCalibro(bozza.calibro, bozza.nome.trim(), bozza.linea.trim());
   }
+  o.dataAcquisto = bozza.dataAcquisto ?? null;
+  o.ultimaRevisione = bozza.ultimaRevisione ?? null;
   /* Modificando, l'orologio resta lo stesso: id e date non si toccano. */
   if (vecchio) {
     o.id = vecchio.id;
