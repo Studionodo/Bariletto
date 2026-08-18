@@ -64,12 +64,20 @@ function costruisciOggi() {
      indovinata: si adatta da solo a schermi di dimensioni diverse. */
   if (!classifica.length) {
     d.classList.add("vuoto-pieno");
+    /* Prima il gruppo stava in cima, con tutto il vuoto sotto: il
+       messaggio più importante della schermata finiva schiacciato in
+       alto. Due spaziatori invisibili (flex:1 ciascuno) intorno al
+       gruppo lo mettono nel centro vero dello spazio sopra la
+       presentazione — non un margine indovinato, uno spazio che si
+       ricalcola da solo a ogni dimensione di schermo. */
+    d.append(el("div", "vuoto-spaziatore"));
     const gruppoAlto = el("div", "vuoto-gruppo-alto");
     gruppoAlto.append(el("p", "vuoto dopo", t("vuoto.oggi")));
     const agg = el("button", "azione secondaria dopo", t("aggiungi"));
     agg.onclick = () => apriScheda();
     gruppoAlto.append(agg);
-    d.append(gruppoAlto, el("p", "presentazione-vuoto", t("vuoto.presentazione")));
+    d.append(gruppoAlto, el("div", "vuoto-spaziatore"),
+             el("p", "presentazione-vuoto", t("vuoto.presentazione")));
     return d;
   }
 

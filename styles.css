@@ -445,7 +445,7 @@ h1.nome.tagliato {
 }
 .vuoto {
   font-family: var(--display); font-variation-settings: 'opsz' 20;
-  font-weight: 300; font-size: 1.0625rem; color: var(--argento-off); line-height: 1.6;
+  font-weight: 400; font-size: 1.0625rem; color: var(--argento); line-height: 1.6;
 }
 /* ------------------------------------------------------------------
    La scala. Prima i tre livelli stavano a 19, 16 e 15 pixel, tutti di
@@ -508,10 +508,18 @@ h1.nome.tagliato {
    si avvicinano invece di sovrapporsi: min-height si accorcia da sé se
    il contenuto reale supera lo spazio, la pagina scorre come sempre. */
 .vuoto-pieno {
-  min-height: min(calc(100dvh - var(--alta-testata) - var(--alta-indice)), 560px);
-  justify-content: space-between;
+  min-height: calc(100dvh - var(--alta-testata) - var(--alta-indice));
   padding-top: var(--s5); padding-bottom: var(--s5);
 }
+/* Il tetto sta qui, non sul contenitore: prima limitavo l'intero blocco
+   a 560px, e su uno schermo normale (non solo su quelli molto alti)
+   quel tetto scattava comunque, lasciando il contenitore più corto
+   dello spazio vero — il messaggio finiva schiacciato in alto invece
+   che al centro. Ora il contenitore riempie sempre tutto lo spazio
+   reale; solo i due spaziatori smettono di crescere oltre 220px
+   ciascuno, e solo su schermi eccezionalmente alti se ne accorge
+   qualcuno. */
+.vuoto-spaziatore { flex: 1 1 0; max-height: 220px; }
 .presentazione-vuoto {
   font-size: .8125rem; line-height: 1.6; color: var(--argento-off);
   max-width: 320px; text-wrap: balance;
@@ -958,7 +966,7 @@ h1.nome.tagliato {
   background: var(--wall);
 }
 .foglio-piede .azione { width: 100%; margin: 0; }
-.foglio-piede.due { display: flex; gap: var(--s2); align-items: center; }
+.foglio-piede.due { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
 .foglio-piede.due .azione { flex: 1 1 auto; }
 /* L'avviso sulla cascata del registro, sopra i bottoni del dettaglio:
    stesso padding laterale del piede, senza il suo bordo — è un'aggiunta
@@ -1078,7 +1086,18 @@ h1.nome.tagliato {
   transition: color .25s ease, border-color .25s ease, background .25s ease;
 }
 .pericolo.armato { color: #FFD9C6; border-color: rgba(255,107,44,.55); background: rgba(255,107,44,.14); }
-.pericolo-quieto { flex: 0 0 auto; color: var(--argento-off); }
+.pericolo-quieto {
+  /* flex: 0 0 auto (larghezza fissa) andava bene per "Elimina", ma al
+     secondo tocco il testo diventa "Tocca di nuovo per eliminare" — molto
+     più lungo. Prima soluzione (flex:0 1 auto) risolveva lo sconfino ma
+     lo stringeva a sei righe illeggibili, schiacciato accanto al bottone
+     principale. Con una base preferita di 170px e flex-wrap sul
+     contenitore, quando le due basi non stanno affiancate il bottone
+     lungo scende sulla propria riga intera, dove ha spazio per andare
+     a capo in modo leggibile (due righe, non sei). */
+  flex: 1 1 170px; min-width: 0; color: var(--argento-off);
+  white-space: normal; text-align: left;
+}
 .pericolo-quieto.armato { color: #FFD9C6; background: rgba(255,107,44,.16); }
 .blocco-elimina { margin-top: var(--s4); }
 
