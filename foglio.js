@@ -847,6 +847,11 @@ async function eliminaOrologioOra() {
   const daTogliere = registro.filter((v) => v.orologio === id);
   for (const v of daTogliere) await cancella("registro", v.id);
 
+  /* Se il controllo periodico aveva già mostrato una notifica per
+     questo orologio, resterebbe lì a parlare di qualcosa che non esiste
+     più — stessa funzione già usata dalle azioni quotidiane. */
+  ripulisciNotifica(id);
+
   orologi = await leggiTutti("orologi");
   registro = await leggiTutti("registro");
   if (scelto === id) scelto = null;

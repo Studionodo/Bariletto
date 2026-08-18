@@ -187,6 +187,20 @@ async function unaVolta(fn) {
 
 /* Ogni voce porta con sé lo stato di prima: senza, annullare significherebbe
    indovinare a che punto eravamo. Con, è una restituzione esatta. */
+/* Se il controllo periodico aveva già mostrato una notifica per questo
+   orologio, e ora l'hai indossato, caricato o azionato — il motivo di
+   quella notifica non c'è più. Lasciarla lì vorrebbe dire continuare a
+   dire una cosa non più vera finché non arriva il prossimo controllo,
+   che potrebbe essere ore dopo. Solo dove l'API esiste. */
+async function ripulisciNotifica(id) {
+  if (!("serviceWorker" in navigator) || !("Notification" in self)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const notifiche = await reg.getNotifications({ tag: "riserva-" + id });
+    notifiche.forEach((n) => n.close());
+  } catch (e) { /* nessuna notifica da ripulire, o API non disponibile */ }
+}
+
 async function segnaOra(o) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
@@ -202,6 +216,7 @@ async function segnaOra(o) {
   await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.portato", quando: ora, prima });
   registro = await leggiTutti("registro");
   scelto = o.id;
+  ripulisciNotifica(o.id);
   disegna();
 }
 
@@ -260,6 +275,7 @@ async function segnaCaricaOra(o) {
   await salva("orologi", o);
   await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.caricato", quando: ora, prima });
   registro = await leggiTutti("registro");
+  ripulisciNotifica(o.id);
   disegna();
 }
 
@@ -270,5 +286,6 @@ async function segnaCronoOra(o) {
   await salva("orologi", o);
   await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora });
   registro = await leggiTutti("registro");
+  ripulisciNotifica(o.id);
   disegna();
 }

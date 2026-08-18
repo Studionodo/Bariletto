@@ -28,9 +28,9 @@
 :root {
   /* Campionati dal quadrante del King Seiko SLA083: tinta 253, il blu-
      violetto profondo. Li riscrive [data-ora] appena lo script parte. */
-  --room:        #100A29;
-  --wall:        #1F1152;
-  --slab:        #2D177B;
+  --room:        #220D2B;
+  --wall:        #3F1551;
+  --slab:        #5C1C78;
   --quadrante:   #2F1688;
   --viola:       #9E89EC;
   --arancio:     #FF6B2C;
