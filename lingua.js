@@ -1,0 +1,427 @@
+/* ------------------------------------------------------------------
+   Lingua — italiano e inglese
+   Nessuna stringa visibile all'utente vive fuori da qui.
+   t("chiave", {parametri})   → testo
+   plurale(n, "sing", "plur") → singolare o plurale, secondo n
+   ------------------------------------------------------------------ */
+
+let LINGUA = "it";
+
+const VOCI = {
+  it: {
+    codice: "it-IT",
+    frase: "conta le ore che non guardi",
+
+    /* pareti */
+ collezione: "Collezione", registro: "Registro",
+    "oggi.nulla": "Nessuno chiede attenzione",
+    "coll.tutta": "La mia collezione", "coll.titolo": "Sfoglia la collezione", "coll.apri": "{n} · tocca per sfogliare tutto", "oggi.giaMesso": "al polso oggi",
+    "oggi.prossimoOra": "si ferma fra {q}",
+    "oggi.tuttiCarichi": "Tutti carichi e in orario",
+    "oggi.restano": "restano {q}",
+    "reg.periodo": "{n} · da {da}", "reg.attrezzi": "Attrezzi",
+    "reg.vediTutto": "Vedi tutto il registro ({n})",
+    "arch.apri": "Archivio dei movimenti ({n})", "arch.titolo": "Archivio",
+    "arch.cerca": "Cerca un calibro o una marca",
+    "arch.nulla": "Nessun calibro trovato.",
+    "arch.fatto": "Com'\u00e8 fatto", "arch.cura": "Come si cura",
+    "arch.normale": "Cosa \u00e8 normale", "arch.fonti": "Fonti",
+    "arch.indietro": "Indietro", "arch.leggi": "Leggi di pi\u00f9 su questo calibro",
+    "s.dettaglio": "L'orologio", "s.modificaVoce": "Modifica",
+
+    /* stati */
+    "stato.moto": "in moto", "stato.riserva": "in riserva",
+    "stato.fermo": "fermo", "stato.scarico": "scarico", "stato.azionare": "da azionare",
+
+    /* Oggi */
+    messo: "L'ho indossato", soloCaricato: "L'ho solo caricato",
+    "reg.caricato": "caricato a mano",
+    "m.manuale.scarico": "Non lo carichi da {g}: la riserva è di {r} ore. {n} giri di corona.",
+    "g.storia": "Le ultime volte",
+    "g.mai": "Mai portato", "g.oggi": "oggi", "g.ieri": "ieri", "g.faGiorni": "{g} fa",
+    annulla: "Non era vero, annulla",
+    "crono.fatto": "Ho anche azionato il cronografo",
+    "crono.segnato": "Cronografo azionato oggi",
+
+    "vuoto.oggi": "Non c'è ancora niente da mettere al polso.",
+    "vuoto.presentazione": "Bariletto tiene il conto delle ore che non guardi. Per ogni orologio automatico sa quanta riserva resta, e ti dice quando sta per fermarsi. Per un manuale, ricorda quando l'hai caricato l'ultima volta. Aggiungi la tua collezione, e ogni giorno l'app ti dice solo quello che conta davvero: cosa indossare oggi, cosa rischia di fermarsi domani.",
+
+    /* motivi */
+    "m.nuovo": "Appena aggiunto. Mettilo al polso una volta e comincio a tenerne il conto.",
+    "m.eco.fermo": "Fermo: {g} senza ricarica, e la riserva ne copre {l}.",
+    "m.eco.basso": "{g} al buio su {l} di autonomia. Una mattina sul davanzale basta.",
+    "m.kin.basso": "{g} senza movimento. Portalo mezza giornata e il condensatore si riprende.",
+    "m.carico": "Carico. Autonomia piena: {r}.",
+    "m.quarzo": "Al quarzo: non ha bisogno di te.",
+    "m.elettrico": "È elettrico, non ha bisogno di te.",
+    "m.elettrico.data": "Va da solo. Guarda solo che la data sia giusta.",
+    "m.diapason": "Il diapason vibra da solo, non ha bisogno di te.",
+    "m.diapason.data": "Va da solo. Guarda solo che la data sia giusta.",
+    "m.quarzo.data": "Va da solo. Guarda solo che la data sia giusta.",
+    "m.crono": "Il cronografo non gira da {g}. Falla lavorare, la frizione.",
+    "m.olio": "Fermo da {g}. Girando, l'olio torna dove deve stare.",
+    "m.scarico.mano": "Riserva esaurita: {r} ore, e non lo porti da {g}. {n} giri di corona.",
+    "m.scarico.scosse": "Riserva esaurita: {r} ore, e non lo porti da {g}. Non si carica a mano: va scosso.",
+    "m.quasi": "Gli restano circa {o}. Oggi o si ferma.",
+    "m.pieno": "Carico, ancora {o} di autonomia. Oggi puoi scegliere col cuore.",
+
+    /* Collezione */
+ aggiungi: "Aggiungi un orologio", "agg.breve": "Aggiungi", "agg.pieno": "Aggiungi nuovo orologio",
+
+    /* Il gesto */
+    "g.eco.1": "Si ricarica con la luce, non con la corona. Il sole diretto vale cento volte una lampada.",
+    "g.eco.2": "A carica piena regge {r}. Dietro un vetro rende la metà.",
+    "g.eco.3": "Se la lancetta dei secondi salta di due, la riserva è agli sgoccioli.",
+    "g.kin.1": "Non è solare e non è automatico: il movimento del polso carica un condensatore.",
+    "g.kin.2": "A pieno regge {r}. Il condensatore invecchia: dopo anni si sostituisce.",
+    "g.kin.3": "Se è fermo del tutto, mezza giornata al polso prima di rimetterlo all'ora.",
+    "g.q.1": "Non chiede niente. Quando i secondi iniziano a saltare di due, la pila sta finendo.",
+    "g.q.2": "Nei mesi da trenta giorni la data va corretta a mano il primo del mese.",
+    "g.elt.1": "Non si carica: funziona a batteria, non ha una molla da mandare in tensione.",
+    "g.elt.2": "Se è rimasto fermo a lungo, non limitarti a infilare una pila nuova: i contatti possono essersi ossidati, e mandarci corrente rischia più che aiutare — fallo controllare da chi conosce questo calibro.",
+    "g.dia.1": "Non si carica: un diapason elettronico lo tiene in moto, alimentato da una batteria — nessuna corona da girare per dargli energia.",
+    "g.dia.2": "Non forzare mai la corona: alcuni Accutron hanno un meccanismo di arresto che stacca fisicamente un pezzo quando la estrai — un movimento brusco può danneggiarlo.",
+    "g.tourbillon": "Il tourbillon è una gabbia in movimento esposta: evita urti diretti sulla cassa, più di quanto faresti su un tre lancette qualsiasi.",
+    "g.sd.1": "Non ha scappamento: la lancetta scivola, non batte. È normale che non faccia rumore.",
+    "g.sd.2": "Riserva di {r} ore. Sotto quella soglia rallenta prima di fermarsi.",
+    "g.mano": "{n} giri di corona in posizione di riposo. Riserva piena: {r} ore.",
+    "g.scosse": "Non si carica a mano. Se è fermo, venti scossoni laterali e poi al polso. Riserva: {r} ore.",
+    "g.data.24h": "Non correggere la data quando la lancetta delle 24 ore sta fra le 21 e l'1: il manuale guarda quella, non le lancette normali. Prima l'ora, poi la data.",
+    "g.data.90min": "La data si corregge in entrambi i sensi, avanti o indietro. La finestra proibita esiste comunque, ma dura solo novanta minuti, non quattro ore: il produttore la dichiara sulle proprie pagine.",
+    "g.indiretti": "I secondi arrivano con presa indiretta: il piccolo scatto irregolare è di serie, non è un guasto.",
+    "g.data": "Non toccare la data tra le {da} e le {a}: gli ingranaggi del calendario sono già in presa.",
+    "g.data.doppia": "Due finestre proibite, non una: non toccare la data tra le {da} e le {a}, non toccare il giorno tra le {da2} e le {a2}.",
+    "g.arresto": "I secondi si fermano tirando la corona: puoi sincronizzarlo al secondo.",
+    "g.nonArresto": "I secondi non si fermano. Sincronizzalo al minuto e lascia perdere il resto.",
+    "g.crono": "Non azionare i pulsanti sott'acqua. E non lasciare il cronografo in moto per giorni.",
+
+    /* modifica ed eliminazione */
+    "s.modifica": "Modifica l'orologio", modifica: "Modifica", "s.salvaMod": "Salva le modifiche",
+    elimina: "Elimina", "elimina.conferma": "Tocca di nuovo per eliminare",
+    "elimina.nota": "Sparisce dalla collezione, e con lui le voci che ha lasciato nel Registro.",
+
+    /* Registro */
+    voci: "voce", vociPl: "voci",
+    "reg.vuoto": "Qui resta traccia di ogni orologio che indossi.", "reg.apri": "{n} · tocca per vedere tutto",
+    "reg.rimuovi": "Rimuovi questa voce", "reg.confermaRimuovi": "Tocca di nuovo",
+    "reg.portato": "portato al polso",
+    lingua: "Lingua", caffe: "Offrimi un caffè",
+    "col.riga2": "Offline · Nessun account · Nessun dato raccolto",
+    "col.riga3": "© 2026 Istante Labs · Tutti i diritti riservati",
+    stampa: "Stampa la collezione", "stampa.reg": "Stampa il registro",
+    "st.periodo": "dal {da} al {a}", "st.solo": "una voce sola",
+    "st.azione": "Cosa", "st.quando": "Quando", "st.chi": "Orologio",
+    "st.stampato": "Stampato il {d}", "st.orologi": "{n} in collezione",
+    "st.gesti": "Il gesto", "st.dati": "Il movimento", "st.riserva": "Riserva",
+    "agg.pronta": "C'è una versione nuova", "agg.ora": "Aggiorna",
+
+    /* scheda */
+    "s.titolo": "Aggiungi un orologio", chiudi: "Chiudi",
+    "info.apri": "Spiega: {v}",
+    "info.anello.titolo": "Come leggere l'anello",
+    "info.anello.testo1": "Il colore dell'anello ti dice subito a che punto è l'orologio, senza dover leggere altro.",
+    "info.anello.testo2": "Argento vuol dire che va tutto bene. Viola vuol dire che la riserva sta scendendo, oppure che l'orologio si è fermato. Arancio vuol dire che è scarico e aspetta la carica. Oro vuol dire che c'è un gesto preciso da fare.",
+    "info.anello.testo3": "Il numero \u00abA/H\u00bb indica quante volte al secondo si muove la lancetta dei secondi. Più è alto, più il movimento sembra scorrere liscio.",
+    "info.gesti.titolo": "Indossato, caricato, azionato",
+    "info.gesti.testo1": "Sono tre gesti diversi, e ognuno conta a modo suo.",
+    "info.gesti.testo2": "\u00abL'ho indossato\u00bb significa che oggi hai portato l'orologio al polso davvero.",
+    "info.gesti.testo3": "\u00abL'ho solo caricato\u00bb serve per un orologio manuale che tieni pronto ma non indossi oggi. La riserva riparte comunque, ma l'app sa che non l'hai portato.",
+    "info.gesti.testo4": "\u00abCronografo azionato\u00bb riguarda solo i pulsanti. Indossare l'orologio non basta: i pulsanti vanno usati ogni tanto, anche solo per farli funzionare bene.",
+    "info.registro.titolo": "Cos'è il registro",
+    "info.registro.testo1": "Il registro è un diario.",
+    "info.registro.testo2": "Ogni volta che segni un orologio come indossato, caricato o con il cronografo azionato, qui resta scritto quando e cosa hai fatto.",
+    "info.collezione.titolo": "La collezione per intero",
+    "info.collezione.testo1": "Sono gli stessi orologi che vedi scorrere nella pagina Oggi.",
+    "info.collezione.testo2": "Qui però stanno tutti insieme in un elenco, comodo da leggere dall'alto in basso invece che di lato.",
+    "info.archivio.titolo": "Cos'è l'archivio",
+    "info.archivio.testo1": "Questo archivio non riguarda i tuoi orologi.",
+    "info.archivio.testo2": "È una raccolta di informazioni su come si curano in generale i vari calibri, anche quelli che non possiedi ancora.",
+    "info.carta.titolo": "Perché la stampa",
+    "info.carta.testo1": "Qui puoi stampare i tuoi dati su carta, oppure salvarli in PDF.",
+    "info.carta.testo2": "Il documento contiene solo le informazioni che restano vere nel tempo. Non ci sono stati o date d'uso, perché cambiano troppo in fretta.",
+    "info.dati.titolo": "Backup ed esportazione",
+    "info.dati.testo1": "Puoi esportare un file con tutti i tuoi dati. Resta sul telefono, senza bisogno di nessun account.",
+    "info.dati.testo2": "Se lo ripristini, però, tutto quello che c'è oggi viene sostituito. Per questo l'app chiede di toccare due volte prima di procedere.",
+    senzaNome: "Senza nome", ignoto: "Movimento ignoto",
+    "s.nome": "Come lo chiami", "s.nomeAiuto": "Seiko SKX007",
+    "s.linea": "Riferimento o modello", "s.lineaAiuto": "Diver's 200m · SKX007J1",
+    "s.facoltativo": "facoltativo", "s.identita": "L'orologio",
+    "s.movimento": "Che movimento monta", "s.cerca": "4R36, Miyota 9015, Eco-Drive…",
+    "s.titoloRicerca": "Cerca il movimento", "s.cercaCatalogo": "Cerca nel catalogo ({n})",
+    "s.altriRisultati": "Altri risultati \u2192", "s.suggerimenti": "Potrebbe essere uno di questi",
+    "fonte.ufficiale": "dato dalla documentazione del produttore",
+    "fonte.comunita": "dato dai riferimenti di settore",
+    "fonte.derivato": "dato ereditato dalla famiglia, non verificato su questo calibro",
+    "fonte.correggi": "Se non torna, dichiaralo tu: quello che scrivi vince sempre.",
+    "s.famiglia": "tutta la famiglia", "s.manuale": "Non lo trovo: lo dichiaro io",
+    "s.nonTrovi": "Non lo trovi?",
+    "s.rimarchio": "Un produttore d\u00e0 spesso un codice proprio a un movimento che compra da un altro fabbricante: lo stesso calibro pu\u00f2 stare qui sotto un nome diverso. Se non lo trovi, dichiaralo \u2014 \u00e8 quello che fa anche l'orologiaio.",
+    "s.cambia": "Cambia movimento", "s.elenco": "Torna all'elenco",
+    "s.dichiara": "Dichiaralo tu", "s.salva": "Salva",
+    "s.movDichiarato": "Movimento dichiarato",
+    "s.riservaOre": "Riserva di carica, in ore", "s.riservaGiorni": "Riserva di carica, in giorni",
+    "s.nota": "Sta sul libretto o sul sito del produttore. È il numero da cui l'app capisce quando si fermerà.",
+    si: "sì", no: "no",
+    "s.carica": "Carica a mano", "s.secondi": "Arresto secondi", "s.calendario": "Calendario",
+    "s.mano": "Si carica a mano",
+    "s.crono": "Ha i pulsanti del cronografo",
+    "s.tourbillon": "Ha un tourbillon",
+    "s.arrestoLungo": "I secondi si fermano tirando la corona",
+    "s.giornoData": "Giorno e data", "s.data": "Ha la data", "s.soloData": "Data",
+    "s.giorno": "Ha il giorno della settimana", "s.noCal": "Nessun calendario",
+    "s.indiretti": "I secondi hanno un piccolo scatto irregolare",
+
+    /* tipi */
+    "t.automatico": "Automatico", "t.manuale": "Carica manuale", "t.cronografo": "Cronografo",
+    "t.ecodrive": "Solare", "t.kinetic": "Kinetic", "t.quarzo": "Quarzo",
+    "t.springdrive": "Spring Drive", "t.elettrico": "Elettrico", "t.diapason": "Diapason",
+
+    /* unità */
+    ora: "ora", orePl: "ore", giorno_: "giorno", giorniPl: "giorni",
+    mese: "mese", mesiPl: "mesi", riservaDi: "{v} di riserva", alQuarzo: "al quarzo",
+    aBatteria: "a batteria", aDiapason: "a diapason",
+    ah: "A/h", cal: "Cal.",
+
+    /* le due pagine */
+    "pag.oggi": "Oggi", "pag.altro": "Registro",
+    "pag.vai": "Vai a {n}",
+    "coll.scorri": "Scorri per vedere gli altri",
+
+    /* backup: sul dispositivo, in chiaro, senza account */
+    "bak.gruppo": "I tuoi dati",
+    "bak.esporta": "Esporta un backup",
+    "bak.importa": "Ripristina da un backup",
+    "bak.nota": "Il backup è un file che resta sul telefono: nessun account, nessuna nuvola. Serve se cambi dispositivo o se il browser svuota i dati.",
+    "bak.conferma": "Tocca di nuovo: sostituisce tutto",
+    "bak.fatto": "Backup salvato: {n} e {v}.",
+    "bak.letto": "Ripristinati {n} e {v}.",
+    "bak.errore": "Questo file non è un backup di Bariletto.",
+    "bak.vuoto": "Non c'è ancora niente da esportare.",
+    orologio_: "orologio", orologiPl: "orologi",
+
+    /* PDF: è la stampa del browser, dove si sceglie «Salva come PDF» */
+    "pdf.gruppo": "Su carta",
+    "pdf.nota": "Si apre la finestra di stampa: da lì scegli la stampante oppure «Salva come PDF».",
+
+    /* errori */
+    "err.archivio": "L'archivio non si è aperto. Succede se il browser è in navigazione privata: in quella modalità i dati non possono essere salvati.",
+  },
+
+  en: {
+    codice: "en-GB",
+    frase: "counts the hours you don't watch", collezione: "Collection", registro: "Log",
+    "oggi.nulla": "Nothing needs attention",
+    "coll.tutta": "My collection", "coll.titolo": "Browse the collection", "coll.apri": "{n} · tap to browse", "oggi.giaMesso": "worn today",
+    "oggi.prossimoOra": "stops in {q}",
+    "oggi.tuttiCarichi": "All wound and running",
+    "oggi.restano": "{q} left",
+    "reg.periodo": "{n} · since {da}", "reg.attrezzi": "Tools",
+    "reg.vediTutto": "See the whole log ({n})",
+    "arch.apri": "Movement archive ({n})", "arch.titolo": "Archive",
+    "arch.cerca": "Search a caliber or a brand",
+    "arch.nulla": "No caliber found.",
+    "arch.fatto": "How it's built", "arch.cura": "How to care for it",
+    "arch.normale": "What's normal", "arch.fonti": "Sources",
+    "arch.indietro": "Back", "arch.leggi": "Read more about this caliber",
+    "s.dettaglio": "The watch", "s.modificaVoce": "Edit",
+
+    "stato.moto": "running", "stato.riserva": "low",
+    "stato.fermo": "stopped", "stato.scarico": "wound down", "stato.azionare": "needs running",
+
+    messo: "Wearing it", soloCaricato: "I only wound it",
+    "reg.caricato": "wound by hand",
+    "m.manuale.scarico": "You haven't wound it in {g}: the reserve is {r} hours. {n} turns of the crown.",
+    "g.storia": "Recent history",
+    "g.mai": "Never worn", "g.oggi": "today", "g.ieri": "yesterday", "g.faGiorni": "{g} ago",
+    annulla: "That wasn't true, undo",
+    "crono.fatto": "I also ran the chronograph",
+    "crono.segnato": "Chronograph run today",
+
+    "vuoto.oggi": "Nothing to put on the wrist yet.",
+    "vuoto.presentazione": "Bariletto keeps track of the hours you don't watch. For every automatic watch it knows how much reserve is left, and tells you when it's about to stop. For a hand wound one, it remembers when you last wound it. Add your collection, and every day the app tells you only what actually matters: what to wear today, what risks stopping tomorrow.",
+
+    "m.nuovo": "Just added. Wear it once and I'll start keeping count.",
+    "m.eco.fermo": "Stopped: {g} without a charge, and the reserve covers {l}.",
+    "m.eco.basso": "{g} in the dark out of {l} of autonomy. One morning on the windowsill is enough.",
+    "m.kin.basso": "{g} without movement. Wear it half a day and the capacitor recovers.",
+    "m.carico": "Charged. Full autonomy: {r}.",
+    "m.quarzo": "Quartz: it doesn't need you.",
+    "m.elettrico": "It's electric: it doesn't need you.",
+    "m.elettrico.data": "It runs on its own. Just check the date is right.",
+    "m.diapason": "The tuning fork hums along on its own: it doesn't need you.",
+    "m.diapason.data": "It runs on its own. Just check the date is right.",
+    "m.quarzo.data": "It runs on its own. Just check the date is right.",
+    "m.crono": "The chronograph hasn't run in {g}. Put the clutch to work.",
+    "m.olio": "Stopped for {g}. Running it puts the oil back where it belongs.",
+    "m.scarico.mano": "Reserve spent: {r} hours, and you haven't worn it in {g}. {n} turns of the crown.",
+    "m.scarico.scosse": "Reserve spent: {r} hours, and you haven't worn it in {g}. No hand winding: shake it.",
+    "m.quasi": "About {o} left. Today, or it stops.",
+    "m.pieno": "Charged, {o} of autonomy left. Today you can choose with your heart.", aggiungi: "Add a watch", "agg.breve": "Add", "agg.pieno": "Add a new watch",
+
+    "g.eco.1": "It charges with light, not with the crown. Direct sun is worth a hundred lamps.",
+    "g.eco.2": "Fully charged it runs {r}. Behind glass it gets half as much.",
+    "g.eco.3": "If the seconds hand jumps in twos, the reserve is nearly out.",
+    "g.kin.1": "Neither solar nor automatic: your wrist charges a capacitor.",
+    "g.kin.2": "Full charge runs {r}. The capacitor ages: after some years it gets replaced.",
+    "g.kin.3": "If it has stopped completely, half a day on the wrist before setting the time.",
+    "g.q.1": "It asks nothing of you. When the seconds start jumping in twos, the cell is going.",
+    "g.q.2": "In thirty-day months the date needs setting by hand on the first.",
+    "g.elt.1": "No winding: it runs on a battery, no spring to tension.",
+    "g.elt.2": "If it's been stopped for a long time, don't just fit a new battery: the contacts may have corroded, and sending current through them risks more than it helps — have it checked by someone who knows this calibre.",
+    "g.dia.1": "No winding: an electronic tuning fork keeps it running, powered by a battery — no crown to turn for energy.",
+    "g.dia.2": "Never force the crown: some Accutrons have a stop mechanism that physically disengages a part when you pull it out — a rough motion can damage it.",
+    "g.tourbillon": "The tourbillon is an exposed moving cage: avoid direct knocks to the case, more than you would on an ordinary three-hander.",
+    "g.sd.1": "No escapement: the hand glides, it doesn't beat. Silence is normal.",
+    "g.sd.2": "{r} hours of reserve. Below that it slows before stopping.",
+    "g.mano": "{n} turns of the crown in the resting position. Full reserve: {r} hours.",
+    "g.scosse": "No hand winding. If it has stopped, twenty sideways shakes, then onto the wrist. Reserve: {r} hours.",
+    "g.data.24h": "Don't correct the date while the 24-hour hand sits between 9 PM and 1 AM: the manual reads that hand, not the main ones. Set the time first, then the date.",
+    "g.data.90min": "The date corrects in either direction, forward or back. The forbidden window still exists, but it's only ninety minutes, not four hours: the manufacturer states it on its own pages.",
+    "g.indiretti": "The seconds run through an indirect drive: the small uneven stutter is by design, not a fault.",
+    "g.data": "Don't touch the date between {da} and {a}: the calendar gears are already engaged.",
+    "g.data.doppia": "Two forbidden windows, not one: don't touch the date between {da} and {a}, and don't touch the day between {da2} and {a2}.",
+    "g.arresto": "The seconds stop when you pull the crown: you can set it to the second.",
+    "g.nonArresto": "The seconds don't stop. Set it to the minute and let the rest go.",
+    "g.crono": "Never use the pushers underwater. And don't leave the chronograph running for days.",
+
+    "s.modifica": "Edit the watch", modifica: "Edit", "s.salvaMod": "Save changes",
+    elimina: "Delete", "elimina.conferma": "Tap again to delete",
+    "elimina.nota": "It leaves the collection, and takes its Log entries with it.",
+
+    voci: "entry", vociPl: "entries",
+    "reg.vuoto": "Every watch you put on ends up here.", "reg.apri": "{n} · tap to see it all",
+    "reg.rimuovi": "Remove this entry", "reg.confermaRimuovi": "Tap again",
+    "reg.portato": "worn on the wrist",
+    lingua: "Language", caffe: "Buy me a coffee",
+    "col.riga2": "Offline · No account · No data collected",
+    "col.riga3": "© 2026 Istante Labs · All rights reserved",
+    stampa: "Print the collection", "stampa.reg": "Print the log",
+    "st.periodo": "from {da} to {a}", "st.solo": "a single entry",
+    "st.azione": "What", "st.quando": "When", "st.chi": "Watch",
+    "st.stampato": "Printed on {d}", "st.orologi": "{n} in the collection",
+    "st.gesti": "The gesture", "st.dati": "The movement", "st.riserva": "Reserve",
+    "agg.pronta": "A new version is ready", "agg.ora": "Update",
+
+    "s.titolo": "Add a watch", chiudi: "Close",
+    "info.apri": "Explain: {v}",
+    "info.anello.titolo": "How to read the ring",
+    "info.anello.testo1": "The ring's colour tells you right away where the watch stands, without reading anything else.",
+    "info.anello.testo2": "Silver means all is well. Purple means the reserve is dropping, or the watch has stopped. Orange means it's wound down and waiting to be charged. Gold means there's a specific action to take.",
+    "info.anello.testo3": "The \u00abvph\u00bb number shows how many times a second the seconds hand moves. The higher it is, the smoother the motion looks.",
+    "info.gesti.titolo": "Worn, wound, or run",
+    "info.gesti.testo1": "These are three different actions, and each one counts in its own way.",
+    "info.gesti.testo2": "\u00abI wore it\u00bb means you actually had the watch on your wrist today.",
+    "info.gesti.testo3": "\u00abI only wound it\u00bb is for a hand wound watch you keep ready but aren't wearing today. The reserve resets anyway, but the app knows you didn't wear it.",
+    "info.gesti.testo4": "\u00abChronograph run\u00bb is only about the pushers. Wearing the watch isn't enough: the pushers need using now and then, just to keep them working well.",
+    "info.registro.titolo": "What the log is",
+    "info.registro.testo1": "The log is a diary.",
+    "info.registro.testo2": "Every time you mark a watch as worn, wound, or with the chronograph run, it's written down here, with when and what you did.",
+    "info.collezione.titolo": "The whole collection",
+    "info.collezione.testo1": "These are the same watches you see scrolling on the Today page.",
+    "info.collezione.testo2": "Here they're all together in a list, easy to read from top to bottom instead of sideways.",
+    "info.archivio.titolo": "What the archive is",
+    "info.archivio.testo1": "This archive isn't about your watches.",
+    "info.archivio.testo2": "It's a collection of information on how calibres are cared for in general, even ones you don't own yet.",
+    "info.carta.titolo": "Why printing",
+    "info.carta.testo1": "Here you can print your data on paper, or save it as a PDF.",
+    "info.carta.testo2": "The document only contains information that stays true over time. There are no states or usage dates, because those change too fast.",
+    "info.dati.titolo": "Backup and export",
+    "info.dati.testo1": "You can export a file with all your data. It stays on your phone, no account needed.",
+    "info.dati.testo2": "If you restore it, though, everything that's there today gets replaced. That's why the app asks for a second tap before going ahead.",
+    senzaNome: "Unnamed", ignoto: "Unknown movement",
+    "s.nome": "What you call it", "s.nomeAiuto": "Seiko SKX007",
+    "s.linea": "Reference or model", "s.lineaAiuto": "Diver's 200m · SKX007J1",
+    "s.facoltativo": "optional", "s.identita": "The watch",
+    "s.movimento": "Which movement it runs", "s.cerca": "4R36, Miyota 9015, Eco-Drive…",
+    "s.titoloRicerca": "Search for the movement", "s.cercaCatalogo": "Search the catalog ({n})",
+    "s.altriRisultati": "More results \u2192", "s.suggerimenti": "Could be one of these",
+    "fonte.ufficiale": "from the maker's own documentation",
+    "fonte.comunita": "from industry references",
+    "fonte.derivato": "inherited from the family, not verified on this caliber",
+    "fonte.correggi": "If it doesn't match, declare it yourself: what you write always wins.",
+    "s.famiglia": "the whole family", "s.manuale": "Can't find it: I'll declare it myself",
+    "s.nonTrovi": "Can't find it?",
+    "s.rimarchio": "A brand often gives its own code to a movement it buys from another maker: the same calibre may be here under a different name. If you can't find it, declare it \u2014 that's what a watchmaker does too.",
+    "s.cambia": "Change movement", "s.elenco": "Back to the list",
+    "s.dichiara": "Declare it yourself", "s.salva": "Save",
+    "s.movDichiarato": "Declared movement",
+    "s.riservaOre": "Power reserve, in hours", "s.riservaGiorni": "Power reserve, in days",
+    "s.nota": "It's in the manual or on the maker's site. It's the number the app uses to know when it will stop.",
+    si: "yes", no: "no",
+    "s.carica": "Hand winding", "s.secondi": "Hacking seconds", "s.calendario": "Calendar",
+    "s.mano": "Hand winding",
+    "s.crono": "Has chronograph pushers",
+    "s.tourbillon": "Has a tourbillon",
+    "s.arrestoLungo": "The seconds stop when you pull the crown",
+    "s.giornoData": "Day and date", "s.data": "Has a date", "s.soloData": "Date",
+    "s.giorno": "Has the day of the week", "s.noCal": "No calendar",
+    "s.indiretti": "The seconds have a small uneven stutter",
+
+    "t.automatico": "Automatic", "t.manuale": "Hand wound", "t.cronografo": "Chronograph",
+    "t.ecodrive": "Solar", "t.kinetic": "Kinetic", "t.quarzo": "Quartz",
+    "t.springdrive": "Spring Drive", "t.elettrico": "Electric", "t.diapason": "Tuning fork",
+
+    ora: "hour", orePl: "hours", giorno_: "day", giorniPl: "days",
+    mese: "month", mesiPl: "months", riservaDi: "{v} of reserve", alQuarzo: "quartz",
+    aBatteria: "battery-powered", aDiapason: "tuning fork",
+    ah: "vph", cal: "Cal.",
+
+    "pag.oggi": "Today", "pag.altro": "Log",
+    "pag.vai": "Go to {n}",
+    "coll.scorri": "Scroll to see the others",
+
+    "bak.gruppo": "Your data",
+    "bak.esporta": "Export a backup",
+    "bak.importa": "Restore from a backup",
+    "bak.nota": "The backup is a file that stays on your phone: no account, no cloud. You'll need it if you change device or the browser clears its data.",
+    "bak.conferma": "Tap again: this replaces everything",
+    "bak.fatto": "Backup saved: {n} and {v}.",
+    "bak.letto": "Restored {n} and {v}.",
+    "bak.errore": "This file is not a Bariletto backup.",
+    "bak.vuoto": "There is nothing to export yet.",
+    orologio_: "watch", orologiPl: "watches",
+
+    "pdf.gruppo": "On paper",
+    "pdf.nota": "The print dialog opens: from there pick a printer or \u201cSave as PDF\u201d.",
+
+    "err.archivio": "The archive did not open. This happens in private browsing: in that mode data cannot be saved.",
+  },
+};
+
+function t(chiave, par) {
+  let s = (VOCI[LINGUA] && VOCI[LINGUA][chiave]) ?? VOCI.it[chiave] ?? chiave;
+  if (par) for (const k in par) s = s.split("{" + k + "}").join(par[k]);
+  return s;
+}
+
+/* Numero + unità, con il plurale giusto. In italiano "1 giorni" è un errore
+   che si nota; in inglese "1 days" pure. */
+function plurale(n, chiaveSing, chiavePlur) {
+  return n + " " + (n === 1 ? t(chiaveSing) : t(chiavePlur));
+}
+
+const locale = () => t("codice");
+function linguaPredefinita() {
+  const l = (navigator.language || "it").slice(0, 2).toLowerCase();
+  return l === "it" ? "it" : "en";
+}
+
+
+/* Il cambio di lingua scrive nello stato e ricostruisce tutto: cornice
+   compresa, altrimenti il nastro resterebbe nella lingua di prima. */
+async function cambiaLingua(k) {
+  if (k === LINGUA) return;
+  LINGUA = k;
+  document.documentElement.lang = k;
+  await salva("stato", { chiave: "lingua", valore: k });
+  costruisciCornice();
+  /* ridisegnaTutto() invece di disegna(): con un foglio dell'archivio
+     aperto — lista, o la scheda di un singolo movimento — cambiare
+     lingua doveva aggiornare anche quello, non solo le due pagine sotto.
+     Prima restava nella lingua di apertura finché non lo si richiudeva.
+     Le funzioni JS sono note per nome ovunque nel file una volta caricati
+     tutti gli script: al momento in cui questa viene davvero chiamata
+     (un tocco dell'utente), cornice.js è già stato letto per intero. */
+  ridisegnaTutto();
+  misuraAnello();
+}

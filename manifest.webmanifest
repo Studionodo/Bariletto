@@ -1,0 +1,18 @@
+{
+  "name": "Bariletto",
+  "short_name": "Bariletto",
+  "description": "Conta le ore che non guardi. Quale orologio mettere oggi, e cosa fargli.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16111F",
+  "theme_color": "#16111F",
+  "lang": "it",
+  "categories": ["lifestyle", "utilities"],
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

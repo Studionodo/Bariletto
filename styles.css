@@ -1,0 +1,1228 @@
+/* ------------------------------------------------------------------
+   Font di casa. Nessuna chiamata a Google: l'app funziona dalla prima
+   apertura anche senza rete, e nessuno sa cosa apri e quando.
+   Fraunces porta tutti e quattro gli assi — opsz, wght, SOFT, WONK.
+   ------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Fraunces';
+  src: url('./font/fraunces.woff2') format('woff2-variations');
+  font-weight: 100 900; font-style: normal; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+                 U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('./font/instrument-sans.woff2') format('woff2-variations');
+  font-weight: 400 700; font-style: normal; font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+                 U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F,
+                 U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------
+   Vanac — orizzonte di Tokyo
+   Viola respira · argento parla · arancio comanda
+   ------------------------------------------------------------------ */
+
+:root {
+  /* Campionati dal quadrante del King Seiko SLA083: tinta 253, il blu-
+     violetto profondo. Li riscrive [data-ora] appena lo script parte. */
+  --room:        #100A29;
+  --wall:        #1F1152;
+  --slab:        #2D177B;
+  --quadrante:   #2F1688;
+  --viola:       #9E89EC;
+  --arancio:     #FF6B2C;
+  /* Anche i grigi vengono dall'orologio: il metallo del Vanac sta a
+     tinta 220-240, freddo. Il contrasto fresco fra acciaio e quadrante
+     è metà del carattere di quell'orologio. */
+  --argento:     #E8E8EC;
+  --argento-off: #9297AD;
+  --oro:         #C9A96A;
+  /* La frase sotto il nome stava a #848C9C: sul fondo nudo passava, ma
+     sopra la luce d'ambiente all'alba scendeva a 2,9:1, sotto il minimo.
+     Questo valore sta a 7,4:1 sul fondo e resta sopra 4,5:1 anche nel
+     punto più chiaro della mesh. Discreta lo è ancora: non è il colore
+     che la fa sussurrare, è il corpo del carattere. */
+  --frase:       #9AA1B4;
+
+  --glow: #7C5CBF;
+  --velo: .22;
+
+  --display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --dati: 'Instrument Sans', -apple-system, system-ui, sans-serif;
+
+  /* Scala verticale: 8 / 12 / 16 / 24 / 32. Niente numeri inventati. */
+  --s1: 8px; --s2: 12px; --s3: 16px; --s4: 24px; --s5: 32px;
+
+  --bordo: 26px;
+
+  /* Scala delle forme: tutto si arrotonda verso il cerchio dell'anello. */
+  --r-chip:   999px;
+  --r-lastra: 16px;
+  --r-foglio: 28px;
+  --r-premuto: 14px;
+
+  --molla:  cubic-bezier(.34, 1.42, .52, 1);
+  --molla-corta: cubic-bezier(.3, 1.3, .5, 1);
+  --piano:  cubic-bezier(.2, 0, 0, 1);
+
+  /* L'anello lo misura lo script sullo spazio che resta davvero. */
+  --anello: 248px;
+
+  /* Le due fasce fisse: testata sopra, indice delle pagine sotto. Le
+     legge anche lo script per calcolare quanto spazio resta all'anello. */
+  --alta-testata: 92px;
+  --alta-indice: 52px;
+
+  --trama: repeating-linear-gradient(180deg,
+      rgba(255,255,255,.030) 0px, rgba(255,255,255,.030) 1px,
+      transparent 1px, transparent 3px);
+}
+
+/* Le quattro ore dell'orizzonte di Tokyo. Cambiano da sole con l'orologio
+   del telefono: nessun comando, nessuna impostazione. */
+[data-ora="alba"]       { --room:#130B25; --wall:#241448; --slab:#341B6E; --glow:#FF6B2C; --velo:.17; }
+[data-ora="giorno"]     { --room:#110E26; --wall:#1F184A; --slab:#2C2270; --glow:#97A0D8; --velo:.11; }
+[data-ora="crepuscolo"] { --room:#100A29; --wall:#1F1152; --slab:#2D177B; --glow:#4522C3; --velo:.24; }
+[data-ora="notte"]      { --room:#0A081E; --wall:#16134A; --slab:#1F1B73; --glow:#2A2E84; --velo:.16; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Le dimensioni del testo sono in rem: se sul telefono alzi la dimensione
+   dei caratteri, l'app cresce con te. */
+html { font-size: 100%; }
+
+/* Lo scorrimento non vive più qui: vive dentro le due pagine. Questo
+   guscio sta fermo e non deve mai scorrere né in alto né di lato.
+   Nota storica: prima c'era overflow-x:hidden su html E su body, e per
+   la specifica ognuno dei due diventava un contenitore di scorrimento —
+   due, annidati, alti quanto lo schermo. Su Chrome Android il risultato
+   era che la pagina non scorreva affatto. */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--room);
+  color: var(--argento);
+  font-family: var(--dati);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 2.2s ease;
+}
+body { user-select: none; -webkit-user-select: none; }
+
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--arancio); outline-offset: 3px; }
+
+/* Velo sotto la testata: il contenuto le passa dietro scorrendo, e senza
+   questo l'anello si sovrapponeva al marchio, che è trasparente. */
+body::before {
+  content: ""; position: fixed; top: 0; left: 0; right: 0; z-index: 2;
+  height: calc(var(--alta-testata) + env(safe-area-inset-top));
+  background: linear-gradient(to bottom,
+    var(--room) 0%, var(--room) 68%,
+    color-mix(in srgb, var(--room) 55%, transparent) 86%,
+    transparent 100%);
+  pointer-events: none;
+}
+
+/* --- la luce della stanza: si muove al 10%, è tutto il trucco --- */
+#luce {
+  position: fixed; inset: -24%;
+  /* La morbidezza la fanno le fermate del gradiente, non un filtro: un
+     blur a tutto schermo è la prima cosa che scatta sui telefoni modesti. */
+  background: radial-gradient(60% 46% at 50% 22%,
+    color-mix(in srgb, var(--glow) 100%, transparent) 0%,
+    color-mix(in srgb, var(--glow) 62%, transparent) 22%,
+    color-mix(in srgb, var(--glow) 30%, transparent) 44%,
+    color-mix(in srgb, var(--glow) 11%, transparent) 64%,
+    transparent 84%);
+  opacity: var(--velo);
+  pointer-events: none;
+  transition: opacity 1.4s ease, background 1.4s ease;
+  transform: translateZ(0);
+}
+@supports not (background: color-mix(in srgb, red 50%, transparent)) {
+  #luce { background: radial-gradient(52% 40% at 50% 24%, var(--glow) 0%, transparent 72%); filter: blur(40px); }
+}
+#grana { position: fixed; inset: 0; background-image: var(--trama); opacity: .55; pointer-events: none; }
+
+
+/* ------------------------------------------------------------------
+   La testata: il nome che segue l'ora.
+
+   L'oro fisso stonava contro il fondo delle fasce fredde — a giorno
+   inoltrato, con --glow lavanda, un marchio sempre color miele
+   sembrava scollegato dal resto della stanza, che invece cambia atmosfera
+   da solo. Qui il gradiente nasce da --glow: caldo dov'è caldo (alba),
+   freddo dov'è freddo (giorno), senza una riga di logica in più — la
+   stessa variabile che già anima luce e velo ora tinge anche il nome.
+
+   Il rilievo resta quello della ghiera: chiaro dove batte la luce,
+   una banda più scura nella curva, riacceso sul fondo per il riflesso
+   di rimando. Contrasto verificato sulle quattro ore: il punto più
+   basso è 5,68:1 al crepuscolo, mai sotto soglia.
+   ------------------------------------------------------------------ */
+#testata {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 4;
+  padding: calc(13px + env(safe-area-inset-top)) var(--bordo) 10px;
+  pointer-events: none;
+}
+#marchio {
+  position: relative; z-index: 4; width: fit-content;
+  font-family: var(--display);
+  font-variation-settings: 'opsz' 144, 'SOFT' 22, 'WONK' 1;
+  font-weight: 500; font-size: 2.25rem; line-height: 1;
+  letter-spacing: -.022em;
+  color: transparent;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.6));
+  transition: filter 2.2s ease;
+  pointer-events: none;
+}
+#marchio::after {
+  content: attr(data-nome);
+  position: absolute; inset: 0;
+  background: linear-gradient(168deg,
+    color-mix(in srgb, var(--glow) 20%, #FFFFFF) 0%,
+    color-mix(in srgb, var(--glow) 26%, #EDEAF5) 24%,
+    color-mix(in srgb, var(--glow) 34%, #B9B4C8) 50%,
+    color-mix(in srgb, var(--glow) 26%, #E4DEF2) 76%,
+    color-mix(in srgb, var(--glow) 18%, #FFFDF8) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  transition: background 2.2s ease;
+}
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  #marchio { color: var(--oro); }
+  #marchio::after { display: none; }
+}
+#frase {
+  position: relative; z-index: 4;
+  margin-top: 3px; margin-left: 1px;
+  font-family: var(--display); font-variation-settings: 'opsz' 20;
+  font-weight: 300; font-size: .8125rem; letter-spacing: .012em;
+  color: var(--frase);
+  pointer-events: none;
+}
+
+
+/* ------------------------------------------------------------------
+   Il ponte: due pagine affiancate.
+
+   Scorrimento nativo con aggancio, non trascinamento calcolato a mano.
+   È la differenza sostanziale con le vecchie pareti: lì ogni gesto era
+   aritmetica nostra e ogni caso limite — dito che scivola, schermo che
+   ruota, contenuto che cambia sotto — andava previsto a mano. Qui il
+   gesto lo gestisce il browser, come su una galleria di foto.
+   ------------------------------------------------------------------ */
+#ponte {
+  position: relative; z-index: 1;
+  height: 100vh; height: 100dvh;
+  display: flex;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+}
+#ponte::-webkit-scrollbar { display: none; }
+
+.pagina {
+  flex: 0 0 100%; width: 100%; height: 100%;
+  scroll-snap-align: start; scroll-snap-stop: always;
+  overflow-y: auto; overflow-x: hidden;
+  /* Solo l'asse verticale. Con «contain» su entrambi — che è quello che
+     fa la forma corta della proprietà — il gesto orizzontale restava
+     dentro la pagina e non arrivava mai al ponte: il dito non cambiava
+     più pagina, e restavano solo le due linguette in fondo. */
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: auto;
+  scrollbar-width: none;
+  padding: calc(var(--alta-testata) + env(safe-area-inset-top)) 0
+           calc(var(--alta-indice) + var(--s4) + env(safe-area-inset-bottom));
+}
+.pagina::-webkit-scrollbar { display: none; }
+
+/* La colonna del contenuto. Il carosello ne esce apposta, per farsi
+   tagliare dal bordo dello schermo: vedi .carosello. */
+.colonna {
+  width: 100%; max-width: min(380px, 100%); margin: 0 auto;
+  padding: 0 var(--bordo);
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.colonna.testo { text-align: left; align-items: stretch; }
+
+
+/* ------------------------------------------------------------------
+   L'indice delle pagine: dice dove sei e ci porta.
+   Lo swipe da solo non si vede — due parole in fondo lo rendono
+   scopribile senza spiegazioni.
+   ------------------------------------------------------------------ */
+#indice {
+  position: fixed; z-index: 5;
+  left: 0; right: 0; bottom: 0;
+  height: calc(var(--alta-indice) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  display: flex; align-items: center; justify-content: center; gap: var(--s1);
+  background: linear-gradient(to top,
+    var(--room) 0%, var(--room) 55%,
+    color-mix(in srgb, var(--room) 60%, transparent) 82%,
+    transparent 100%);
+}
+.voce-indice {
+  position: relative;
+  min-height: 44px; padding: 0 var(--s4);
+  font-family: var(--dati); font-size: .6875rem; font-weight: 600;
+  letter-spacing: .20em; text-transform: uppercase;
+  color: var(--argento-off);
+  transition: color .3s var(--piano);
+}
+.voce-indice.acceso { color: var(--oro); }
+/* Il filo d'oro sotto la pagina attiva: lo stesso filetto del quadrante. */
+.voce-indice::after {
+  content: ""; position: absolute; left: 50%; bottom: 9px;
+  width: 0; height: 1px; background: var(--oro);
+  transform: translateX(-50%);
+  transition: width .34s var(--molla);
+}
+.voce-indice.acceso::after { width: 22px; }
+
+
+/* ------------------------------------------------------------------
+   L'anello incassato: scavato, non sollevato.
+   ------------------------------------------------------------------ */
+.anello {
+  width: var(--anello); height: var(--anello); border-radius: 50%;
+  flex: 0 0 auto;
+  margin: 0 auto; position: relative;
+  /* Il testo deve stare dentro il campo piatto, cioè entro 0,74 del
+     raggio: con la corona e gli indici lo spazio utile è meno del quadrato. */
+  padding: 0 calc(var(--anello) * .21);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  /* Il quadrante del Vanac non è liscio: scandendone una colonna si
+     contano 99 inversioni di luce, è rigato in orizzontale. Qui la
+     rigatura è finissima e a bassissimo contrasto: deve dare materia
+     senza disturbare il testo che ci sta sopra. */
+  background:
+    repeating-linear-gradient(to bottom,
+      rgba(255,255,255,.030) 0px, rgba(255,255,255,.030) 1px,
+      rgba(0,0,0,.045) 1px, rgba(0,0,0,.045) 3px),
+    radial-gradient(circle at 50% 38%,
+      color-mix(in srgb, var(--quadrante) 66%, var(--wall)) 0%,
+      color-mix(in srgb, var(--quadrante) 42%, var(--wall)) 44%,
+      color-mix(in srgb, var(--quadrante) 16%, var(--room)) 82%);
+  box-shadow:
+    inset 0 3px 18px rgba(0,0,0,.80),
+    inset 0 -1px 0 rgba(255,255,255,.10),
+    inset 0 1px 0 rgba(0,0,0,.55),
+    0 2px 10px rgba(0,0,0,.55),
+    0 1px 0 rgba(255,255,255,.045);
+}
+/* La ghiera in oro. Sul King Seiko l'oro è struttura, non accento:
+   l'8,6% del quadrante. Qui non copio l'anello dei minuti con le tacche
+   — sarebbe imitazione — prendo il colore e ne faccio un bisello di
+   metallo lavorato, con la luce che cade a 30° da destra come nel logo. */
+.anello::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  padding: calc(var(--anello) * .0085);
+  background: conic-gradient(from 300deg,
+    #6B5533 0deg, var(--oro) 42deg, #E4CE8C 78deg, #F0E4B0 100deg,
+    var(--oro) 140deg, #5A4629 205deg, #4A3A24 250deg,
+    #8A6E42 305deg, #6B5533 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+/* Il filetto interno: la seconda linea d'oro, che stacca la ghiera. */
+.anello::after {
+  content: ""; position: absolute; inset: calc(var(--anello) * .075); border-radius: 50%;
+  border: 1px solid rgba(201,169,106,.34);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.45);
+  pointer-events: none;
+}
+.anello.tocca { cursor: pointer; transition: transform .24s var(--molla-corta); }
+.anello.tocca:active { transform: scale(.97); }
+
+/* L'architettura del quadrante sta sotto al testo e non intercetta i tocchi. */
+.quadrante { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.stato-anello { display: block; margin-bottom: 6px; }
+.dato-anello { letter-spacing: .16em; }
+.dato-anello.secondario { opacity: .62; margin-top: 5px; }
+/* L'icona dell'anello sta fuori dal cerchio, non sopra il testo: il
+   quadrante deve restare leggibile senza un segno estraneo in mezzo.
+   Il calcolo la mette appena oltre il bordo dorato, in alto a destra,
+   qualunque sia la dimensione reale dell'anello sullo schermo. */
+.info-tocco.info-anello {
+  /* Terzo giro su questo calcolo, e stavolta l'ho fatto sulle
+     coordinate vere del riquadro, non su un'assunzione di dove sta il
+     centro. Con top:X e right:X su un contenitore quadrato di lato S,
+     il centro dell'icona (raggio r) sta a (S-X-r, X+r) dall'angolo in
+     alto a sinistra — non semplicemente a "R meno X" dal centro del
+     contenitore, come avevo assunto due volte. La distanza vera dal
+     centro è (R-X-r) * radice(2). Per ottenere un margine g tra il
+     bordo dell'icona e il bordo dorato: X = R - r - (R+r+g) / radice(2).
+     Verificato con un browser vero (Playwright, non calcolo a mano):
+     8px di distanza reale, letta con getBoundingClientRect(), a ogni
+     dimensione dell'anello. */
+  position: absolute;
+  top: calc(var(--anello) * .14645 - 24.44px);
+  right: calc(var(--anello) * .14645 - 24.44px);
+  background: var(--room);
+}
+/* Il bottone principale con l'icona accanto: una riga sola, centrata
+   come stava il bottone da solo prima. */
+.riga-azione-principale { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: var(--s4); }
+.riga-azione-principale .azione { margin-top: 0; }
+.riga-azione-secondaria { display: flex; align-items: center; gap: 4px; }
+.riga-azione-secondaria.centrata { justify-content: center; }
+/* Il titolo di sezione con l'icona info accanto: il margine sotto che
+   prima stava sul titolo stesso ora serve sulla riga che lo avvolge —
+   un flex item non spinge giù il resto della pagina da solo. Due
+   varianti perché .titolo-contenuto e .gruppo avevano margini diversi
+   fra loro, e la riga deve ricordarli entrambi. */
+.riga-titolo-sezione {
+  display: flex; align-items: center; gap: 4px; margin-bottom: var(--s3);
+}
+.riga-titolo-sezione.di-gruppo { margin-bottom: var(--s2); }
+.riga-titolo-sezione .titolo-contenuto,
+.riga-titolo-sezione .gruppo { margin-bottom: 0; }
+
+
+/* --- ritmo: le uniche classi di spaziatura, niente stili in linea --- */
+.dopo        { margin-top: var(--s4); }
+.dopo-corto  { margin-top: var(--s3); }
+.elenco      { margin-top: var(--s3); }
+.link-centro { display: block; margin-inline: auto; margin-top: var(--s3); }
+.link-centro.stretto { margin-top: var(--s2); }
+.data-oggi   { display: block; margin-bottom: var(--s3); }
+
+
+/* --- tipografia --- */
+.etichetta {
+  font-family: var(--dati); font-size: .75rem; font-weight: 500;
+  letter-spacing: .20em; text-transform: uppercase; color: var(--argento-off);
+}
+.etichetta.mini { font-size: .6875rem; }
+
+h1.nome {
+  font-family: var(--display); font-variation-settings: 'opsz' 120;
+  font-weight: 400; line-height: 1.12; letter-spacing: -.01em;
+  /* Un cerchio non perdona: una parola più larga del diametro uscirebbe
+     dai bordi. Qui si spezza invece di sfondare. */
+  overflow-wrap: anywhere; max-width: 100%;
+  font-size: clamp(1.125rem, calc(var(--anello) * .105), 1.75rem);
+  margin: clamp(7px, calc(var(--anello) * .045), 12px) 0 var(--s1);
+  color: var(--argento);
+}
+h1.nome.tagliato {
+  display: -webkit-box; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden;
+}
+.linea {
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: clamp(.75rem, calc(var(--anello) * .05), .875rem);
+  color: var(--argento-off); letter-spacing: .02em;
+}
+.filo {
+  width: 34px; height: 1px; background: rgba(201,169,106,.32);
+  margin: clamp(9px, calc(var(--anello) * .058), 16px) 0 clamp(7px, calc(var(--anello) * .045), 12px);
+}
+
+.motivo {
+  font-family: var(--display); font-variation-settings: 'opsz' 20;
+  font-weight: 300; font-size: 1.0625rem; line-height: 1.55;
+  color: var(--argento); opacity: .9; max-width: 320px; margin: 0 auto;
+}
+.motivo.secondario { font-size: .9375rem; opacity: .78; }
+.sotto-anello { margin-top: var(--s3); }
+.titolo-quiete {
+  font-family: var(--display); font-variation-settings: 'opsz' 48, 'SOFT' 18;
+  font-weight: 400; font-size: 1.25rem; line-height: 1.15;
+  color: var(--argento); margin-bottom: 6px;
+}
+.vuoto {
+  font-family: var(--display); font-variation-settings: 'opsz' 20;
+  font-weight: 300; font-size: 1.0625rem; color: var(--argento-off); line-height: 1.6;
+}
+/* ------------------------------------------------------------------
+   La scala. Prima i tre livelli stavano a 19, 16 e 15 pixel, tutti di
+   peso 400: tre misure a un passo l'una dall'altra non fanno gerarchia,
+   fanno una pagina piatta. Qui i salti sono netti — 24, 17, 15, 11, 9 —
+   e il peso cambia insieme alla misura, non solo il colore.
+
+   1. apertura di sezione   serif 24, peso 600, con filo d'oro e stacco
+   2. nome                  serif 17, peso 400
+   3. comando               sans 15, peso 500
+   4. meta                  sans 11, maiuscolo spaziato, spento
+   5. divisore di giornata  sans 9, oro spento, con la riga che continua
+   ------------------------------------------------------------------ */
+.titolo-sezione {
+  display: block;
+  font-family: var(--display);
+  font-variation-settings: 'opsz' 72, 'SOFT' 22, 'WONK' 1;
+  font-weight: 600; font-size: 1.5rem; line-height: 1.1;
+  letter-spacing: -.018em; color: var(--argento);
+  margin-bottom: var(--s1);
+}
+/* Il filo d'oro è lo stesso che sta dentro l'anello sotto il nome. Qui
+   è più lungo e più spesso: deve leggersi come «comincia un capitolo»,
+   non come un trattino decorativo. */
+.titolo-sezione::before {
+  content: ""; display: block; width: 34px; height: 1.5px;
+  background: var(--oro); opacity: .85;
+  margin-bottom: var(--s3);
+}
+.colonna:not(.testo) .titolo-sezione::before { margin-inline: auto; }
+/* Su Oggi l'eroe è l'anello, e il messaggio di stato che gli sta sotto
+   viene prima della collezione: col titolo a 24 pesante «La collezione»
+   superava «Nessuno chiede attenzione», che è la cosa da leggere per
+   prima. Stesso elemento, stesso filo d'oro, un gradino più giù. */
+.colonna:not(.testo) .titolo-sezione {
+  font-size: 1.25rem; font-weight: 500;
+  font-variation-settings: 'opsz' 48, 'SOFT' 20, 'WONK' 1;
+}
+
+/* La riga di contesto sotto il titolo: dice quanto e da quando. */
+.sotto-parete {
+  margin: 0 0 var(--s4);
+  font-family: var(--dati); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--argento-off);
+  opacity: .8;
+}
+
+.gruppo {
+  display: block; margin-bottom: var(--s2);
+  font-family: var(--dati); font-size: .6875rem; font-weight: 600;
+  letter-spacing: .20em; text-transform: uppercase; color: var(--oro); opacity: .78;
+}
+.gruppo:not(:first-child) { margin-top: var(--s5); }
+.nota { font-size: .8125rem; line-height: 1.55; color: var(--argento-off); }
+/* Lo stato vuoto della prima apertura: il contenitore prende tutto lo
+   spazio verticale reale disponibile — le stesse variabili che l'app
+   già usa altrove per calcolare quanto resta fra testata e indice, non
+   un numero indovinato — e distribuisce i due gruppi (messaggio+bottone,
+   presentazione) agli estremi. Su uno schermo molto basso i due gruppi
+   si avvicinano invece di sovrapporsi: min-height si accorcia da sé se
+   il contenuto reale supera lo spazio, la pagina scorre come sempre. */
+.vuoto-pieno {
+  min-height: calc(100dvh - var(--alta-testata) - var(--alta-indice));
+  justify-content: space-between;
+  padding-top: var(--s5); padding-bottom: var(--s5);
+}
+.presentazione-vuoto {
+  font-size: .8125rem; line-height: 1.6; color: var(--argento-off);
+  max-width: 320px; text-wrap: balance;
+}
+
+/* Titolo con un'azione a fianco, sempre raggiungibile senza scorrere —
+   nato per «La collezione» + il +, dove la sola carta in fondo al
+   carosello spariva dalla prima schermata appena la fila cresceva. */
+.titolo-riga {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  width: 100%;
+}
+/* Dentro la riga il titolo torna ad allinearsi a sinistra, e il filo
+   d'oro sparisce del tutto: qui il titolo sta accanto a un comando,
+   non apre un capitolo — il filo serviva a quello, qui era solo un
+   segno in più sopra un titolo già stretto per spazio. */
+.titolo-riga .titolo-sezione { margin-bottom: 0; }
+.titolo-riga .titolo-sezione::before { display: none; }
+
+/* Il comando per aggiungere. Prima era tutto oro — icona e testo —
+   accanto a un titolo argento: due colori diversi nella stessa riga,
+   uno sembrava "acceso" e l'altro no. Ora l'oro resta solo sull'icona,
+   un accento piccolo, mentre il testo prende lo stesso argento del
+   titolo: la riga si legge come una cosa sola, non due elementi che
+   competono. */
+.agg-rapida {
+  display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+  min-height: 40px; padding: 0 14px 0 12px; border-radius: var(--r-chip);
+  font-family: var(--dati); font-size: .75rem; font-weight: 600;
+  letter-spacing: .02em; color: var(--argento);
+  border: 1px solid rgba(232,232,236,.20);
+  background: rgba(232,232,236,.04);
+  transition: background .22s var(--piano), border-color .22s var(--piano),
+              transform .22s var(--molla-corta);
+}
+.agg-rapida svg { flex-shrink: 0; color: var(--oro); }
+.agg-rapida:active { background: rgba(232,232,236,.10); border-color: rgba(232,232,236,.32); transform: scale(.96); }
+
+
+/* --- l'arancio spetta solo al bottone che SCRIVE un dato --------------
+   «L'ho messo» e «Salva» impegnano: cambiano l'archivio. Cambiare pagina
+   o aprire una scheda no, e non possono vestirsi allo stesso modo.
+   --------------------------------------------------------------------- */
+.azione {
+  font-family: var(--dati); font-size: .75rem; font-weight: 600;
+  letter-spacing: .19em; text-transform: uppercase;
+  min-height: 48px; padding: 15px 38px; border-radius: var(--r-chip);
+  background: var(--arancio); color: #160D07;
+  border: 1px solid transparent;
+  box-shadow: 0 0 22px rgba(255,107,44,.16);
+  transition: border-radius .28s var(--molla), transform .28s var(--molla),
+              background .3s var(--piano), color .3s var(--piano),
+              border-color .3s var(--piano), box-shadow .3s var(--piano);
+}
+.azione[disabled] {
+  background: none; color: var(--argento-off);
+  border-color: rgba(155,149,172,.28); box-shadow: none; cursor: default;
+}
+.azione.secondaria {
+  background: none; color: var(--argento);
+  border-color: rgba(255,107,44,.42); box-shadow: none;
+}
+.azione.secondaria:active { background: rgba(255,107,44,.10); }
+.azione.larga { width: 100%; }
+/* Sotto il dito la pastiglia si squadra e rientra: è il gesto di
+   risposta di Android, e costa due righe. */
+.azione:not([disabled]):active { border-radius: var(--r-premuto); transform: scale(.975); }
+
+.quieta {
+  font-size: .8125rem; color: var(--argento-off); letter-spacing: .05em;
+  min-height: 48px; padding: 14px 12px; border-radius: var(--r-chip);
+  transition: background .22s var(--piano), transform .22s var(--molla-corta);
+  text-decoration: underline; text-underline-offset: 4px;
+  text-decoration-color: rgba(155,149,172,.35);
+}
+.quieta:active { background: rgba(255,255,255,.05); transform: scale(.97); }
+/* I due link sotto ai suggerimenti compatti (catalogo intero / dichiara
+   a mano): senza questo, due bottoni inline-block si mettono affiancati
+   invece che uno sotto l'altro. */
+.quieta.stretto { display: flex; width: fit-content; padding: 10px 12px; }
+.dopo-corto.esiti-link { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.sotto-etichetta-ricerca { display: block; margin-bottom: var(--s1); }
+
+
+/* ------------------------------------------------------------------
+   Il carosello della collezione.
+
+   Prima la collezione allungava la pagina di una riga per orologio.
+   Qui scorre di lato: la pagina resta della sua altezza, e la collezione
+   cresce senza spingere niente più in basso. Le carte escono dal bordo
+   dello schermo apposta — il taglio è quello che dice «ce ne sono altre».
+   ------------------------------------------------------------------ */
+.carosello {
+  display: flex; gap: 10px; width: calc(100% + var(--bordo) * 2);
+  overflow-x: auto; overflow-y: hidden;
+  /* Il carosello si tiene il proprio scorrimento: arrivato in fondo il
+     gesto non deve passare al ponte e cambiare pagina. È l'unico punto
+     dove serve, ed è qui che va — non sulla pagina intera. */
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* Misure fisse, non percentuali: le percentuali di scroll-padding si
+     risolvono su una base diversa da quelle di padding, e l'aggancio
+     cadeva quarantadue pixel più in là — la fila si presentava già
+     spostata, come se fosse stata scorsa da sola. */
+  margin-inline: calc(var(--bordo) * -1);
+  padding: 2px var(--bordo) var(--s2);
+  scroll-padding-left: var(--bordo);
+  scrollbar-width: none;
+}
+.carosello::-webkit-scrollbar { display: none; }
+
+.carta {
+  scroll-snap-align: start; flex: 0 0 auto;
+  width: 166px; min-height: 128px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 11px var(--s3); text-align: left;
+  border-radius: var(--r-lastra);
+  background: var(--slab); background-image: var(--trama);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 1px 2px rgba(0,0,0,.35);
+  transition: transform .22s var(--molla-corta);
+}
+.carta:active { transform: scale(.97); }
+.carta.al-polso { opacity: .74; box-shadow: inset 0 1px 0 rgba(201,169,106,.18); }
+.carta .pallino { margin-bottom: 8px; }
+/* Due righe sempre, anche quando il nome ne occupa una: senza, il filo
+   e i dati sotto stavano a due altezze diverse da una carta all'altra e
+   la fila sembrava sghemba. */
+.carta-nome {
+  font-family: var(--display); font-variation-settings: 'opsz' 24;
+  font-weight: 400; font-size: 1rem; line-height: 1.2; color: var(--argento);
+  display: -webkit-box; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+  min-height: 2.4em;
+}
+/* I dati stanno sul fondo della carta, non subito sotto il nome: così
+   sono in linea fra carte di contenuto diverso. */
+.carta .filo { margin: 8px 0; width: 28px; }
+.carta-dato {
+  font-family: var(--dati); font-size: .625rem; font-weight: 500;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--argento-off);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.carta-stato { margin-top: 4px; }
+.pallino { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+
+/* --- lastre: le righe piene, usate nelle liste dei fogli --- */
+.lastra {
+  display: flex; align-items: center; gap: 13px;
+  padding: 14px 16px; margin-bottom: 7px; border-radius: var(--r-lastra);
+  background: var(--slab); background-image: var(--trama);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 1px 2px rgba(0,0,0,.35);
+  text-align: left; width: 100%;
+}
+.lastra.riga-piena { display: grid; grid-template-columns: 5px minmax(0,1fr) 14px; gap: 13px; align-items: center; }
+.corpo-lastra { flex: 1; min-width: 0; }
+.titolo-lastra {
+  font-family: var(--display); font-variation-settings: 'opsz' 16; font-size: .9375rem;
+  color: var(--argento); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sotto-lastra {
+  display: flex; align-items: baseline; gap: 6px;
+  min-width: 0; white-space: nowrap; overflow: hidden;
+}
+.sotto-lastra > .etichetta:first-child { overflow: hidden; text-overflow: ellipsis; }
+.sotto-lastra .stato { flex-shrink: 0; }
+/* Prima a opacità .45/.5: sulla fascia oraria più chiara (giorno) il
+   contrasto scendeva a 1,99:1 e 2,16:1 — sotto qualunque soglia,
+   praticamente invisibili. Ricalcolato: serve almeno .90 per stare
+   sopra 4:1 anche nel caso peggiore. */
+.punto-sep { color: var(--argento-off); opacity: .92; font-size: .6875rem; flex-shrink: 0; }
+.freccia { color: var(--argento-off); opacity: .90; font-size: 1.1rem; line-height: 1; text-align: right; }
+
+
+/* ------------------------------------------------------------------
+   Pagina due: il registro ha spazio proprio, gli attrezzi stanno sotto.
+
+   Il passaggio da una sezione all'altra si vedeva solo come un vuoto:
+   niente diceva che il vuoto fosse un confine invece che una pausa.
+   Adesso il confine è una riga vera, e lo spazio è asimmetrico — molto
+   sopra il titolo, poco sotto — così il titolo appartiene a quello che
+   viene dopo e non galleggia in mezzo.
+   ------------------------------------------------------------------ */
+.sezione {
+  width: 100%; margin-top: 52px; padding-top: var(--s5);
+  border-top: 1px solid rgba(255,255,255,.09);
+}
+.sezione:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+/* Il livello utilità: le sezioni che seguono Attrezzi (Su carta, I tuoi
+   dati) stanno più vicine fra loro — sono lo stesso "cassetto", non
+   capitoli nuovi. Lo stacco grande resta solo prima di Attrezzi, dove
+   il registro cambia davvero da contenuto a strumenti. */
+.sezione.utility { margin-top: 30px; padding-top: var(--s4); }
+
+/* Il titolo di livello 1 — Registro, Sfoglia la collezione: quello che
+   è contenuto tuo, non uno strumento. Prima aveva lo stesso trattamento
+   di "Attrezzi" o "Su carta", solo con un trattino sopra: cinque titoli
+   identici per cinque cose di peso diverso. Qui cresce e basta — niente
+   trattino, il salto di misura è il segnale, non un ornamento. Le
+   sezioni di livello 2 usano .gruppo, lo stesso microscritto oro già
+   visto dentro i popup ("L'OROLOGIO", "CHE MOVIMENTO MONTA"): non un
+   secondo stile inventato, lo stesso vocabolario spostato qui. */
+.titolo-contenuto {
+  display: block;
+  font-family: var(--display); font-variation-settings: 'opsz' 96, 'WONK' 1;
+  font-weight: 650; font-size: 1.8125rem; line-height: 1.08;
+  letter-spacing: -.01em; color: var(--argento);
+  margin-bottom: var(--s3);
+}
+
+.riga {
+  display: flex; gap: 13px; padding: 15px 0; text-align: left;
+  border-top: 1px solid rgba(255,255,255,.055);
+}
+.riga:first-child { border-top: none; }
+.riga.fra { justify-content: space-between; align-items: center; }
+
+/* Il diario, per giornate. Il divisore porta con sé la riga che
+   continua a destra: è la forma che nessun titolo ha, e a colpo d'occhio
+   dice «un gruppo di righe» invece di «un capitolo nuovo». Prima aveva
+   lo stesso stile della sezione e la pagina sembrava una lista sola. */
+/* Il divisore di giornata: prima a opacità .62, scendeva a 3,57:1 nella
+   fascia più chiara — sotto la soglia per il testo piccolo. Portato a
+   .78, come gli altri accenti oro secondari (.gruppo, .attrezzo .freccia):
+   stesso livello in tutta l'app, non un valore isolato. */
+.giorno-diario {
+  display: flex; align-items: center; gap: 10px;
+  margin: var(--s5) 0 2px;
+  font-family: var(--dati); font-size: .5625rem; font-weight: 600;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--oro); opacity: .78;
+}
+.giorno-diario::after {
+  content: ""; flex: 1 1 auto; height: 1px;
+  background: linear-gradient(to right, rgba(201,169,106,.30), rgba(201,169,106,0));
+}
+.giorno-diario:first-of-type { margin-top: 0; }
+.voce-diario { align-items: center; }
+.voce-corpo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.voce-nome {
+  font-family: var(--display); font-variation-settings: 'opsz' 24;
+  font-weight: 400; font-size: 1.0625rem; line-height: 1.2; color: var(--argento);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* Il meta della voce: prima a opacità .6, scendeva a 2,87:1 — portato
+   a .88, sopra 4,5:1 anche nel caso peggiore. Resta comunque il
+   livello più basso della gerarchia, per misura e spaziatura, non
+   più per essere quasi illeggibile. */
+.voce-corpo .etichetta {
+  font-size: .625rem; letter-spacing: .18em; opacity: .88;
+}
+
+/* Togliere una voce: due tocchi, come l'elimina. Il cerchietto visibile
+   è piccolo, l'area toccabile è 44 — senza questo il bersaglio più
+   piccolo dell'app sarebbe proprio quello che cancella qualcosa. */
+.togli {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.125rem; line-height: 1; color: var(--argento-off);
+  border: 1px solid transparent;
+  transition: color .22s var(--piano), border-color .22s var(--piano),
+              background .22s var(--piano), transform .22s var(--molla-corta);
+}
+.togli:active { transform: scale(.9); }
+.togli.armato { color: #FFD9C6; border-color: rgba(255,107,44,.55); background: rgba(255,107,44,.14); }
+
+/* Gli attrezzi: una voce per riga. Peso 500 e freccia in oro — sono
+   comandi, e devono distinguersi dal testo che li circonda anche senza
+   che qualcuno legga cosa dicono. */
+.attrezzo {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  width: 100%; min-height: 54px; padding: 15px 0; text-align: left;
+  border-top: 1px solid rgba(255,255,255,.055);
+  font-family: var(--dati); font-size: .9375rem; font-weight: 500;
+  color: var(--argento);
+  transition: color .22s var(--piano);
+}
+.attrezzo:first-of-type { border-top: none; }
+.attrezzo:active { color: var(--oro); }
+.attrezzo .freccia { color: var(--oro); opacity: .78; }
+.attrezzo.armato { color: #FFD9C6; }
+.attrezzo.armato .freccia { color: #FFD9C6; opacity: .8; }
+.esito {
+  margin-top: var(--s2); font-size: .8125rem; line-height: 1.5; color: var(--oro);
+}
+.esito.storto { color: #FFB59A; }
+
+.fondo-lingua {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  margin-top: var(--s4); padding-top: var(--s4);
+  border-top: 1px solid rgba(255,255,255,.055);
+}
+.interruttore-lingua {
+  display: flex; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.10); border-radius: var(--r-chip); overflow: hidden;
+}
+.interruttore-lingua button {
+  min-height: 48px; padding: 0 20px; font-family: var(--dati); font-size: .75rem;
+  letter-spacing: .16em; color: var(--argento-off);
+  transition: color .25s ease, background .25s ease;
+}
+.interruttore-lingua button.acceso { color: var(--argento); background: rgba(255,107,44,.13); }
+
+/* «Offrimi un caffè»: firma silenziosa, mai in arancio. A tredici pixel
+   con l'icona grigia sembrava un avanzo in fondo alla pagina: cresce di
+   una misura e l'icona prende l'oro, così è una cosa messa lì apposta. */
+.caffe {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: fit-content; margin: var(--s5) auto 0;
+  padding: 14px 20px;
+  font-size: .9375rem; color: var(--argento-off);
+  text-decoration: none;
+}
+.caffe svg { flex-shrink: 0; color: var(--oro); opacity: .85; }
+.caffe span {
+  text-decoration: underline; text-underline-offset: 5px;
+  text-decoration-color: rgba(201,169,106,.40);
+}
+.caffe:active { color: var(--argento); }
+
+/* Il colophon: tre righe in fondo alla pagina, sotto tutto il resto.
+   Non è una sezione — non ha titolo, non è un comando, non si tocca —
+   è la nota a piè di pagina che chiude il documento. Centrato come Oggi,
+   piccolo e spento perché è l'ultima cosa che si legge, non la prima. */
+.colophon {
+  margin-top: var(--s5); padding-top: var(--s4);
+  border-top: 1px solid rgba(255,255,255,.07);
+  text-align: center;
+}
+/* Prima a opacità .62, scendeva a 3,19:1 nella fascia più chiara —
+   sotto soglia per un testo che comunque va letto. Portato a .84. */
+.colophon p {
+  font-family: var(--dati); font-size: .6875rem; letter-spacing: .02em;
+  color: var(--argento-off); opacity: .84; line-height: 1.7;
+}
+/* Qui c'era anche un'opacità .42 che non è mai entrata in vigore: la
+   regola ".colophon p" ha specificità maggiore (una classe più un tipo
+   contro una classe sola) e vinceva sempre lei. Codice morto, e per
+   giunta nella direzione sbagliata — l'avrebbe reso ancora più scuro,
+   non più leggero. Tolto: la riga dei diritti ora si legge come le
+   altre, non ha bisogno di un livello suo. */
+.colophon-diritti { margin-top: 2px; }
+
+
+/* ------------------------------------------------------------------
+   Il foglio: un modale centrato, sempre.
+
+   C'era una seconda forma, ancorata al fondo, riservata ai moduli con
+   campi di testo — la tastiera che apre sposta il centro dello schermo,
+   ed è il motivo per cui quella forma esisteva. Resta un compromesso
+   consapevole: chi scrive vede il modulo comportarsi come tutto il
+   resto, e se la tastiera sposta qualcosa il corpo scorre — è
+   scrollabile apposta.
+   ------------------------------------------------------------------ */
+#velo {
+  position: fixed; inset: 0; z-index: 10;
+  overflow: hidden;
+  background: rgba(8,6,14,0); backdrop-filter: blur(0px);
+  transition: background .38s ease, backdrop-filter .38s ease;
+  display: flex; align-items: center; justify-content: center;
+}
+#velo.su { background: rgba(8,6,14,.7); backdrop-filter: blur(5px); }
+
+#foglio {
+  width: min(440px, calc(100% - var(--bordo) * 2));
+  max-height: min(640px, 82dvh);
+  display: flex; flex-direction: column;
+  background: var(--wall); background-image: var(--trama);
+  border-radius: var(--r-foglio);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 20px 60px rgba(0,0,0,.55);
+  transform: scale(.94); opacity: 0;
+  transition: transform .38s var(--molla), opacity .26s ease;
+  text-align: left; overflow: hidden;
+}
+#velo.su #foglio { transform: scale(1); opacity: 1; }
+/* Nessuna maniglia: non si trascina verso il basso, non deve
+   promettere un gesto che non esiste. */
+#foglio::before { display: none; }
+
+/* Il pannello informativo: stesso #foglio, stessa testata, ma corto e
+   stretto — non deve competere con il foglio vero di modifica. Poche
+   righe, un titolo, via. La larghezza minore lo distingue a colpo
+   d'occhio da un modulo da compilare. */
+#foglio.corto {
+  width: min(340px, calc(100% - var(--bordo) * 2));
+  max-height: none;
+}
+#foglio.corto .foglio-corpo { padding: var(--s3) var(--s4) var(--s4); }
+#foglio.corto .info-testo {
+  font-family: var(--dati); font-size: .9rem; line-height: 1.5;
+  color: var(--argento); opacity: .92;
+}
+#foglio.corto .info-testo + .info-testo { margin-top: var(--s2); }
+
+/* L'iconcina che apre un pannello informativo. Oro tenue come gli altri
+   elementi secondari — non deve competere con un comando vero, è un
+   invito a capire, non un'azione. Tocco largo (28px) nonostante il
+   segno visivo piccolo (14px): l'area cliccabile non è mai il segno. */
+.info-tocco {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; margin-left: 3px; flex-shrink: 0;
+  border-radius: 50%; border: 1px solid rgba(201,169,106,.38);
+  color: var(--oro); opacity: .72; font-family: var(--dati);
+  font-size: .625rem; font-weight: 700; font-style: italic;
+  vertical-align: middle; position: relative;
+}
+.info-tocco::after { content: ""; position: absolute; inset: -7px; }
+.info-tocco:active { opacity: 1; background: rgba(201,169,106,.14); }
+
+/* Il capo del foglio. Prima titolo e comandi avevano la stessa misura,
+   lo stesso maiuscoletto e lo stesso grigio, distribuiti in tre colonne
+   pari: sembravano tre schede, e nessuna delle tre diceva di essere il
+   titolo. Ora il titolo è serif e chiaro, i comandi sono minuti e
+   raccolti a destra, e il principale è in oro. */
+.capo {
+  display: flex; justify-content: space-between; align-items: center; gap: var(--s2);
+  padding: 10px var(--bordo) 10px; flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.capo-titolo {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--display); font-variation-settings: 'opsz' 32, 'SOFT' 18;
+  font-weight: 400; font-size: 1.0625rem; line-height: 1.2; color: var(--argento);
+}
+.capo-azioni { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+.chiudi {
+  font-family: var(--dati); font-size: .625rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--argento-off); min-height: 48px; padding: 0 12px;
+  border-radius: var(--r-chip);
+  transition: color .22s var(--piano);
+}
+.chiudi:active { color: var(--argento); }
+/* Il comando che porta da qualche parte, non quello che chiude. */
+.chiudi.forte { color: var(--oro); }
+.foglio-corpo {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--s4) var(--bordo);
+}
+.foglio-piede {
+  flex-shrink: 0; padding: var(--s2) var(--bordo) calc(var(--s3) + env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: var(--wall);
+}
+.foglio-piede .azione { width: 100%; margin: 0; }
+.foglio-piede.due { display: flex; gap: var(--s2); align-items: center; }
+.foglio-piede.due .azione { flex: 1 1 auto; }
+/* L'avviso sulla cascata del registro, sopra i bottoni del dettaglio:
+   stesso padding laterale del piede, senza il suo bordo — è un'aggiunta
+   dentro, non una sezione a sé. */
+.nota-elimina { padding: 0 var(--bordo) var(--s2); }
+.gruppo:not(:first-child) { margin-top: var(--s5); }
+
+/* Il foglio in lettura. */
+.dett-capo { text-align: center; margin-bottom: var(--s4); }
+.dett-nome {
+  font-family: var(--display); font-variation-settings: 'opsz' 60, 'SOFT' 18;
+  font-weight: 400; font-size: 1.5rem; line-height: 1.1; color: var(--argento);
+}
+.dett-linea { margin-top: 5px; font-family: var(--dati); font-size: .8125rem; color: var(--argento-off); }
+.dett-stato { display: inline-block; margin-top: 9px; }
+.riga p {
+  font-family: var(--display); font-variation-settings: 'opsz' 18;
+  font-weight: 300; font-size: 1rem; line-height: 1.56; color: var(--argento); opacity: .88;
+}
+.num-gesto { color: var(--oro); padding-top: 3px; }
+.storia { margin-top: var(--s5); }
+
+
+/* --- campi del modulo --- */
+.campo-blocco { display: block; margin-bottom: var(--s3); }
+.campo-etichetta {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px;
+  font-family: var(--dati); font-size: .75rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--argento-off);
+}
+/* Prima a opacità .6, scendeva a 2,87:1 — quasi illeggibile proprio
+   sulla parola che dice "questo campo è opzionale", che va letta. */
+.campo-etichetta em { font-style: normal; font-size: .6875rem; opacity: .88; text-transform: none; letter-spacing: .04em; }
+.campo {
+  width: 100%; min-width: 0; padding: 13px 14px;
+  background: var(--room); color: var(--argento);
+  border: 1px solid rgba(255,255,255,.09); border-radius: var(--r-lastra);
+  /* 16px pieni: sotto questa soglia iOS ingrandisce la pagina da solo
+     appena tocchi il campo, e la schermata salta. */
+  font-family: var(--dati); font-size: 1rem;
+}
+.campo::placeholder { color: rgba(155,149,172,.45); }
+.campo:focus { outline: none; border-color: rgba(255,107,44,.55); }
+.campo.numero { max-width: 130px; font-size: 1.125rem; }
+
+.scelto {
+  padding: var(--s4) var(--s3) var(--s3);
+  background: var(--slab); background-image: var(--trama); border-radius: var(--r-lastra);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px rgba(255,107,44,.20);
+}
+.scelto-nome {
+  font-family: var(--display); font-variation-settings: 'opsz' 40;
+  font-size: 1.125rem; color: var(--argento); margin-bottom: var(--s2);
+}
+.spec { display: grid; grid-template-columns: minmax(0,auto) minmax(0,1fr); gap: 6px var(--s3); }
+.spec dt {
+  font-family: var(--dati); font-size: .6875rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--argento-off); padding-top: 2px;
+}
+.spec dd { font-family: var(--dati); font-size: .875rem; color: var(--argento); min-width: 0; }
+
+/* Griglia, non flex: con flex il testo diventa una voce che non si
+   restringe e allarga tutto il foglio oltre lo schermo. */
+.fonte {
+  display: grid; grid-template-columns: 6px minmax(0,1fr); align-items: start; gap: 8px;
+  margin-top: var(--s3); padding-top: var(--s2);
+  border-top: 1px solid rgba(255,255,255,.06);
+  font-size: .8125rem; line-height: 1.5; color: var(--argento-off);
+}
+.pallino-fonte { width: 5px; height: 5px; border-radius: 50%; margin-top: 5px; }
+.fonte-ufficiale .pallino-fonte { background: var(--oro); }
+.fonte-comunita  .pallino-fonte { background: var(--argento-off); }
+.fonte-derivato  .pallino-fonte { background: var(--arancio); }
+
+.sepa { height: 1px; background: rgba(255,255,255,.07); margin: var(--s4) 0 var(--s3); }
+.esiti { max-height: 42dvh; overflow-y: auto; overscroll-behavior: contain; margin-top: var(--s1); }
+.esiti .lastra { cursor: pointer; }
+
+.scelte { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--s2) 0 var(--s4); }
+.scelta {
+  min-height: 44px; padding: 11px 18px; border-radius: var(--r-chip); font-size: .75rem;
+  letter-spacing: .13em; text-transform: uppercase;
+  color: var(--argento-off); border: 1px solid rgba(255,255,255,.10);
+  transition: border-color .25s var(--piano), background .25s var(--piano), transform .22s var(--molla-corta);
+}
+.scelta.accesa { color: var(--argento); border-color: rgba(255,107,44,.55); background: rgba(255,107,44,.10); }
+.scelta:active { transform: scale(.96); }
+
+.riserva-campo { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s1); }
+
+.interruttore {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  width: 100%; padding: 13px 0; text-align: left;
+  border-top: 1px solid rgba(255,255,255,.055);
+  font-family: var(--dati); font-size: .9375rem; color: var(--argento-off);
+}
+.interruttore.acceso { color: var(--argento); }
+.pallina {
+  width: 34px; height: 18px; border-radius: 10px; flex-shrink: 0; position: relative;
+  background: rgba(255,255,255,.10); transition: background .25s ease;
+}
+.pallina::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--argento-off);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s ease;
+}
+.interruttore.acceso .pallina { background: rgba(255,107,44,.26); }
+.interruttore.acceso .pallina::after { transform: translateX(16px); background: var(--arancio); }
+
+/* Eliminare: in due tempi, e il colore arriva solo al secondo. */
+.pericolo {
+  width: 100%; margin-top: var(--s4); min-height: 48px; padding: 15px 0; border-radius: var(--r-chip);
+  font-family: var(--dati); font-size: .75rem; font-weight: 600;
+  letter-spacing: .17em; text-transform: uppercase;
+  color: var(--argento-off); border: 1px solid rgba(255,255,255,.10);
+  transition: color .25s ease, border-color .25s ease, background .25s ease;
+}
+.pericolo.armato { color: #FFD9C6; border-color: rgba(255,107,44,.55); background: rgba(255,107,44,.14); }
+.pericolo-quieto { flex: 0 0 auto; color: var(--argento-off); }
+.pericolo-quieto.armato { color: #FFD9C6; background: rgba(255,107,44,.16); }
+.blocco-elimina { margin-top: var(--s4); }
+
+/* «Non lo trovi?»: la sezione che spiega prima di offrire. Sempre
+   presente, mai legata ai risultati: agganciata all'elenco vuoto
+   apparirebbe e sparirebbe a ogni lettera digitata. */
+.aiuto { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid rgba(255,255,255,.07); }
+.aiuto .gruppo { margin-top: 0; }
+.aiuto .nota { margin-bottom: var(--s3); }
+
+/* L'archivio dei movimenti, in prosa. */
+.prosa-archivio {
+  font-family: var(--display); font-variation-settings: 'opsz' 18;
+  font-weight: 300; font-size: 1rem; line-height: 1.62;
+  color: var(--argento); opacity: .9; margin-bottom: var(--s3);
+}
+.fonti-archivio { margin-top: var(--s2); }
+.fonti-archivio a {
+  display: block; font-size: .75rem; color: var(--argento-off);
+  word-break: break-all; margin-bottom: 6px; text-underline-offset: 3px;
+}
+.archivio-pallino { background: var(--oro); }
+.archivio-rimando { margin-top: var(--s4); }
+
+
+/* --- avviso di versione nuova: una striscia, non una finestra --- */
+#aggiorna {
+  position: fixed; z-index: 12;
+  left: var(--bordo); right: var(--bordo);
+  bottom: calc(var(--alta-indice) + 10px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+  padding: 10px 12px 10px 18px; border-radius: var(--r-chip);
+  background: var(--slab); background-image: var(--trama);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 6px 22px rgba(0,0,0,.55);
+  animation: sali .46s var(--molla);
+}
+#aggiorna span { font-size: .8125rem; color: var(--argento); }
+#aggiorna button {
+  font-family: var(--dati); font-size: .75rem; font-weight: 600;
+  letter-spacing: .17em; text-transform: uppercase; color: var(--arancio);
+  min-height: 44px; padding: 0 14px; border-radius: var(--r-chip); flex-shrink: 0;
+}
+@keyframes sali { from { transform: translateY(14px); opacity: 0; } }
+
+/* Chi ha chiesto meno movimento riceve meno movimento. La regola prima
+   era troncata a metà — «*, #luce,» seguito dalla parentesi chiusa — e
+   il browser, cercando il blocco mancante, si mangiava la regola dopo. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  #ponte { scroll-behavior: auto; }
+}
+
+
+/* ------------------------------------------------------------------
+   Carta.
+   Non è la schermata in bianco e nero: è il documento che la schermata
+   non può essere. Stessa tipografia, nessun colore, e solo i dati che
+   fra un mese saranno ancora veri. Dalla finestra di stampa si sceglie
+   anche «Salva come PDF»: è da qui che passa il PDF dell'app.
+   ------------------------------------------------------------------ */
+#stampa { display: none; }
+
+@media print {
+  html, body {
+    background: #fff; color: #16110E;
+    height: auto; min-height: 0; overflow: visible;
+  }
+  /* Questa lista era troncata dopo «#grana,» e si prendeva la regola
+     successiva: in stampa la mesh viola e la grana finivano sul foglio
+     con display:block, cioè l'esatto contrario dell'intenzione. */
+  #luce, #grana, #testata, #ponte, #indice, #velo, #aggiorna { display: none !important; }
+  #stampa { display: block; }
+
+  @page { margin: 18mm 16mm 16mm; }
+
+  .st-capo { border-bottom: 1px solid #16110E; padding-bottom: 8mm; margin-bottom: 9mm; }
+  .st-nome {
+    font-family: var(--display);
+    font-variation-settings: 'opsz' 144, 'SOFT' 22, 'WONK' 1;
+    font-weight: 500; font-size: 30pt; line-height: 1; letter-spacing: -.022em;
+    color: #16110E;
+  }
+  .st-frase {
+    font-family: var(--display); font-variation-settings: 'opsz' 20;
+    font-weight: 300; font-size: 10.5pt; margin-top: 2mm; color: #4A4148;
+  }
+  .st-meta {
+    font-family: var(--dati); font-size: 7.5pt; letter-spacing: .13em;
+    text-transform: uppercase; color: #6B626A; margin-top: 5mm;
+  }
+
+  /* Un orologio non si spezza mai fra due pagine. */
+  .st-orologio { break-inside: avoid; page-break-inside: avoid; margin-bottom: 9mm; }
+  .st-orologio h2 {
+    font-family: var(--display); font-variation-settings: 'opsz' 60;
+    font-weight: 400; font-size: 15pt; line-height: 1.15; color: #16110E;
+  }
+  .st-linea { font-family: var(--dati); font-size: 8.5pt; color: #6B626A; margin-top: 1mm; }
+
+  .st-dati {
+    display: grid; grid-template-columns: 34mm 1fr; gap: 1.4mm 4mm;
+    margin: 4mm 0 5mm; padding: 3mm 0;
+    border-top: .4pt solid #C9C2C6; border-bottom: .4pt solid #C9C2C6;
+  }
+  .st-dati dt {
+    font-family: var(--dati); font-size: 7pt; letter-spacing: .13em;
+    text-transform: uppercase; color: #6B626A; padding-top: .4mm;
+  }
+  .st-dati dd { font-family: var(--dati); font-size: 9pt; color: #16110E; }
+
+  .st-orologio h3 {
+    font-family: var(--dati); font-size: 7pt; letter-spacing: .17em;
+    text-transform: uppercase; color: #6B626A; font-weight: 600; margin-bottom: 2.5mm;
+  }
+  .st-gesti { list-style: none; counter-reset: g; }
+  .st-gesti li {
+    counter-increment: g; position: relative; padding-left: 8mm; margin-bottom: 2.6mm;
+    font-family: var(--display); font-variation-settings: 'opsz' 18;
+    font-weight: 300; font-size: 10pt; line-height: 1.45; color: #16110E;
+  }
+  .st-gesti li::before {
+    content: counter(g, decimal-leading-zero);
+    position: absolute; left: 0; top: .5mm;
+    font-family: var(--dati); font-size: 7pt; letter-spacing: .1em; color: #9A9298;
+  }
+
+  /* Il registro su carta: una tabella, perché sono dati incolonnati e
+     nient'altro. Le righe non si spezzano fra due pagine. */
+  .st-registro { width: 100%; border-collapse: collapse; margin-top: 4mm; }
+  .st-registro th {
+    text-align: left; padding: 0 4mm 2.5mm 0;
+    border-bottom: .8pt solid #16110E;
+    font-family: var(--dati); font-size: 7pt; font-weight: 600;
+    letter-spacing: .15em; text-transform: uppercase; color: #6B626A;
+  }
+  .st-registro td {
+    padding: 2.2mm 4mm 2.2mm 0; vertical-align: baseline;
+    border-bottom: .3pt solid #E2DDE0;
+    font-family: var(--dati); font-size: 9pt; color: #16110E;
+  }
+  .st-registro tr { break-inside: avoid; page-break-inside: avoid; }
+  .st-registro thead { display: table-header-group; }
+  .st-quando { white-space: nowrap; color: #6B626A; font-size: 8.5pt; }
+  .st-cosa { color: #4A4148; }
+}

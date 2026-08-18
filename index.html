@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="it" data-ora="crepuscolo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bariletto</title>
+<meta name="theme-color" content="#100A29">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div id="luce" aria-hidden="true"></div>
+<div id="grana" aria-hidden="true"></div>
+<header id="testata"></header>
+
+<!-- Il ponte: due pagine affiancate, si passa da una all'altra con il
+     dito. Lo scorrimento è quello nativo del browser con scroll-snap,
+     non un trascinamento calcolato a mano: è la differenza con le vecchie
+     pareti, dove ogni gesto era codice nostro e ogni caso limite un bug. -->
+<main id="ponte">
+  <section class="pagina" id="pag-oggi" aria-label="Oggi"></section>
+  <section class="pagina" id="pag-altro" aria-label="Registro"></section>
+</main>
+
+<nav id="indice" aria-label="Pagine"></nav>
+
+<script src="./lingua.js"></script>
+<script src="./calibri.js"></script>
+<script src="./movimenti.js"></script>
+<script src="./archivio.js"></script>
+<script src="./dominio.js"></script>
+<script src="./oggi.js"></script>
+<script src="./altro.js"></script>
+<script src="./foglio.js"></script>
+<script src="./cornice.js"></script>
+</body>
+</html>

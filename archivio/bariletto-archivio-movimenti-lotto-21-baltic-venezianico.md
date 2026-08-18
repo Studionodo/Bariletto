@@ -1,0 +1,48 @@
+## Baltic: nessuna scheda, nessuna lavorazione propria del calibro
+
+Verificato come richiesto, e il risultato conferma la premessa del lotto: **Baltic non ha mai avuto un calibro con una modifica o lavorazione propria**. La casa, fondata a Besançon nel 2017, monta calibri di serie acquisiti da tre fornitori — Miyota per la maggior parte della gamma (8315, 8215, 9039 a seconda del modello), Sellita e Soprod per le linee svizzere (SW510-M sui cronografi Tricompax, C125 sull'Aquascaphe GMT), Sea-Gull per il Bicompax (ST19, lo stesso Venus 175 già coperto in questo archivio) — e li assembla, rifinisce e regola nel proprio laboratorio francese. Non c'è una riprogettazione dei componenti come nel caso Christopher Ward, né una lavorazione diretta della piastra o dei ponti come nel caso Weiss Caliber 1003: il lavoro di Baltic sul movimento si ferma a montaggio, decorazione e regolazione finale.
+
+Vale la pena notare che questa non è una critica al marchio: una guida di settore lo definisce esplicitamente come un caso di onestà rara — Baltic non pretende di avere calibri di manifattura o una storia orologiera secolare, dichiara apertamente da dove vengono i movimenti, e prezza i propri orologi di conseguenza. È esattamente il comportamento che la premessa di questo lotto descriveva come atteso e normale, non un fallimento della ricerca.
+
+**Esito**: nessuna scheda per Baltic. Ogni calibro che monta è già coperto altrove in questo archivio nella sua forma originale (Miyota 8215, Sea-Gull ST1901, famiglia Sellita, Soprod) — qui cambierebbe solo il nome sul quadrante, non la sostanza tecnica. Non ho cercato un secondo microbrand francese come alternativa, perché la ricerca su Baltic ha già confermato in modo netto il pattern che il lotto anticipava, e forzare un secondo caso solo per riempire la parte non avrebbe aggiunto sostanza.
+
+---
+
+## Venezianico V5000
+<!-- id: venezianico-v5000 | paese: Italia | marca: Venezianico -->
+
+### Com'è fatto
+Il caso genuinamente diverso che la parte italiana del lotto cercava, e recentissimo: presentato nel maggio 2025 sul modello Redentore Utopia, è il primo calibro proprio nella storia di Venezianico — fino a quel momento un marchio come Baltic, montaggio di basi terze su design italiano. Non è un rebrand: è un progetto depositato con un proprio numero di design registrato (n. 402025000000420), sviluppato in oltre due anni di lavoro con **OISA 1937**, una delle manifatture di calibri più antiche ancora attive in Italia, sotto la direzione tecnica di Fausto Berizzi — una figura che ha lavorato in precedenza per Frédéric Piguet, Lemania e Vaucher Manufacture, quindi con un curriculum di alta orologeria svizzera portato a servizio di un progetto italiano.
+
+Diciannove rubini, carica manuale, 3,5 mm di spessore — estremamente sottile — 25.200 alternanze all'ora (3,5 Hz, la stessa frequenza già vista sul Longines L888 in questo archivio), riserva 60 ore, precisione dichiarata ±3 secondi al giorno. La caratteristica tecnica più interessante è la separazione del treno di ingranaggi: un ramo dedicato ai secondi, un altro alle ore e ai minuti, pensata per ridurre l'interferenza meccanica fra il movimento continuo della lancetta dei secondi e la precisione del treno principale. Bilanciere libero a inerzia variabile in lega rame-berillio con quattro masselotte, prodotto dalla svizzera Atokalpa (parte del gruppo Sandoz); antiurto KIF Elastor, anch'esso di fornitura svizzera diretta. Piastra, ponti e organi di regolazione sono invece progettati e lavorati congiuntamente dai due team italiani, non acquistati come ebauche esterno.
+
+**Sulla trasparenza della provenienza dei componenti**, con lo stesso livello di verifica già applicato a Weiss, Bremont e Christopher Ward in questo archivio: Venezianico stessa distingue chiaramente cosa è italiano e cosa no, senza ambiguità. Bilanciere e sistema antiurto vengono da fornitori svizzeri specializzati — la stessa logica già vista sull'Oris 400 o sul Bremont ENG300, dove alcuni componenti critici restano di provenienza esterna anche in un calibro dichiarato di manifattura. La regolazione finale e l'assemblaggio di ogni orologio con questo calibro avvengono comunque nell'atelier Venezianico.
+
+### Com'è fatto (EN)
+The genuinely different case the Italian part of this batch was looking for, and a very recent one: introduced in May 2025 on the Redentore Utopia model, it's Venezianico's first own calibre — until then a brand like Baltic, fitting third-party bases under Italian design. It isn't a rebrand: it's a project filed under its own registered design number (no. 402025000000420), developed over more than two years of work with **OISA 1937**, one of the oldest calibre manufactures still active in Italy, under the technical direction of Fausto Berizzi — someone who previously worked for Frédéric Piguet, Lemania and Vaucher Manufacture, bringing a Swiss high-horology résumé to an Italian project.
+
+Nineteen jewels, hand winding, 3.5 mm thick — extremely thin — 25,200 vibrations per hour (3.5 Hz, the same frequency already seen on the Longines L888 in this archive), 60 hours of reserve, stated accuracy ±3 seconds a day. The most interesting technical trait is the split gear train: one branch dedicated to seconds, another to hours and minutes, designed to reduce mechanical interference between the seconds hand's continuous motion and the main train's accuracy. Free-sprung, variable-inertia balance in a copper-beryllium alloy with four weights, made by the Swiss Atokalpa (part of the Sandoz group); KIF Elastor shock protection, also sourced directly from Switzerland. Plate, bridges and regulating organs, by contrast, are jointly designed and machined by the two Italian teams, not bought in as an outside ebauche.
+
+**On the transparency of component origin**, checked to the same standard already applied to Weiss, Bremont and Christopher Ward in this archive: Venezianico itself clearly distinguishes what's Italian and what isn't, with no ambiguity. Balance and shock system come from specialised Swiss suppliers — the same logic already seen on the Oris 400 or the Bremont ENG300, where some critical components remain externally sourced even in a calibre stated as manufacture. Final regulation and assembly of every watch with this calibre still happen at the Venezianico atelier.
+
+### Come si cura
+Essendo a carica manuale, la disciplina è quella di sempre: gira la corona con calma, fermati alla resistenza, caricalo con regolarità anche se le sessanta ore di riserva permettono di saltare più di un giorno. Non ha data, quindi nessuna manovra di calendario da temere. Il calibro monta un simbolo — l'emblema di San Marco — inciso su ogni esemplare, che la casa dichiara essere una certificazione di qualità interna con criteri precisi: finitura eseguita a mano, precisione media entro i ±3 secondi al giorno dichiarati, design proprietario registrato. Nessun intervallo di revisione dichiarato dalla casa in quanto raccolto qui: essendo un calibro appena introdotto (2025) e una manifattura piccola, per assistenza il canale sensato resta Venezianico stessa, come già indicato per altre manifatture di piccola scala in questo archivio.
+
+### Come si cura (EN)
+Being hand-wound, the discipline is the usual one: turn the crown gently, stop at resistance, wind it regularly even though the sixty hours of reserve allow skipping more than a day. It has no date, so no calendar procedure to worry about. The calibre carries a symbol — the emblem of Saint Mark — engraved on every example, which the house states is an internal quality certification with precise criteria: hand-finishing, average accuracy within the stated ±3 seconds a day, registered proprietary design. No service interval stated by the house in what's gathered here: being a calibre just introduced (2025) and a small manufacture, the sensible channel for service remains Venezianico itself, as already noted for other small-scale manufactures in this archive.
+
+### Cosa è normale
+Che la lancetta dei secondi si muova in modo particolarmente fluido rispetto ad altri calibri manuali di questo archivio: è la conseguenza dichiarata del treno di ingranaggi separato, pensato apposta per isolare quel movimento dal resto della meccanica. E che il calibro citi apertamente fornitori svizzeri per bilanciere e antiurto pur dichiarandosi "Made in Italy": è la stessa pratica già vista su altre manifatture europee di questo archivio — nessun calibro moderno, nemmeno il più blasonato, è mai component al cento per cento di provenienza locale, e qui la casa lo dichiara con precisione invece di lasciarlo ambiguo.
+
+### Cosa è normale (EN)
+The seconds hand moving with a particularly smooth motion compared with other hand-wound calibres in this archive: that's the stated consequence of the split gear train, designed specifically to isolate that motion from the rest of the mechanics. And the calibre openly citing Swiss suppliers for the balance and shock protection while stating "Made in Italy": that's the same practice already seen on other European manufactures in this archive — no modern calibre, however storied, is ever a hundred per cent locally sourced, and here the house states it precisely instead of leaving it ambiguous.
+
+**Fonti:**
+https://www.venezianico.com/products/redentore-utopia-limited-edition
+https://us.venezianico.com/pages/v5000-caliber
+https://www.venezianico.com/blogs/journal/venezianico-cal-v5000-how-an-italian-movement-is-born
+https://wornandwound.com/venezianico-introduces-the-redentore-utopia-featuring-the-italian-made-v5000-caliber/
+https://thecorneaimpression.com/venezianico-unveils-the-impressive-new-calibre-v5000/
+
+---
+
