@@ -201,6 +201,19 @@ async function ripulisciNotifica(id) {
   } catch (e) { /* nessuna notifica da ripulire, o API non disponibile */ }
 }
 
+/* Solo la primissima volta in assoluto che uno dei tre gesti viene
+   usato: dopo, la stessa spiegazione resta raggiungibile dall'icona
+   accanto a "Nessuno chiede attenzione", non sparisce per sempre — ma
+   il popup che blocca compare una volta sola nella vita dell'app. */
+async function mostraPrimoUsoSeServe() {
+  const visto = await tx("stato", "readonly", (s) => s.get("vistoPrimoConteggio"));
+  if (visto) return;
+  await salva("stato", { chiave: "vistoPrimoConteggio", valore: true });
+  apriInfoBloccante(t("primoUso.titolo"),
+    [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")],
+    t("primoUso.bottone"));
+}
+
 async function segnaOra(o) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
@@ -218,6 +231,7 @@ async function segnaOra(o) {
   scelto = o.id;
   ripulisciNotifica(o.id);
   disegna();
+  mostraPrimoUsoSeServe();
 }
 
 /* Annulla l'atto di INDOSSARE, non l'ultima cosa fatta: se nel frattempo
@@ -277,6 +291,7 @@ async function segnaCaricaOra(o) {
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
   disegna();
+  mostraPrimoUsoSeServe();
 }
 
 /* Il cronografo si segna solo se lo dici tu. */
@@ -288,4 +303,5 @@ async function segnaCronoOra(o) {
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
   disegna();
+  mostraPrimoUsoSeServe();
 }

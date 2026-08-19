@@ -109,7 +109,11 @@ function costruisciOggi() {
   if (proposto) {
     sotto.append(el("p", "motivo", primo.b.motivo));
   } else {
-    sotto.append(el("p", "titolo-quiete", t("oggi.nulla")));
+    const rigaQuiete = el("div", "riga-titolo-quiete");
+    rigaQuiete.append(el("p", "titolo-quiete", t("oggi.nulla")),
+      infoTocco(t("primoUso.titolo"),
+        [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
+    sotto.append(rigaQuiete);
     sotto.append(el("p", "motivo secondario",
       Number.isFinite(primo.b.restanti) && primo.b.restanti > 0
         ? primo.o.nome + " " + t("oggi.prossimoOra", { q: durata(primo.b.restanti) })

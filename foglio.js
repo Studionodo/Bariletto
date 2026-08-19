@@ -37,6 +37,36 @@ function apriInfo(titolo, testi) {
    che apre il pannello con il titolo e il testo passati. Usata da più
    pagine — costruirla una volta sola evita che ogni schermata reinventi
    la stessa mezza dozzina di righe. */
+/* Un pannello che non si chiude da solo: niente tocco fuori, niente
+   Escape, niente X in alto. Un solo modo per chiuderlo — il bottone in
+   fondo — pensato per il primo utilizzo assoluto di un gesto che conta
+   davvero (indossato, caricato, azionato), quando vale la pena essere
+   sicuri che la spiegazione sia stata letta, non solo disponibile. */
+function apriInfoBloccante(titolo, testi, testoBottone) {
+  const uscente = q("#velo");
+  if (uscente) { if (uscente.classList.contains("su")) return; uscente.remove(); }
+  const velo = el("div"); velo.id = "velo";
+  const foglio = el("div", "corto"); foglio.id = "foglio";
+  const capo = el("div", "capo");
+  capo.append(el("span", "capo-titolo", titolo));
+  foglio.append(capo);
+  const corpo = el("div", "foglio-corpo");
+  (Array.isArray(testi) ? testi : [testi]).forEach((riga) => {
+    corpo.append(el("p", "info-testo", riga));
+  });
+  foglio.append(corpo);
+  const piede = el("div", "foglio-piede");
+  const ok = el("button", "azione", testoBottone);
+  ok.onclick = chiudiScheda;
+  piede.append(ok);
+  foglio.append(piede);
+  velo.append(foglio); document.body.append(velo);
+  inerte(true);
+  requestAnimationFrame(() => velo.classList.add("su"));
+  /* Niente addEventListener su velo per il tocco fuori, niente
+     tastoScheda per Escape: qui si esce solo dal bottone. */
+}
+
 function infoTocco(titolo, testi, classeExtra) {
   const b = el("button", "info-tocco" + (classeExtra ? " " + classeExtra : ""), "i");
   b.setAttribute("aria-label", t("info.apri", { v: titolo }));
