@@ -3,6 +3,20 @@
    Sale dal basso ed è l'unico posto da cui si scrive un orologio.
    ------------------------------------------------------------------ */
 
+/* Ogni foglio che si apre marca il resto della pagina come inert, e il
+   browser toglie il fuoco da qualunque cosa lo avesse prima (di solito
+   il bottone appena toccato). Senza dare il fuoco a qualcosa di nuovo,
+   chi naviga da tastiera o con uno screen reader resta senza appiglio.
+   Il titolo lo riceve invece del primo campo: un titolo non apre la
+   tastiera. Un solo punto per questo comportamento, richiamato da ogni
+   funzione che apre un foglio, invece di ripeterlo in ognuna. */
+function focoSulTitolo(foglio) {
+  const titolo = (foglio || q("#foglio"))?.querySelector(".capo-titolo");
+  if (!titolo) return;
+  titolo.setAttribute("tabindex", "-1");
+  setTimeout(() => titolo.focus({ preventScroll: true }), 420);
+}
+
 /* ====================== pannello informativo ======================= */
 /* Un'iconcina "i" accanto a una voce che ha bisogno di una riga in più
    di quanto lo spazio in pagina permetta. Riusa #velo/#foglio — stessa
@@ -31,7 +45,9 @@ function apriInfo(titolo, testi) {
   requestAnimationFrame(() => velo.classList.add("su"));
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
+  focoSulTitolo(foglio);
 }
+
 
 /* La fabbrica dell'iconcina stessa: un bottone piccolo, sempre uguale,
    che apre il pannello con il titolo e il testo passati. Usata da più
@@ -65,6 +81,7 @@ function apriInfoBloccante(titolo, testi, testoBottone) {
   requestAnimationFrame(() => velo.classList.add("su"));
   /* Niente addEventListener su velo per il tocco fuori, niente
      tastoScheda per Escape: qui si esce solo dal bottone. */
+  focoSulTitolo(foglio);
 }
 
 function infoTocco(titolo, testi, classeExtra) {
@@ -90,6 +107,7 @@ function apriRegistro() {
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
   disegnaRegistro();
+  focoSulTitolo(foglio);
 }
 
 function disegnaRegistro() {
@@ -164,6 +182,7 @@ function apriCollezione() {
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
   disegnaCollezione();
+  focoSulTitolo(foglio);
 }
 
 function disegnaCollezione() {
@@ -266,6 +285,7 @@ function apriArchivio(filtro) {
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
   disegnaArchivio();
+  focoSulTitolo(foglio);
 }
 
 function disegnaArchivio() {
@@ -287,12 +307,13 @@ function disegnaArchivio() {
   corpo.append(el("div", "elenco archivio-elenco"));
   f.append(corpo);
   ridisegnaListaArchivio();
-  /* Niente focus automatico. Prima il campo prendeva il fuoco da solo
-     260ms dopo l'apertura, e su telefono questo tira su la tastiera
-     subito — nel modale centrato, che deve stare fermo al centro, la
-     tastiera che si apre da sola sposta tutto senza che l'utente
-     l'abbia chiesto. Ora il fuoco arriva solo quando l'utente tocca
-     il campo, come dovrebbe essere in un popup di lettura. */
+  /* Niente fuoco sul campo di ricerca. Prima lo prendeva da solo 260ms
+     dopo l'apertura, e su telefono tira su la tastiera subito — nel
+     modale centrato, che deve stare fermo al centro, la tastiera che
+     si apre da sola sposta tutto senza che l'utente l'abbia chiesto.
+     Il fuoco atterra invece sul titolo (vedi focoSulTitolo, chiamato da
+     apriArchivio): stesso appiglio per l'accessibilità, senza aprire
+     la tastiera. Il campo la apre solo quando l'utente lo tocca. */
 }
 
 function ridisegnaListaArchivio() {
@@ -414,18 +435,12 @@ function apriScheda(esistente, modo) {
   addEventListener("keydown", tastoScheda);
 
   disegnaScheda();
-  /* Il fuoco atterra sul titolo, non sul primo campo: un titolo non
-     apre la tastiera. Serve solo come appiglio per chi naviga da
-     tastiera o con uno screen reader, dopo che inerte(true) ha tolto
-     il fuoco da qualunque cosa lo avesse prima. Prima atterrava sul
-     campo nome solo per gli orologi nuovi: qui invece è lo stesso
-     comportamento sempre, anche in dettaglio e in modifica di un
-     orologio esistente, dove prima non c'era nessun appiglio. */
-  const titolo = foglio.querySelector(".capo-titolo");
-  if (titolo) {
-    titolo.setAttribute("tabindex", "-1");
-    setTimeout(() => titolo.focus({ preventScroll: true }), 420);
-  }
+  /* Stesso comportamento di ogni altro foglio (vedi focoSulTitolo): il
+     fuoco atterra sul titolo, non sul primo campo, così non apre la
+     tastiera da solo. Prima atterrava sul campo nome solo per gli
+     orologi nuovi; ora è coerente anche in dettaglio e in modifica di
+     un orologio esistente, dove prima non c'era nessun appiglio. */
+  focoSulTitolo(foglio);
 }
 
 /* Con il foglio aperto, tutto il resto esce dal percorso di tabulazione.
@@ -575,7 +590,7 @@ function schedaDettaglio(corpo) {
 
   corpo.append(el("span", "gruppo", t("g.storia")));
   const ult = el("div", "riga fra senza-filo");
-  ult.append(el("span", "etichetta mini", t("g.storia")),
+  ult.append(el("span", "etichetta mini", t("g.ultimaVolta")),
              el("span", "etichetta mini", quando(o.ultimoPolso)));
   corpo.append(ult);
   const suo = [...registro].filter((v) => v.orologio === o.id)
@@ -721,7 +736,7 @@ function schedaRicerca(f, filtro) {
 
     const man = el("button", "quieta stretto", t("s.manuale"));
     man.onclick = () => {
-      bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600 };
+      bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600, ahLibero: false };
       bozza.manualeTesto = cerca.value.trim();
       disegnaScheda();
     };
@@ -773,7 +788,7 @@ function schedaCercaCalibro(f, filtro) {
 
   const man = el("button", "azione secondaria larga", t("s.manuale"));
   man.onclick = () => {
-    bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600 };
+    bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600, ahLibero: false };
     bozza.manualeTesto = cerca.value.trim();
     modoFoglio = "modifica";
     disegnaScheda();
@@ -814,6 +829,70 @@ function schedaScelto(f) {
   if (bozza.id) f.append(bottoneElimina());
 }
 
+/* Un default sensato per ogni tipo, non lo stesso 41 ore/21.600 A/H
+   riciclato per tutti: automatico e quarzo non hanno nulla in comune.
+   I valori per ecodrive/kinetic ed elettrico/diapason sono gli stessi
+   già usati come default in normalizza(); quello per quarzo viene dalla
+   media delle famiglie quarzo già in archivio (circa 4-5 anni), non
+   inventato. Nessun tipo a batteria ha un vero A/H da contare. */
+const DEFAULT_PER_TIPO = {
+  automatico: { riserva: 41, ah: 21600 },
+  manuale: { riserva: 41, ah: 21600 },
+  cronografo: { riserva: 41, ah: 21600 },
+  springdrive: { riserva: 72, ah: 0 },
+  ecodrive: { riserva: 4320, ah: 0 },
+  kinetic: { riserva: 4320, ah: 0 },
+  quarzo: { riserva: 43800, ah: 0 },
+  elettrico: { riserva: 17520, ah: 0 },
+  diapason: { riserva: 17520, ah: 0 },
+};
+
+/* I cinque valori più comuni davvero presenti nell'archivio (28.800 e
+   21.600 coprono da soli l'80% dei calibri meccanici catalogati): un
+   tocco per il caso comune, la matita per il caso raro invece di un
+   campo numerico sempre aperto che per la maggior parte delle volte
+   sarebbe solo più lento da usare. */
+const AH_COMUNI = [28800, 21600, 18000, 25200, 36000];
+
+/* Solo per i tipi che hanno davvero un bilanciere che oscilla: gli
+   altri (a batteria, o senza scappamento convenzionale come lo Spring
+   Drive) non hanno un A/H vero da dichiarare, restano a 0. */
+const TIPI_CON_AH = ["automatico", "manuale", "cronografo"];
+
+function campoAH(m) {
+  const box = el("div", "ah-campo");
+  box.append(el("span", "etichetta mini", t("ah")));
+  const fila = el("div", "scelte");
+  AH_COMUNI.forEach((v) => {
+    const b = el("button", "scelta" + (!m.ahLibero && m.ah === v ? " accesa" : ""), v.toLocaleString(locale()));
+    b.onclick = () => { m.ah = v; m.ahLibero = false; disegnaScheda(); };
+    fila.append(b);
+  });
+  /* La matita: il valore giusto non è quasi mai uno dei cinque comuni,
+     ma quando serve un numero diverso deve restare a un tocco, non
+     nascosto in un menu. */
+  const matita = el("button", "matita" + (m.ahLibero ? " accesa" : ""));
+  matita.setAttribute("aria-label", t("s.ahAltro"));
+  matita.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+  matita.onclick = () => { m.ahLibero = true; disegnaScheda(); };
+  fila.append(matita);
+  box.append(fila);
+
+  if (m.ahLibero) {
+    const inp = el("input", "campo numero dopo-corto");
+    inp.type = "number"; inp.inputMode = "numeric"; inp.min = "1000"; inp.step = "100";
+    inp.placeholder = t("s.ahLibero");
+    /* Vuoto se il valore corrente è già uno dei cinque comuni (la
+       matita è stata toccata solo per guardare, non per cambiare
+       davvero): altrimenti mostra il numero personalizzato già scelto,
+       pronto per essere corretto invece che riscritto da capo. */
+    inp.value = AH_COMUNI.includes(m.ah) ? "" : m.ah;
+    inp.oninput = () => { m.ah = Math.max(0, Number(inp.value) || 0); };
+    box.append(inp);
+  }
+  return box;
+}
+
 function schedaManuale(f) {
   const m = bozza.manuale;
   f.append(el("div", "sepa"), el("span", "etichetta mini", t("s.dichiara")));
@@ -822,7 +901,20 @@ function schedaManuale(f) {
   const fila = el("div", "scelte");
   tipi.forEach((id) => {
     const b = el("button", "scelta" + (m.tipo === id ? " accesa" : ""), t("t." + id));
-    b.onclick = () => { m.tipo = id; disegnaScheda(); };
+    b.onclick = () => {
+      /* Cambiare tipo senza aggiornare la riserva lasciava, ad esempio,
+         un ecodrive appena scelto con "41 ore" ereditate dall'automatico
+         di partenza, mostrate come "2 giorni": implausibile, e da
+         correggere a mano ogni volta. Solo se il tipo cambia davvero,
+         altrimenti un secondo tocco sullo stesso tipo non deve annullare
+         un valore che l'utente ha già personalizzato. */
+      if (m.tipo !== id) {
+        m.tipo = id;
+        const d = DEFAULT_PER_TIPO[id] || DEFAULT_PER_TIPO.automatico;
+        m.riserva = d.riserva; m.ah = d.ah; m.ahLibero = false;
+      }
+      disegnaScheda();
+    };
     fila.append(b);
   });
   f.append(fila);
@@ -843,6 +935,10 @@ function schedaManuale(f) {
   gruppo.append(et, inp);
   f.append(gruppo);
   f.append(el("p", "nota", t("s.nota")));
+
+  /* Stessa posizione logica della riserva: "come si comporta questo
+     movimento". Solo per i tipi che hanno davvero qualcosa da dire qui. */
+  if (TIPI_CON_AH.includes(m.tipo)) f.append(campoAH(m));
 
   /* crono è ortogonale al tipo — un quarzo può avere i pulsanti del
      cronografo quanto un automatico (7T92, VK63, i Peacock al quarzo
@@ -874,7 +970,10 @@ function schedaManuale(f) {
 function bottoneSalva() {
   const b = el("button", "azione", t(bozza.id ? "s.salvaMod" : "s.salva"));
   b.id = "salva";
-  b.disabled = !bozza.nome.trim();
+  /* Un nome da solo non basta: senza calibro né dichiarazione manuale,
+     salvaBozzaOra() non saprebbe che movimento assegnare e l'app si
+     romperebbe cercando di leggere il tipo da un calibro inesistente. */
+  b.disabled = !bozza.nome.trim() || !(bozza.calibro || bozza.manuale);
   b.onclick = salvaBozza;
   return b;
 }
@@ -922,11 +1021,16 @@ const eliminaOrologio = () => unaVolta(eliminaOrologioOra);
 const salvaBozza      = () => unaVolta(salvaBozzaOra);
 
 function aggiornaSalva() {
-  const b = q("#salva"); if (b) b.disabled = !bozza.nome.trim();
+  const b = q("#salva"); if (b) b.disabled = !bozza.nome.trim() || !(bozza.calibro || bozza.manuale);
 }
 
 async function salvaBozzaOra() {
   if (!bozza) return;
+  /* Seconda difesa, indipendente dal bottone disabilitato: se questa
+     funzione venisse mai richiamata da un altro punto senza calibro né
+     dichiarazione manuale, meglio uscire in silenzio che lasciare che
+     daCalibro(null, ...) provi a leggere .tipo da un valore nullo. */
+  if (!bozza.manuale && !bozza.calibro) return;
   const vecchio = bozza.id ? orologi.find((x) => x.id === bozza.id) : null;
   let o;
   if (bozza.manuale) {

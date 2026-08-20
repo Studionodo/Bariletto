@@ -309,9 +309,14 @@ async function segnaCaricaOra(o) {
 /* Il cronografo si segna solo se lo dici tu. */
 async function segnaCronoOra(o) {
   const ora = Date.now();
+  /* Mancava qui quello che segnaOra e segnaCaricaOra fanno già: senza
+     "prima", cancellare questa voce dal Registro toglieva la riga ma
+     lasciava ultimoCrono impostato per sempre, come se il gesto non si
+     potesse mai disfare. */
+  const prima = { ultimoCrono: o.ultimoCrono };
   o.ultimoCrono = ora;
   await salva("orologi", o);
-  await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora });
+  await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora, prima });
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
   disegna();

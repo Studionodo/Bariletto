@@ -43,7 +43,7 @@ const FAMIGLIE = [
   /* Ronda: un solo calibro per ora, famiglia comunque creata per
      coerenza con lo schema del resto del file e in vista di eventuali
      aggiunte future della stessa casa. */
-  { id: "ronda-q", marca: "Ronda", nome: "Ronda mecaquarzo", tipo: "quarzo", mano: false, arresto: true, data: true, giorno: false, riserva: 39420, ah: 0, fonte: "comunita" },
+  { id: "ronda-mecaquarzo", marca: "Ronda", nome: "Ronda mecaquarzo", tipo: "quarzo", mano: false, arresto: true, data: true, giorno: false, riserva: 39420, ah: 0, fonte: "comunita" },
   { id: "eta-2824",  marca: "ETA",     nome: "ETA 2824 / Sellita SW200", tipo: "automatico", mano: true,  arresto: true,  data: true,  giorno: false, riserva: 38,   ah: 28800, finestra: [21, 3], fonte: "comunita" },
   /* Lotto 14: movimenti francesi. Yema e Pequignet sono manifatture
      vere, non basi ETA — famiglie proprie, non agganciate a nessuna
@@ -368,7 +368,7 @@ const CALIBRI = [
   { id: "ACCUTRON218", fam: "bulova-fam", nome: "Bulova Accutron 218", fonte: "comunita" }, // fonti collezionistiche — riserva stimata, non dichiarata
   { id: "6460", fam: "hangzhou-fam", nome: "Hangzhou 6460 (GMT)", fonte: "comunita" },
   { id: "DG2813", fam: "generic-2813", nome: "DG2813 (progetto multi-fabbrica)", fonte: "comunita" }, // "2813" non è un calibro solo: più fabbriche lo costruiscono, verificare il marchio sotto il bilanciere
-  { id: "5030-D", fam: "ronda-q", nome: "Ronda 5030.D (mecaquarzo)", crono: true, riserva: 39420, finestra: [21, 0], fonte: "ufficiale" }, // manuale ufficiale ronda.ch: finestra data 21:00-mezzanotte, procedura di azzeramento a tre passaggi dopo cambio batteria
+  { id: "5030-D", fam: "ronda-mecaquarzo", nome: "Ronda 5030.D (mecaquarzo)", crono: true, riserva: 39420, finestra: [21, 0], fonte: "ufficiale" }, // manuale ufficiale ronda.ch: finestra data 21:00-mezzanotte, procedura di azzeramento a tre passaggi dopo cambio batteria
   { id: "CMM10", fam: "yema-fam", nome: "Yema CMM.10", fonte: "ufficiale" }, // primo automatico interamente francese da 70 anni, secondo Yema; bariletto unico Générale Ressorts, 70h a 28.800 A/h
   { id: "CALIBRE-ROYAL", fam: "pequignet-fam", nome: "Pequignet Calibre Royal", riserva: 88, ah: 21600, fonte: "ufficiale" }, // manifattura vera, non base ETA — 318 componenti, sviluppo documentato su pequignet.com
   /* --- Russia ed ex-URSS: dal lotto 5 dell'archivio -------------------- */

@@ -163,7 +163,14 @@ function bisogno(o) {
       return { punti: 90 + luce, stato: "riserva",
                motivo: t(o.tipo === "kinetic" ? "m.kin.basso" : "m.eco.basso", { g: lg, l: ll }) };
     return { punti: g, stato: "moto", restanti: (limite - luce) * 24,
-             motivo: t("m.carico", { r: etichettaRiserva(o, true) }) };
+             /* Prima qui c'era m.carico con la capacità nominale intera
+                (etichettaRiserva), anche a metà del periodo senza luce:
+                "Autonomia piena" quando in realtà ne restava la metà. Ora
+                usa la riserva REALE già calcolata sulla riga sopra
+                (restanti), passata attraverso durata() per lo stesso
+                linguaggio umano già usato altrove ("14 ore", "90
+                giorni"). */
+             motivo: t("m.eco.carico", { r: durata((limite - luce) * 24) }) };
   }
 
   if (o.tipo === "quarzo" || o.tipo === "elettrico" || o.tipo === "diapason") {

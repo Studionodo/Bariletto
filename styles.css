@@ -1107,6 +1107,21 @@ h1.nome.tagliato {
 
 .riserva-campo { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s1); }
 
+/* Il campo A/H: stessa fila di chip già vista per il tipo, con in coda
+   un bottone icona invece di un'ennesima chip di testo — la matita dice
+   "scrivi tu" senza bisogno di un'etichetta a parte. */
+.ah-campo { margin-bottom: var(--s3); }
+.ah-campo > .etichetta { display: block; margin-bottom: 6px; }
+.ah-campo .scelte { margin: 0; }
+.matita {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; width: 44px; border-radius: var(--r-chip);
+  color: var(--argento-off); border: 1px solid rgba(255,255,255,.10);
+  transition: border-color .25s var(--piano), background .25s var(--piano), color .25s var(--piano);
+}
+.matita.accesa { color: var(--oro); border-color: rgba(201,169,106,.45); background: rgba(201,169,106,.10); }
+.matita:active { transform: scale(.96); }
+
 .interruttore {
   display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
   width: 100%; padding: 13px 0; text-align: left;
