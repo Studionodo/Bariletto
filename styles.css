@@ -563,9 +563,18 @@ h1.nome.tagliato {
    ciascuno, e solo su schermi eccezionalmente alti se ne accorge
    qualcuno. */
 .vuoto-spaziatore { flex: 1 1 0; max-height: 220px; }
+/* Prima era un paragrafo generico da 13px: cinque persone su cinque,
+   provando l'app per la prima volta, non l'hanno notato. Eppure è
+   l'unica spiegazione di cosa fa l'intera app, letta esattamente una
+   volta da ogni persona nuova. Stesso trattamento già riservato a
+   .motivo, la frase che l'app considera la più importante da leggere
+   ogni giorno: non un'invenzione nuova, lo stesso peso per un testo
+   che se lo merita altrettanto. */
 .presentazione-vuoto {
-  font-size: .8125rem; line-height: 1.6; color: var(--argento); opacity: .92;
-  max-width: 320px; text-wrap: balance;
+  font-family: var(--display); font-variation-settings: 'opsz' 20;
+  font-weight: 300; font-size: 1rem; line-height: 1.6;
+  color: var(--argento); opacity: .94;
+  max-width: 340px; text-wrap: balance;
 }
 
 /* Titolo con un'azione a fianco, sempre raggiungibile senza scorrere —

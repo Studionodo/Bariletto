@@ -214,7 +214,7 @@ async function mostraPrimoUsoSeServe() {
     t("primoUso.bottone"));
 }
 
-async function segnaOra(o, ridisegnaSubito = true) {
+async function segnaOra(o, ridisegnaSubito = true, controllaPrimoUso = true) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
                   ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
@@ -231,7 +231,7 @@ async function segnaOra(o, ridisegnaSubito = true) {
   scelto = o.id;
   ripulisciNotifica(o.id);
   if (ridisegnaSubito) disegna();
-  mostraPrimoUsoSeServe();
+  if (controllaPrimoUso) mostraPrimoUsoSeServe();
 }
 
 /* Annulla l'atto di INDOSSARE, non l'ultima cosa fatta: se nel frattempo
@@ -286,9 +286,17 @@ const segnaCrono  = (o) => unaVolta(() => segnaCronoOra(o));
    secondo tocco per abitudine può cadere su un orologio diverso, perché
    il bersaglio sotto il dito cambia nello stesso istante del tocco. */
 function segnaConConferma(o, alConfermato) {
-  unaVolta(() => segnaOra(o, false)).then(() => {
+  /* Il popup bloccante "Come funziona il conteggio" e la conferma
+     "Segnato, [nome]" si contendevano lo stesso istante: al primissimo
+     tocco in assoluto comparivano quasi insieme, e il popup, a schermo
+     intero, copriva la conferma per tutta la sua durata. Chi impiegava
+     più di 4 secondi a leggere il popup non vedeva mai la conferma.
+     Rimandando anche il controllo del primo utilizzo alla fine dei 4
+     secondi, i due momenti non si accavallano più: prima la conferma
+     ha il suo tempo per intero, poi, solo se serve, la spiegazione. */
+  unaVolta(() => segnaOra(o, false, false)).then(() => {
     if (typeof alConfermato === "function") alConfermato(o.nome);
-    setTimeout(() => disegna(), 4000);
+    setTimeout(() => { disegna(); mostraPrimoUsoSeServe(); }, 4000);
   });
 }
 
