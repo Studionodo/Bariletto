@@ -62,16 +62,11 @@ Aggiornare la data a ogni passata.
 
 ## Stato dei numeri
 
-56 calibri toccati, 24 con fonte ufficiale, 33 con fonti di settore
-concordi, il resto ereditato dalla famiglia (`derivato`) e dichiarato tale
-nell'app. **Restano davvero da verificare solo cinque:** NH38, NH70, 6602,
-66xx, 9011, e i due Citizen E650 e 8730 di cui non ho trovato la riserva
-in nessuna fonte, ufficiale o no.
+Il catalogo oggi conta 158 calibri in 97 famiglie. La checklist qui sotto copre i primi 56 calibri, verificati uno per uno quando il catalogo era a quella dimensione: 24 con fonte ufficiale, 33 con fonti di settore concordi, il resto ereditato dalla famiglia (`derivato`) e dichiarato tale nell'app. **Restano davvero da verificare, di quei 56:** NH38, NH70, 6602, 66xx, 9011, e i due Citizen E650 e 8730 di cui non ho trovato la riserva in nessuna fonte, ufficiale o no.
 
-Tre correzioni vere, non solo conferme: il **4R38** aveva la data invertita
-col 4R39; il **B620** ereditava 180 giorni invece dei suoi 270; il **8205**
-era segnato senza carica a mano, e la pagina ufficiale Miyota dice il
-contrario. Erano bug, non solo caselle da spuntare.
+I 102 calibri aggiunti nei lotti successivi hanno tutti il campo `fonte` dichiarato in `calibri.js` (oggi il conteggio complessivo è 84 con fonte ufficiale o propria e 74 con fonte di comunità, sull'intero catalogo), ma non sono ancora passati da una checklist esplicita come questa: la fonte dichiarata viene dal lavoro fatto scheda per scheda nell'archivio dei movimenti (`archivio/`), non da un secondo controllo indipendente come quello descritto qui sopra. Se un giorno serve lo stesso livello di scrutinio anche per loro, il metodo resta lo stesso: libretto ufficiale, tre numeri, tre sì/no, spunta.
+
+Tre correzioni vere, non solo conferme, dal lavoro sui primi 56: il **4R38** aveva la data invertita col 4R39; il **B620** ereditava 180 giorni invece dei suoi 270; il **8205** era segnato senza carica a mano, e la pagina ufficiale Miyota dice il contrario. Erano bug, non solo caselle da spuntare.
 
 ## Priorità
 
