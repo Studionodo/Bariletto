@@ -52,6 +52,16 @@ function cartaOrologio(o, b, alPolso) {
   return c;
 }
 
+/* Sostituisce la sola riga del bottone con la conferma del nome appena
+   segnato. Non tocca il resto della carta né la pagina: il ridisegno
+   vero, quello che passa al prossimo orologio, arriva da solo dopo il
+   tempo di lettura, deciso da segnaConConferma. */
+function mostraConfermaGesto(rigaAz, nome) {
+  const conf = el("div", "conferma-gesto");
+  conf.append(el("span", "pallino"), el("span", "", t("oggi.segnato", { n: nome })));
+  rigaAz.replaceChildren(conf);
+}
+
 function costruisciOggi() {
   const d = el("div", "colonna");
   const classifica = ordinaPerBisogno(orologi);
@@ -103,7 +113,6 @@ function costruisciOggi() {
   anello.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); apriScheda(primo.o, "dettaglio"); }
   });
-  d.append(anello);
 
   const sotto = el("div", "sotto-anello");
   if (proposto) {
@@ -119,20 +128,37 @@ function costruisciOggi() {
         ? primo.o.nome + " " + t("oggi.prossimoOra", { q: durata(primo.b.restanti) })
         : t("oggi.tuttiCarichi")));
   }
-  d.append(sotto);
 
+  /* Quadrante, motivo e bottone stavano come tre elementi indipendenti
+     impilati nella pagina: il nome si leggeva sopra, il bottone si
+     toccava sotto, e niente teneva insieme le due cose all'occhio. Un
+     bordo solo, senza sfondo aggiunto — il bagliore già dietro l'anello
+     basta da solo come atmosfera — li racchiude in un'unica carta,
+     così il bottone si legge come parte di quell'orologio, non come un
+     comando neutro appoggiato sulla pagina. Solo quando c'è un gesto da
+     proporre: nello stato di quiete non c'è nessun bottone da ancorare. */
   if (proposto) {
+    const carta = el("div", "carta-gesto");
+    carta.append(anello, sotto);
+
     const rigaAz = el("div", "riga-azione-principale");
     const az = el("button", "azione dopo", t("messo"));
-    az.onclick = () => segna(proposto.o);
+    az.onclick = () => {
+      az.disabled = true;
+      segnaConConferma(proposto.o, (nome) => mostraConfermaGesto(rigaAz, nome));
+    };
     rigaAz.append(az, infoTocco(t("info.gesti.titolo"),
-      [t("info.gesti.testo1"), t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
-    d.append(rigaAz);
+      [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
+    carta.append(rigaAz);
+    d.append(carta);
+
     if (proposto.o.mano || proposto.o.tipo === "manuale") {
       const car = el("button", "quieta dopo-corto", t("soloCaricato"));
       car.onclick = () => segnaCarica(proposto.o);
       d.append(car);
     }
+  } else {
+    d.append(anello, sotto);
   }
 
   /* Portare un cronografo non vuol dire averlo azionato: la frizione

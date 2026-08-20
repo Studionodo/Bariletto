@@ -214,7 +214,7 @@ async function mostraPrimoUsoSeServe() {
     t("primoUso.bottone"));
 }
 
-async function segnaOra(o) {
+async function segnaOra(o, ridisegnaSubito = true) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
                   ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
@@ -230,7 +230,7 @@ async function segnaOra(o) {
   registro = await leggiTutti("registro");
   scelto = o.id;
   ripulisciNotifica(o.id);
-  disegna();
+  if (ridisegnaSubito) disegna();
   mostraPrimoUsoSeServe();
 }
 
@@ -279,6 +279,18 @@ const annullaOggi = (o) => unaVolta(() => annullaOggiOra(o));
 const togliVoce   = (v) => unaVolta(() => togliVoceOra(v));
 const segnaCarica = (o) => unaVolta(() => segnaCaricaOra(o));
 const segnaCrono  = (o) => unaVolta(() => segnaCronoOra(o));
+
+/* Il bottone principale di Oggi non ridisegna subito: salva, poi lascia
+   che chi ha chiamato mostri una conferma con il nome dell'orologio
+   appena segnato, e solo dopo passa al prossimo. Senza questo, un
+   secondo tocco per abitudine può cadere su un orologio diverso, perché
+   il bersaglio sotto il dito cambia nello stesso istante del tocco. */
+function segnaConConferma(o, alConfermato) {
+  unaVolta(() => segnaOra(o, false)).then(() => {
+    if (typeof alConfermato === "function") alConfermato(o.nome);
+    setTimeout(() => disegna(), 4000);
+  });
+}
 
 /* Caricare senza indossare: gli orologi nel cassetto si caricano lo stesso. */
 async function segnaCaricaOra(o) {

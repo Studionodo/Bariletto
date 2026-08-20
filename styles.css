@@ -390,6 +390,32 @@ body::before {
 .riga-azione-principale .azione { margin-top: 0; }
 .riga-azione-secondaria { display: flex; align-items: center; gap: 4px; }
 .riga-azione-secondaria.centrata { justify-content: center; }
+
+/* Quadrante, motivo e bottone raggruppati in un'unica carta: solo un
+   bordo tenue, nessuno sfondo aggiunto — il bagliore #luce già dietro
+   l'anello resta l'unica atmosfera, due fonti di luce si sarebbero
+   solo confuse a vicenda. Stesso oro tenue del bordo del quadrante,
+   stesso raggio delle altre lastre dell'app. */
+.carta-gesto {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  border: 1px solid rgba(201,169,106,.35);
+  border-radius: var(--r-lastra);
+  padding: var(--s4) var(--s3) var(--s3);
+  margin-top: var(--s2);
+}
+/* La conferma prende il posto del bottone, non aggiunge una riga: la
+   pagina non deve saltare né allungarsi nell'istante in cui compare. */
+.conferma-gesto {
+  display: flex; align-items: center; gap: var(--s2);
+  font-family: var(--dati); font-size: .875rem; color: var(--argento);
+  animation: entra-conferma .22s var(--piano);
+}
+.conferma-gesto .pallino { background: var(--oro); }
+@keyframes entra-conferma {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 /* Il titolo di sezione con l'icona info accanto: il margine sotto che
    prima stava sul titolo stesso ora serve sulla riga che lo avvolge —
    un flex item non spinge giù il resto della pagina da solo. Due
