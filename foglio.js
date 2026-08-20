@@ -407,6 +407,12 @@ function apriScheda(esistente, modo) {
     data: esistente.data, giorno: esistente.giorno, indiretti: esistente.indiretti,
     crono: !!esistente.crono, tourbillon: !!esistente.tourbillon,
     riserva: esistente.riserva, ah: esistente.ah,
+    /* Se l'A/H salvato non è uno dei cinque valori comuni, il campo
+       libero deve aprirsi subito mostrando il numero vero: altrimenti
+       nessuna chip risulterebbe evidenziata e il valore, pur salvato
+       correttamente, sparirebbe dalla vista finché non si tocca la
+       matita da soli. */
+    ahLibero: !AH_COMUNI.includes(esistente.ah),
   } : null;
 
   /* Due modi nello stesso foglio: «dettaglio» legge, «modifica» scrive.
