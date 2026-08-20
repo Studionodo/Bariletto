@@ -414,8 +414,18 @@ function apriScheda(esistente, modo) {
   addEventListener("keydown", tastoScheda);
 
   disegnaScheda();
-  const primo = foglio.querySelector(".campo");
-  if (primo && !esistente) setTimeout(() => primo.focus(), 420);
+  /* Il fuoco atterra sul titolo, non sul primo campo: un titolo non
+     apre la tastiera. Serve solo come appiglio per chi naviga da
+     tastiera o con uno screen reader, dopo che inerte(true) ha tolto
+     il fuoco da qualunque cosa lo avesse prima. Prima atterrava sul
+     campo nome solo per gli orologi nuovi: qui invece è lo stesso
+     comportamento sempre, anche in dettaglio e in modifica di un
+     orologio esistente, dove prima non c'era nessun appiglio. */
+  const titolo = foglio.querySelector(".capo-titolo");
+  if (titolo) {
+    titolo.setAttribute("tabindex", "-1");
+    setTimeout(() => titolo.focus({ preventScroll: true }), 420);
+  }
 }
 
 /* Con il foglio aperto, tutto il resto esce dal percorso di tabulazione.
@@ -675,6 +685,15 @@ function schedaRicerca(f, filtro) {
   const sotto = el("div", "dopo-corto esiti-link");
   f.append(sotto);
 
+  /* La tastiera riduce lo spazio visibile del foglio, e i suggerimenti
+     compaiono più in basso di quanto sembri guardando il campo di
+     testo: senza aiuto restano fuori vista, raggiungibili solo
+     scorrendo a mano. Il flag ricorda se erano già visibili: la prima
+     comparsa li porta in vista da sola, ma non a ogni tasto premuto
+     mentre restano non vuoti, altrimenti la pagina si muoverebbe sotto
+     le dita mentre si scrive. */
+  let risultatiGiaVisti = false;
+
   function riempi(testo) {
     esiti.innerHTML = ""; sotto.innerHTML = "";
     const trovati = testo.trim() ? cercaCalibri(testo) : [];
@@ -707,6 +726,14 @@ function schedaRicerca(f, filtro) {
       disegnaScheda();
     };
     sotto.append(man);
+
+    if (trovati.length && !risultatiGiaVisti) {
+      risultatiGiaVisti = true;
+      requestAnimationFrame(() => esiti.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+    } else if (!trovati.length) {
+      /* Campo svuotato: la prossima comparsa torna a contare come prima volta. */
+      risultatiGiaVisti = false;
+    }
   }
   cerca.oninput = () => riempi(cerca.value);
   riempi(filtro);

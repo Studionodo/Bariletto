@@ -989,6 +989,11 @@ h1.nome.tagliato {
   font-family: var(--display); font-variation-settings: 'opsz' 32, 'SOFT' 18;
   font-weight: 400; font-size: 1.0625rem; line-height: 1.2; color: var(--argento);
 }
+/* Riceve il fuoco all'apertura del foglio solo come appiglio per chi
+   naviga da tastiera o con uno screen reader: non è un controllo con
+   cui interagire, quindi niente contorno visibile, sarebbe letto come
+   un elemento rotto piuttosto che un'indicazione utile. */
+.capo-titolo:focus { outline: none; }
 .capo-azioni { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
 .chiudi {
   font-family: var(--dati); font-size: .625rem; font-weight: 600;
