@@ -700,6 +700,24 @@ function schedaRicerca(f, filtro) {
   const sotto = el("div", "dopo-corto esiti-link");
   f.append(sotto);
 
+  /* "Non lo trovo: lo dichiaro io" cambia strada, non si limita a
+     portarti altrove come "Cerca nel catalogo": prima era lo stesso
+     identico link di testo, stesso peso, stessa disattenzione. Nella
+     ricerca a schermo intero (schedaCercaCalibro, poco più sotto in
+     questo file) questo stesso bottone ha già la veste di un'azione
+     vera — qui restava un link, la stessa azione con due pesi diversi
+     a seconda di dove capitavi. Creato una volta sola, non a ogni
+     ridisegno di riempi(): il suo comportamento legge cerca.value al
+     momento del tocco, non ha bisogno di essere ricostruito a ogni
+     lettera digitata. */
+  const man = el("button", "azione secondaria larga dopo-corto", t("s.manuale"));
+  man.onclick = () => {
+    bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600, ahLibero: false };
+    bozza.manualeTesto = cerca.value.trim();
+    disegnaScheda();
+  };
+  f.append(man);
+
   /* La tastiera riduce lo spazio visibile del foglio, e i suggerimenti
      compaiono più in basso di quanto sembri guardando il campo di
      testo: senza aiuto restano fuori vista, raggiungibili solo
@@ -726,21 +744,13 @@ function schedaRicerca(f, filtro) {
       });
     }
 
-    /* Due link, sempre presenti, mai una sezione che invade: sfogliare
-       tutto il catalogo o dichiarare il movimento a mano restano a un
-       tocco di distanza senza occupare spazio quando non servono. */
+    /* Un solo link qui dentro: sfogliare tutto il catalogo resta un
+       tocco leggero, senza occupare spazio quando non serve. "Lo
+       dichiaro io" vive fuori da questa funzione, vedi sopra. */
     const vediTutti = el("button", "quieta stretto",
       trovati.length > 4 ? t("s.altriRisultati") : t("s.cercaCatalogo", { n: CALIBRI.length }));
     vediTutti.onclick = () => { modoFoglio = "cerca-calibro"; disegnaScheda(cerca.value); };
     sotto.append(vediTutti);
-
-    const man = el("button", "quieta stretto", t("s.manuale"));
-    man.onclick = () => {
-      bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600, ahLibero: false };
-      bozza.manualeTesto = cerca.value.trim();
-      disegnaScheda();
-    };
-    sotto.append(man);
 
     if (trovati.length && !risultatiGiaVisti) {
       risultatiGiaVisti = true;
