@@ -1,7 +1,7 @@
 /* Bariletto — service worker.
    Tutto nel guscio, font compresi: dopo l'installazione non serve più la rete. */
 
-const CACHE = "bariletto-v158";
+const CACHE = "bariletto-v159";
 
 /* Portati dentro il service worker: nessuno dei tre tocca il DOM, solo
    IndexedDB e calcolo puro. bisogno() decide chi ha bisogno di
@@ -19,7 +19,7 @@ const GUSCIO = ["./", "./index.html", "./styles.css",
                 "./archivio.js", "./dominio.js",
                 "./oggi.js", "./altro.js", "./foglio.js", "./cornice.js",
                 "./manifest.webmanifest", "./icon-192.png", "./icon-512.png",
-                "./icon-512-maskable.png",
+                "./icon-512-maskable.png", "./apple-touch-icon.png", "./favicon-32.png",
                 "./font/fraunces.woff2", "./font/instrument-sans.woff2"];
 
 self.addEventListener("install", (e) => {
