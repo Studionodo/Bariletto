@@ -48,6 +48,59 @@ function apriInfo(titolo, testi) {
   focoSulTitolo(foglio);
 }
 
+/* Il pannello "Cos'è Bariletto": stessa apparizione di apriInfo, ma il
+   corpo ha un proprio interruttore ITALIANO/ENGLISH, indipendente dalla
+   lingua generale dell'app. Chi vuole leggere la spiegazione nell'altra
+   lingua senza cambiare tutta l'interfaccia deve poterlo fare qui, sul
+   posto: prima questo pannello seguiva solo la lingua già impostata
+   altrove, un controllo in meno da duplicare ma anche un modo in meno
+   per raggiungere l'altra lingua senza uscire da qui. */
+function apriCosE() {
+  const uscente = q("#velo");
+  if (uscente) { if (uscente.classList.contains("su")) return; uscente.remove(); }
+  const velo = el("div"); velo.id = "velo";
+  const foglio = el("div", "corto"); foglio.id = "foglio";
+  const capo = el("div", "capo");
+  capo.append(el("span", "capo-titolo", NOME_APP));
+  const azioni = el("div", "capo-azioni");
+  const x = el("button", "chiudi", t("chiudi")); x.onclick = chiudiScheda;
+  azioni.append(x);
+  capo.append(azioni);
+  foglio.append(capo);
+
+  const corpo = el("div", "foglio-corpo");
+  foglio.append(corpo);
+
+  /* Parte dalla lingua già attiva nell'app: un punto di partenza
+     sensato, non un valore fisso. Da qui in poi vive per conto suo,
+     tocca l'interruttore quante volte vuoi senza che l'app fuori
+     cambi lingua con te. */
+  let linguaPannello = LINGUA;
+
+  function disegnaCorpoCosE() {
+    corpo.innerHTML = "";
+    const scelte = el("div", "scelte");
+    [["it", "ITALIANO"], ["en", "ENGLISH"]].forEach(([id, etichetta]) => {
+      const b = el("button", "scelta" + (linguaPannello === id ? " accesa" : ""), etichetta);
+      b.onclick = () => { linguaPannello = id; disegnaCorpoCosE(); };
+      scelte.append(b);
+    });
+    corpo.append(scelte);
+    const voci = linguaPannello === "it" ? VOCI.it : VOCI.en;
+    ["info.cosE.testo1", "info.cosE.testo2", "info.cosE.testo3"].forEach((k) => {
+      corpo.append(el("p", "info-testo", voci[k]));
+    });
+  }
+  disegnaCorpoCosE();
+
+  velo.append(foglio); document.body.append(velo);
+  inerte(true);
+  requestAnimationFrame(() => velo.classList.add("su"));
+  velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
+  addEventListener("keydown", tastoScheda);
+  focoSulTitolo(foglio);
+}
+
 
 /* La fabbrica dell'iconcina stessa: un bottone piccolo, sempre uguale,
    che apre il pannello con il titolo e il testo passati. Usata da più

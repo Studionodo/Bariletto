@@ -188,8 +188,7 @@ function costruisciCornice() {
        tocchi verso il contenuto sotto): qui va riacceso esplicitamente,
        solo su questo elemento. */
     const cosE = el("button", "link-cosE", t("info.cosE"));
-    cosE.onclick = () => apriInfo(NOME_APP,
-      [t("info.cosE.testo1"), t("info.cosE.testo2"), t("info.cosE.testo3")]);
+    cosE.onclick = () => apriCosE();
     testata.append(marchio, frase, cosE);
   }
   misuraTestata();

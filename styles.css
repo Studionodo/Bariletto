@@ -224,9 +224,9 @@ body::before {
   position: relative; z-index: 4; display: block; pointer-events: auto;
   margin-top: 5px; margin-left: 1px; padding: 4px 0;
   font-family: var(--dati); font-size: .75rem; font-weight: 500;
-  letter-spacing: .01em; color: var(--oro);
+  letter-spacing: .01em; color: var(--viola);
   text-decoration: underline; text-underline-offset: 2px;
-  text-decoration-color: rgba(201,169,106,.45);
+  text-decoration-color: rgba(158,137,236,.4);
 }
 .link-cosE:active { color: var(--argento); }
 
