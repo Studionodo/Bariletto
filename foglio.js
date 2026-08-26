@@ -474,8 +474,22 @@ function chiudiScheda() {
   setTimeout(() => { v.remove(); if (!q("#velo")) { bozza = null; voceArchivioAperta = null; } }, 380);
 }
 
+/* disegnaScheda butta via e ricrea .foglio-corpo ad ogni tocco: ogni
+   spunta di "Il gesto", ogni cambio di tipo, ogni scelta A/H passa da
+   qui. Un elemento nuovo parte sempre da scroll zero, quindi senza
+   questo la pagina saltava in cima ad ogni singola voce toccata, anche
+   scorrendo a metà di un modulo lungo come "Dichiara a mano". Il
+   ripristino vale solo restando sullo stesso modoFoglio: passando da
+   "modifica" a "cerca-calibro" o a "dettaglio" lo schermo cambia
+   davvero, e lì ripartire dall'alto è quello che ci si aspetta. */
+let modoFoglioPrecedente = null;
+
 function disegnaScheda(filtro = "") {
   const f = q("#foglio"); if (!f) return;
+  const corpoUscente = f.querySelector(".foglio-corpo");
+  const scrollDaRipristinare =
+    (modoFoglioPrecedente === modoFoglio && corpoUscente) ? corpoUscente.scrollTop : 0;
+  modoFoglioPrecedente = modoFoglio;
   f.innerHTML = "";
 
   const capo = el("div", "capo");
@@ -508,8 +522,14 @@ function disegnaScheda(filtro = "") {
   const corpo = el("div", "foglio-corpo");
   f.append(corpo);
 
-  if (modoFoglio === "dettaglio") { schedaDettaglio(corpo); f.append(piedeDettaglio()); return; }
-  if (modoFoglio === "cerca-calibro") { schedaCercaCalibro(corpo, filtro); return; }
+  if (modoFoglio === "dettaglio") {
+    schedaDettaglio(corpo); f.append(piedeDettaglio());
+    corpo.scrollTop = scrollDaRipristinare; return;
+  }
+  if (modoFoglio === "cerca-calibro") {
+    schedaCercaCalibro(corpo, filtro);
+    corpo.scrollTop = scrollDaRipristinare; return;
+  }
 
   corpo.append(el("span", "gruppo", t("s.identita")));
   corpo.append(campo(t("s.nome"), t("s.nomeAiuto"), bozza.nome, 60,
@@ -532,6 +552,7 @@ function disegnaScheda(filtro = "") {
   const piede = el("div", "foglio-piede");
   piede.append(bottoneSalva());
   f.append(piede);
+  corpo.scrollTop = scrollDaRipristinare;
 }
 
 /* ---------- il modo lettura: gesti, storia e azione del giorno --------
