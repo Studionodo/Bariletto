@@ -179,7 +179,18 @@ function costruisciCornice() {
     marchio.dataset.nome = NOME_APP;
     const frase = el("div", null, t("frase"));
     frase.id = "frase";
-    testata.append(marchio, frase);
+    /* Prima Bariletto si spiegava solo nel momento in cui la collezione
+       era vuota, il giorno zero: chiuso quel messaggio, spariva per
+       sempre. Un link sempre raggiungibile, qui nella testata comune a
+       entrambe le pagine, tiene la spiegazione a un tocco di distanza
+       in ogni momento, non solo alla primissima apertura. #testata ha
+       pointer-events: none su tutto il resto (deve lasciar passare i
+       tocchi verso il contenuto sotto): qui va riacceso esplicitamente,
+       solo su questo elemento. */
+    const cosE = el("button", "link-cosE", t("info.cosE"));
+    cosE.onclick = () => apriInfo(NOME_APP,
+      [t("info.cosE.testo1"), t("info.cosE.testo2"), t("info.cosE.testo3")]);
+    testata.append(marchio, frase, cosE);
   }
   misuraTestata();
 

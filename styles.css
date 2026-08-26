@@ -217,6 +217,18 @@ body::before {
   color: var(--frase);
   pointer-events: none;
 }
+/* L'unico elemento della testata che deve reagire al tocco: il resto
+   ha pointer-events: none per lasciar passare i tocchi al contenuto
+   sotto, questo lo riaccende solo su di sé. */
+.link-cosE {
+  position: relative; z-index: 4; display: block; pointer-events: auto;
+  margin-top: 5px; margin-left: 1px; padding: 4px 0;
+  font-family: var(--dati); font-size: .75rem; font-weight: 500;
+  letter-spacing: .01em; color: var(--argento-off);
+  text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-color: rgba(255,255,255,.28);
+}
+.link-cosE:active { color: var(--argento); }
 
 
 /* ------------------------------------------------------------------
