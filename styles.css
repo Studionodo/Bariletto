@@ -927,6 +927,15 @@ h1.nome.tagliato {
    non più leggero. Tolto: la riga dei diritti ora si legge come le
    altre, non ha bisogno di un livello suo. */
 .colophon-diritti { margin-top: 2px; }
+/* Stesso grigio già verificato per il contrasto (.colophon p, sopra),
+   non un colore nuovo: qui è una nota a piè di pagina, non un invito
+   ad agire come "Cos'è Bariletto" in testata. Solo la sottolineatura
+   dice che si tocca. */
+.colophon-diritti a {
+  color: inherit; text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-color: rgba(146,151,173,.5);
+}
+.colophon-diritti a:active { color: var(--argento); }
 
 
 /* ------------------------------------------------------------------

@@ -226,11 +226,20 @@ function fondoLingua() {
    dal caffè, qui non c'è niente da imparare, solo un archivio da
    consultare. La sostituisco con qualcosa che dica cosa fa Bariletto
    invece di dire cosa non fa. Le altre due righe (privacy, copyright)
-   sono vere qui esattamente come lì: nessun account, nessuna nuvola. */
+   sono vere qui esattamente come lì: nessun account, nessuna nuvola.
+   Il link GitHub, aggiunto dopo, segue lo stesso posto che ha in Posa:
+   in coda alla riga dei diritti, non una riga sua propria — è una nota
+   in più su una riga già lì, non un nuovo comando che chiede attenzione. */
 function colophon() {
   const c = el("div", "colophon");
   c.append(el("p", null, t("col.riga2")));
-  c.append(el("p", "colophon-diritti", t("col.riga3")));
+  const diritti = el("p", "colophon-diritti");
+  diritti.append(document.createTextNode(t("col.riga3") + " · "));
+  const gh = el("a", null, "GitHub");
+  gh.href = "https://github.com/Studionodo";
+  gh.target = "_blank"; gh.rel = "noopener noreferrer";
+  diritti.append(gh);
+  c.append(diritti);
   return c;
 }
 
