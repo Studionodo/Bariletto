@@ -313,89 +313,6 @@ body::before {
 .voce-indice.acceso::after { width: 22px; }
 
 
-/* ------------------------------------------------------------------
-   L'anello incassato: scavato, non sollevato.
-   ------------------------------------------------------------------ */
-.anello {
-  width: var(--anello); height: var(--anello); border-radius: 50%;
-  flex: 0 0 auto;
-  margin: 0 auto; position: relative;
-  /* Il testo deve stare dentro il campo piatto, cioè entro 0,74 del
-     raggio: con la corona e gli indici lo spazio utile è meno del quadrato. */
-  padding: 0 calc(var(--anello) * .21);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  /* Il quadrante del Vanac non è liscio: scandendone una colonna si
-     contano 99 inversioni di luce, è rigato in orizzontale. Qui la
-     rigatura è finissima e a bassissimo contrasto: deve dare materia
-     senza disturbare il testo che ci sta sopra. */
-  background:
-    repeating-linear-gradient(to bottom,
-      rgba(255,255,255,.030) 0px, rgba(255,255,255,.030) 1px,
-      rgba(0,0,0,.045) 1px, rgba(0,0,0,.045) 3px),
-    radial-gradient(circle at 50% 38%,
-      color-mix(in srgb, var(--quadrante) 66%, var(--wall)) 0%,
-      color-mix(in srgb, var(--quadrante) 42%, var(--wall)) 44%,
-      color-mix(in srgb, var(--quadrante) 16%, var(--room)) 82%);
-  box-shadow:
-    inset 0 3px 18px rgba(0,0,0,.80),
-    inset 0 -1px 0 rgba(255,255,255,.10),
-    inset 0 1px 0 rgba(0,0,0,.55),
-    0 2px 10px rgba(0,0,0,.55),
-    0 1px 0 rgba(255,255,255,.045);
-}
-/* La ghiera in oro. Sul King Seiko l'oro è struttura, non accento:
-   l'8,6% del quadrante. Qui non copio l'anello dei minuti con le tacche
-   — sarebbe imitazione — prendo il colore e ne faccio un bisello di
-   metallo lavorato, con la luce che cade a 30° da destra come nel logo. */
-.anello::before {
-  content: ""; position: absolute; inset: 0; border-radius: 50%;
-  padding: calc(var(--anello) * .0085);
-  background: conic-gradient(from 300deg,
-    #6B5533 0deg, var(--oro) 42deg, #E4CE8C 78deg, #F0E4B0 100deg,
-    var(--oro) 140deg, #5A4629 205deg, #4A3A24 250deg,
-    #8A6E42 305deg, #6B5533 360deg);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  pointer-events: none;
-}
-/* Il filetto interno: la seconda linea d'oro, che stacca la ghiera. */
-.anello::after {
-  content: ""; position: absolute; inset: calc(var(--anello) * .075); border-radius: 50%;
-  border: 1px solid rgba(201,169,106,.34);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.45);
-  pointer-events: none;
-}
-.anello.tocca { cursor: pointer; transition: transform .24s var(--molla-corta); }
-.anello.tocca:active { transform: scale(.97); }
-
-/* L'architettura del quadrante sta sotto al testo e non intercetta i tocchi. */
-.quadrante { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-
-.stato-anello { display: block; margin-bottom: 6px; }
-.dato-anello { letter-spacing: .16em; }
-.dato-anello.secondario { opacity: .62; margin-top: 5px; }
-/* L'icona dell'anello sta fuori dal cerchio, non sopra il testo: il
-   quadrante deve restare leggibile senza un segno estraneo in mezzo.
-   Il calcolo la mette appena oltre il bordo dorato, in alto a destra,
-   qualunque sia la dimensione reale dell'anello sullo schermo. */
-.info-tocco.info-anello {
-  /* Terzo giro su questo calcolo, e stavolta l'ho fatto sulle
-     coordinate vere del riquadro, non su un'assunzione di dove sta il
-     centro. Con top:X e right:X su un contenitore quadrato di lato S,
-     il centro dell'icona (raggio r) sta a (S-X-r, X+r) dall'angolo in
-     alto a sinistra — non semplicemente a "R meno X" dal centro del
-     contenitore, come avevo assunto due volte. La distanza vera dal
-     centro è (R-X-r) * radice(2). Per ottenere un margine g tra il
-     bordo dell'icona e il bordo dorato: X = R - r - (R+r+g) / radice(2).
-     Verificato con un browser vero (Playwright, non calcolo a mano):
-     8px di distanza reale, letta con getBoundingClientRect(), a ogni
-     dimensione dell'anello. */
-  position: absolute;
-  top: calc(var(--anello) * .14645 - 24.44px);
-  right: calc(var(--anello) * .14645 - 24.44px);
-  background: var(--room);
-}
 /* Il bottone principale con l'icona accanto: una riga sola, centrata
    come stava il bottone da solo prima. */
 .riga-azione-principale { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: var(--s4); }
@@ -403,11 +320,10 @@ body::before {
 .riga-azione-secondaria { display: flex; align-items: center; gap: 4px; }
 .riga-azione-secondaria.centrata { justify-content: center; }
 
-/* Quadrante, motivo e bottone raggruppati in un'unica carta: solo un
-   bordo tenue, nessuno sfondo aggiunto — il bagliore #luce già dietro
-   l'anello resta l'unica atmosfera, due fonti di luce si sarebbero
-   solo confuse a vicenda. Stesso oro tenue del bordo del quadrante,
-   stesso raggio delle altre lastre dell'app. */
+/* Nome, motivo e bottone raggruppati in un'unica carta: solo un bordo
+   tenue, nessuno sfondo aggiunto — il bagliore ambientale (#luce)
+   resta l'unica atmosfera. Stesso oro tenue già usato altrove nell'app,
+   stesso raggio delle altre lastre. */
 .carta-gesto {
   width: 100%;
   display: flex; flex-direction: column; align-items: center;
@@ -575,6 +491,15 @@ h1.nome.tagliato {
    ciascuno, e solo su schermi eccezionalmente alti se ne accorge
    qualcuno. */
 .vuoto-spaziatore { flex: 1 1 0; max-height: 220px; }
+/* Il gruppo alto (frase + bottone) usato nello stato di collezione
+   vuota: finora era una classe senza regole, e funzionava per caso
+   perché .colonna è già flex centrata. Dichiarata esplicitamente, così
+   non dipende da una proprietà ereditata che qualcuno potrebbe
+   cambiare altrove senza sapere che questo blocco ci contava. */
+.vuoto-gruppo-alto {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; flex-shrink: 0;
+}
 /* Prima era un paragrafo generico da 13px: cinque persone su cinque,
    provando l'app per la prima volta, non l'hanno notato. Eppure è
    l'unica spiegazione di cosa fa l'intera app, letta esattamente una
@@ -669,65 +594,106 @@ h1.nome.tagliato {
 
 
 /* ------------------------------------------------------------------
-   Il carosello della collezione.
-
-   Prima la collezione allungava la pagina di una riga per orologio.
-   Qui scorre di lato: la pagina resta della sua altezza, e la collezione
-   cresce senza spingere niente più in basso. Le carte escono dal bordo
-   dello schermo apposta — il taglio è quello che dice «ce ne sono altre».
+   Il carosello della collezione è sparito con la riscrittura di Oggi
+   in elenco: nessun altro punto dell'app lo usa più (verificato con
+   una ricerca su ogni file), quindi il suo CSS è andato con lui invece
+   di restare morto in questo foglio.
    ------------------------------------------------------------------ */
-.carosello {
-  display: flex; gap: 10px; width: calc(100% + var(--bordo) * 2);
-  overflow-x: auto; overflow-y: hidden;
-  /* Il carosello si tiene il proprio scorrimento: arrivato in fondo il
-     gesto non deve passare al ponte e cambiare pagina. È l'unico punto
-     dove serve, ed è qui che va — non sulla pagina intera. */
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  /* Misure fisse, non percentuali: le percentuali di scroll-padding si
-     risolvono su una base diversa da quelle di padding, e l'aggancio
-     cadeva quarantadue pixel più in là — la fila si presentava già
-     spostata, come se fosse stata scorsa da sola. */
-  margin-inline: calc(var(--bordo) * -1);
-  padding: 2px var(--bordo) var(--s2);
-  scroll-padding-left: var(--bordo);
-  scrollbar-width: none;
-}
-.carosello::-webkit-scrollbar { display: none; }
-
-.carta {
-  scroll-snap-align: start; flex: 0 0 auto;
-  width: 178px; min-height: 142px;
-  display: flex; flex-direction: column; align-items: flex-start;
-  padding: 13px var(--s3); text-align: left;
-  border-radius: var(--r-lastra);
-  background: var(--slab); background-image: var(--trama);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 1px 2px rgba(0,0,0,.35);
-  transition: transform .22s var(--molla-corta);
-}
-.carta:active { transform: scale(.97); }
-.carta.al-polso { opacity: .74; box-shadow: inset 0 1px 0 rgba(201,169,106,.18); }
-.carta .pallino { margin-bottom: 9px; }
-/* Due righe sempre, anche quando il nome ne occupa una: senza, il filo
-   e i dati sotto stavano a due altezze diverse da una carta all'altra e
-   la fila sembrava sghemba. */
-.carta-nome {
-  font-family: var(--display); font-variation-settings: 'opsz' 24;
-  font-weight: 400; font-size: 1.0625rem; line-height: 1.2; color: var(--argento);
-  display: -webkit-box; -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
-  min-height: 2.4em;
-}
-/* I dati stanno sul fondo della carta, non subito sotto il nome: così
-   sono in linea fra carte di contenuto diverso. */
-.carta .filo { margin: 9px 0; width: 28px; }
-.carta-dato {
-  font-family: var(--dati); font-size: .6875rem; font-weight: 500;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--argento-off);
-  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.carta-stato { margin-top: 5px; }
 .pallino { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* ------------------------------------------------------------------
+   L'elenco di Oggi: righe compatte, una per orologio che non è l'eroe.
+   Riusa .riga e .riga.fra già del Registro (divisore in alto, spazio
+   fra i due lati): la stessa forma che l'app usa già per "un gruppo di
+   righe", non un contenitore nuovo per un elenco che è concettualmente
+   lo stesso tipo di cosa.
+   ------------------------------------------------------------------ */
+/* La riga eroe. Affianca .carta-gesto, che porta già bordo, raggio e
+   spaziatura: qui servono solo le differenze. Allineata a sinistra,
+   non centrata: il centraggio serviva ad assecondare un cerchio, e il
+   cerchio non c'è più. Così il nome dell'eroe parte sulla stessa
+   colonna dei nomi dell'elenco sotto, e l'occhio scende dritto. */
+.eroe-oggi {
+  align-items: stretch; text-align: left;
+  padding: var(--s4) var(--s3);
+  margin-bottom: var(--s2);
+}
+/* Nome e linea, dentro l'eroe, erano dimensionati in proporzione al
+   diametro dell'anello, via calc(var(--anello) * ...). Quell'anello non
+   esiste più nel DOM, misuraAnello() esce subito e la variabile resta
+   al valore fisso di riserva: una misura calcolata su un oggetto
+   scomparso. Qui prendono misure proprie, in rem, come tutto il resto
+   dell'app. */
+.eroe-oggi h1.nome {
+  font-size: 1.5rem; line-height: 1.15;
+  margin: 0 0 2px; max-width: 100%;
+}
+.eroe-oggi .linea {
+  font-size: .8125rem;
+  display: block; margin-bottom: var(--s1);
+}
+/* Il motivo, dentro l'eroe, perde il centraggio e il max-width da 320px
+   che lo tenevano stretto sotto il cerchio: qui ha la larghezza piena
+   della carta. Fuori dall'eroe .motivo resta esattamente com'era. */
+.eroe-oggi .motivo {
+  margin: var(--s2) 0 0; max-width: none; text-align: left;
+}
+/* Il bottone dell'eroe occupa la riga: è il gesto principale della
+   schermata, non uno dei tanti. */
+.eroe-oggi .riga-azione-principale { margin-top: var(--s4); }
+.eroe-oggi .riga-azione-principale .azione { flex: 1; }
+/* Lo stato di quiete resta centrato: lì non c'è un nome a cui
+   allinearsi, c'è una frase sola che parla della collezione intera. */
+.eroe-oggi .riga-titolo-quiete { justify-content: center; }
+.eroe-oggi .motivo.secondario { text-align: center; }
+
+/* L'elenco: le righe portano già il proprio divisore in alto (.riga),
+   quindi qui serve solo lo stacco dal titolo di sezione sopra e la
+   soppressione del filo sulla prima, che altrimenti raddoppierebbe
+   quello del titolo. */
+.elenco-oggi { margin-top: var(--s1); }
+.elenco-oggi .riga:first-child { border-top: none; }
+
+.riga-oggi { padding: 13px 2px; cursor: pointer; }
+.riga-oggi:active { background: rgba(255,255,255,.03); }
+.riga-oggi-sx { display: flex; align-items: center; gap: 11px; min-width: 0; flex: 1; }
+.riga-oggi-info { min-width: 0; }
+.riga-oggi-nome {
+  font-family: var(--display); font-variation-settings: 'opsz' 24;
+  font-size: 1.0625rem; color: var(--argento); margin: 0 0 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.riga-oggi-stato {
+  font-family: var(--dati); font-size: .75rem; font-weight: 500; letter-spacing: .03em;
+  margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Stesso disegno del bottone-cerchio già usato per la matita del
+   selettore A/H: bordo sottile, oro solo quando importa. Non un terzo
+   stile di bottone da imparare. */
+.riga-gesto {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 40px; width: 40px; border-radius: var(--r-chip); flex-shrink: 0;
+  color: var(--oro); border: 1px solid rgba(201,169,106,.35); background: transparent;
+  transition: transform .22s var(--molla-corta), background .22s var(--piano);
+}
+.riga-gesto svg { width: 16px; height: 16px; }
+.riga-gesto:active { transform: scale(.92); background: rgba(201,169,106,.12); }
+.riga-gesto[disabled] { opacity: .5; }
+/* Il lampo: un impulso di colore invece di un ridisegno immediato,
+   perché qui non c'è un banner di testo da proteggere, solo un tocco
+   che merita un riscontro rapido. */
+@keyframes lampo-gesto {
+  0% { background: rgba(201,169,106,.4); transform: scale(1.12); }
+  100% { background: transparent; transform: scale(1); }
+}
+.riga-gesto.lampo { animation: lampo-gesto .6s var(--piano); }
+/* La spunta ferma per chi ha già ricevuto il gesto oggi: non è un
+   bottone, non reagisce al tocco, dice solo "fatto". */
+.riga-fatto {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; flex-shrink: 0; color: var(--oro); opacity: .55;
+}
+.riga-fatto svg { width: 16px; height: 16px; }
 
 
 /* --- lastre: le righe piene, usate nelle liste dei fogli --- */

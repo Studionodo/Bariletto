@@ -301,7 +301,7 @@ function segnaConConferma(o, alConfermato) {
 }
 
 /* Caricare senza indossare: gli orologi nel cassetto si caricano lo stesso. */
-async function segnaCaricaOra(o) {
+async function segnaCaricaOra(o, ridisegnaSubito = true, controllaPrimoUso = true) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
                   ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
@@ -310,8 +310,8 @@ async function segnaCaricaOra(o) {
   await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.caricato", quando: ora, prima });
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
-  disegna();
-  mostraPrimoUsoSeServe();
+  if (ridisegnaSubito) disegna();
+  if (controllaPrimoUso) mostraPrimoUsoSeServe();
 }
 
 /* Il cronografo si segna solo se lo dici tu. */

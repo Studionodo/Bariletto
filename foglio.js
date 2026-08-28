@@ -218,11 +218,11 @@ function disegnaRegistro() {
 
 
 /* =================== la collezione: a colpo d'occhio =============== */
-/* Il carosello di Oggi ordina per urgenza e scorre di lato: risponde a
-   «di chi mi devo occupare», non a «cosa possiedo». Qui è l'opposto —
-   alfabetico, tutto scorre in verticale, pensato per scorrere con
-   l'occhio invece che per agire. Riusa cartaOrologio(), la stessa carta
-   del carosello: stesso linguaggio visivo, un'altra disposizione. */
+/* L'elenco di Oggi ordina per urgenza e risponde a «di chi mi devo
+   occupare»; qui è l'opposto — alfabetico, pensato per scorrere con
+   l'occhio invece che per agire. Righe proprie con lo stile .lastra,
+   lo stesso già usato per l'archivio dei movimenti: non un secondo
+   linguaggio visivo per un'altra vista sugli stessi dati. */
 function apriCollezione() {
   const uscente = q("#velo");
   if (uscente) { if (uscente.classList.contains("su")) return; uscente.remove(); }
