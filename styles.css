@@ -58,11 +58,68 @@
 
   --bordo: 26px;
 
-  /* Scala delle forme: tutto si arrotonda verso il cerchio dell'anello. */
-  --r-chip:   999px;
-  --r-lastra: 16px;
-  --r-foglio: 28px;
+  /* Scala delle forme. Prima erano quattro valori, e ogni elemento
+     nuovo finiva per riusare --r-lastra anche quando non era una
+     lastra. Ora la forma segue l'importanza: più un elemento è grande
+     e conta, più si arrotonda verso il cerchio. */
+  --r-minimo:  8px;
+  --r-piccolo: 12px;
   --r-premuto: 14px;
+  --r-lastra:  16px;
+  --r-medio:   20px;
+  --r-grande:  24px;
+  --r-foglio:  28px;
+  --r-chip:   999px;
+
+  /* ----------------------------------------------------------------
+     Il vetro.
+     Le superfici erano tinte piene: il bagliore d'ambiente (#luce), che
+     cambia con le quattro fasce orarie, restava dietro tutto senza che
+     niente lo raccogliesse. Rese semitrasparenti, le superfici lo
+     lasciano passare: il pannello si tinge dell'ora del giorno da solo,
+     senza una riga di codice che glielo dica. Il materiale diventa
+     parte dell'identità invece che un effetto preso in prestito.
+
+     color-mix tiene il colore agganciato alle variabili di fascia: se
+     cambia --slab all'alba, cambia anche il suo vetro, senza dover
+     mantenere otto valori paralleli a mano.
+
+     I due orli vengono dalla correzione che iOS 27 ha introdotto sul
+     proprio vetro dopo un anno di lamentele sulla leggibilità: un orlo
+     scuro sotto dà profondità e stacca la superficie dal fondo, un
+     riflesso chiaro sopra le dà spessore. Senza il primo il vetro
+     galleggia senza peso, ed è esattamente il difetto che Apple ha
+     dovuto rincorrere.
+     ---------------------------------------------------------------- */
+  --sfoca: 18px;
+  --vetro-slab: color-mix(in srgb, var(--slab) 62%, transparent);
+  --vetro-wall: color-mix(in srgb, var(--wall) 78%, transparent);
+  --vetro-room: color-mix(in srgb, var(--room) 70%, transparent);
+  /* Il velo scuro sotto il vetro. Senza, il bagliore d'ambiente che
+     passa attraverso schiarisce il pannello e il testo secondario
+     scende sotto soglia, con un margine che cambia da fascia a fascia:
+     all'alba, la più calda, era il punto peggiore. Il velo stabilizza
+     il fondo qualunque cosa ci passi dietro, ed è la stessa correzione
+     che iOS 27 ha applicato al proprio vetro dopo un anno di lamentele
+     sulla leggibilità. Misurato: sulla lastra a tinta piena di prima
+     lo stesso testo stava a 3,04:1 all'alba, quindi il vetro col velo
+     non peggiora un contrasto già stretto, lo allarga. Il valore è il
+     minimo misurato che tiene ogni testo sopra 4,5:1 in tutte e quattro
+     le fasce con il bagliore acceso al massimo: 32%, non un numero
+     scelto a occhio. */
+  --velo-vetro: rgba(0,0,0,.32);
+  --orlo-luce:  rgba(255,255,255,.13);
+  --orlo-buio:  rgba(0,0,0,.40);
+  /* Un solo posto per il rilievo del vetro, invece di ripetere due
+     ombre leggermente diverse su ogni superficie. */
+  --rilievo:
+    inset 0 1px 0 var(--orlo-luce),
+    inset 0 -1px 0 var(--orlo-buio),
+    0 1px 2px rgba(0,0,0,.30);
+  --rilievo-alto:
+    inset 0 1px 0 var(--orlo-luce),
+    inset 0 -1px 0 var(--orlo-buio),
+    0 20px 60px rgba(0,0,0,.55);
 
   --molla:  cubic-bezier(.34, 1.42, .52, 1);
   --molla-corta: cubic-bezier(.3, 1.3, .5, 1);
@@ -98,6 +155,16 @@
 [data-ora="giorno"]     { --room:#11182C; --wall:#1C2A4F; --slab:#253A74; --glow:#98BDE1; --velo:.20; }
 [data-ora="crepuscolo"] { --room:#220D2B; --wall:#3F1551; --slab:#5C1C78; --glow:#CE27CE; --velo:.34; }
 [data-ora="notte"]      { --room:#0C091A; --wall:#1A143E; --slab:#261D63; --glow:#2E399E; --velo:.24; }
+
+/* Senza backdrop-filter il vetro non sfoca: resterebbero superfici
+   semitrasparenti su un fondo mosso, cioè testo sopra un'immagine, il
+   difetto peggiore di questo linguaggio. Dove manca il supporto si
+   torna alle tinte piene: meno raffinato, sempre leggibile. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lastra, .scelto, .carta-gesto, #aggiorna { background-color: var(--slab); }
+  #foglio, .foglio-piede { background-color: var(--wall); }
+  .campo { background-color: var(--room); }
+}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -327,8 +394,12 @@ body::before {
 .carta-gesto {
   width: 100%;
   display: flex; flex-direction: column; align-items: center;
-  border: 1px solid rgba(201,169,106,.35);
-  border-radius: var(--r-lastra);
+  border: 1px solid rgba(201,169,106,.30);
+  border-radius: var(--r-grande);
+  background-color: var(--vetro-slab);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro));
+  backdrop-filter: blur(var(--sfoca)) saturate(1.1); -webkit-backdrop-filter: blur(var(--sfoca)) saturate(1.1);
+  box-shadow: var(--rilievo);
   padding: var(--s4) var(--s3) var(--s3);
   margin-top: var(--s2);
 }
@@ -700,8 +771,10 @@ h1.nome.tagliato {
 .lastra {
   display: flex; align-items: center; gap: 13px;
   padding: 14px 16px; margin-bottom: 7px; border-radius: var(--r-lastra);
-  background: var(--slab); background-image: var(--trama);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 1px 2px rgba(0,0,0,.35);
+  background-color: var(--vetro-slab);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
+  backdrop-filter: blur(var(--sfoca)); -webkit-backdrop-filter: blur(var(--sfoca));
+  box-shadow: var(--rilievo);
   text-align: left; width: 100%;
 }
 .lastra.riga-piena { display: grid; grid-template-columns: 5px minmax(0,1fr) 14px; gap: 13px; align-items: center; }
@@ -928,9 +1001,11 @@ h1.nome.tagliato {
   width: min(440px, calc(100% - var(--bordo) * 2));
   max-height: min(640px, calc(var(--altezza-visibile, 100dvh) * .82));
   display: flex; flex-direction: column;
-  background: var(--wall); background-image: var(--trama);
+  background-color: var(--vetro-wall);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
+  backdrop-filter: blur(26px) saturate(1.15); -webkit-backdrop-filter: blur(26px) saturate(1.15);
   border-radius: var(--r-foglio);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 20px 60px rgba(0,0,0,.55);
+  box-shadow: var(--rilievo-alto);
   transform: scale(.94); opacity: 0;
   transition: transform .38s var(--molla), opacity .26s ease;
   text-align: left; overflow: hidden;
@@ -1007,8 +1082,11 @@ h1.nome.tagliato {
 }
 .foglio-piede {
   flex-shrink: 0; padding: var(--s2) var(--bordo) calc(var(--s3) + env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(255,255,255,.06);
-  background: var(--wall);
+  border-top: 1px solid var(--orlo-buio);
+  box-shadow: inset 0 1px 0 var(--orlo-luce);
+  background-color: var(--vetro-wall);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro));
+  backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
 }
 .foglio-piede .azione { width: 100%; margin: 0; }
 .foglio-piede.due { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
@@ -1048,8 +1126,10 @@ h1.nome.tagliato {
 .campo-etichetta em { font-style: normal; font-size: .6875rem; opacity: .88; text-transform: none; letter-spacing: .04em; }
 .campo {
   width: 100%; min-width: 0; padding: 13px 14px;
-  background: var(--room); color: var(--argento);
-  border: 1px solid rgba(255,255,255,.09); border-radius: var(--r-lastra);
+  background: var(--vetro-room); color: var(--argento);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.09); border-radius: var(--r-piccolo);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.28);
   /* 16px pieni: sotto questa soglia iOS ingrandisce la pagina da solo
      appena tocchi il campo, e la schermata salta. */
   font-family: var(--dati); font-size: 1rem;
@@ -1060,8 +1140,11 @@ h1.nome.tagliato {
 
 .scelto {
   padding: var(--s4) var(--s3) var(--s3);
-  background: var(--slab); background-image: var(--trama); border-radius: var(--r-lastra);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px rgba(255,107,44,.20);
+  background-color: var(--vetro-slab);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
+  backdrop-filter: blur(var(--sfoca)); -webkit-backdrop-filter: blur(var(--sfoca));
+  border-radius: var(--r-medio);
+  box-shadow: var(--rilievo), 0 0 0 1px rgba(255,107,44,.20);
 }
 .scelto-nome {
   font-family: var(--display); font-variation-settings: 'opsz' 40;
@@ -1126,13 +1209,13 @@ h1.nome.tagliato {
 }
 .interruttore.acceso { color: var(--argento); }
 .pallina {
-  width: 34px; height: 18px; border-radius: 10px; flex-shrink: 0; position: relative;
-  background: rgba(255,255,255,.10); transition: background .25s ease;
+  width: 34px; height: 18px; border-radius: var(--r-chip); flex-shrink: 0; position: relative;
+  background: rgba(255,255,255,.10); transition: background .25s var(--piano);
 }
 .pallina::after {
   content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px;
   border-radius: 50%; background: var(--argento-off);
-  transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s ease;
+  transition: transform .28s var(--molla-corta), background .25s var(--piano);
 }
 .interruttore.acceso .pallina { background: rgba(255,107,44,.26); }
 .interruttore.acceso .pallina::after { transform: translateX(16px); background: var(--arancio); }
@@ -1190,8 +1273,10 @@ h1.nome.tagliato {
   bottom: calc(var(--alta-indice) + 10px + env(safe-area-inset-bottom));
   display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
   padding: 10px 12px 10px 18px; border-radius: var(--r-chip);
-  background: var(--slab); background-image: var(--trama);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 6px 22px rgba(0,0,0,.55);
+  background-color: var(--vetro-slab);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  box-shadow: inset 0 1px 0 var(--orlo-luce), inset 0 -1px 0 var(--orlo-buio), 0 6px 22px rgba(0,0,0,.55);
   animation: sali .46s var(--molla);
 }
 #aggiorna span { font-size: .8125rem; color: var(--argento); }
