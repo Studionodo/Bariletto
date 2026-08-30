@@ -350,6 +350,10 @@ body::before {
    Lo swipe da solo non si vede — due parole in fondo lo rendono
    scopribile senza spiegazioni.
    ------------------------------------------------------------------ */
+/* La barra delle pagine: la superficie più permanente dell'app, sempre
+   a schermo mentre il contenuto le scorre sotto. È il caso da manuale
+   della barra di vetro in entrambi i sistemi. La sfumatura resta, così
+   il contenuto non taglia di netto contro il bordo superiore. */
 #indice {
   position: fixed; z-index: 5;
   left: 0; right: 0; bottom: 0;
@@ -357,9 +361,12 @@ body::before {
   padding-bottom: env(safe-area-inset-bottom);
   display: flex; align-items: center; justify-content: center; gap: var(--s1);
   background: linear-gradient(to top,
-    var(--room) 0%, var(--room) 55%,
-    color-mix(in srgb, var(--room) 60%, transparent) 82%,
+    color-mix(in srgb, var(--room) 82%, transparent) 0%,
+    color-mix(in srgb, var(--room) 74%, transparent) 55%,
+    color-mix(in srgb, var(--room) 40%, transparent) 82%,
     transparent 100%);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 0 var(--orlo-luce);
 }
 .voce-indice {
   position: relative;
@@ -612,6 +619,8 @@ h1.nome.tagliato {
   letter-spacing: .02em; color: var(--argento);
   border: 1px solid rgba(232,232,236,.20);
   background: rgba(232,232,236,.04);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
   transition: background .22s var(--piano), border-color .22s var(--piano),
               transform .22s var(--molla-corta);
 }
@@ -721,30 +730,43 @@ h1.nome.tagliato {
 /* L'elenco: le righe portano già il proprio divisore in alto (.riga),
    quindi qui serve solo lo stacco dal titolo di sezione sopra e la
    soppressione del filo sulla prima, che altrimenti raddoppierebbe
-   quello del titolo. */
-.elenco-oggi { margin-top: var(--s1); }
+   quello del titolo.
+   width: 100% non è ridondante: .colonna è un flex con align-items
+   center, quindi un figlio senza larghezza propria si restringe al
+   contenuto e finisce al centro. È il motivo per cui l'elenco appariva
+   rientrato e più stretto della carta sopra. */
+.elenco-oggi { margin-top: var(--s1); width: 100%; text-align: left; }
 .elenco-oggi .riga:first-child { border-top: none; }
 
 .riga-oggi { padding: 13px 2px; cursor: pointer; }
 .riga-oggi:active { background: rgba(255,255,255,.03); }
 .riga-oggi-sx { display: flex; align-items: center; gap: 11px; min-width: 0; flex: 1; }
 .riga-oggi-info { min-width: 0; }
-.riga-oggi-nome {
+/* Lo stato per primo, nel serif e nel corpo grande: è la voce che
+   risponde alla domanda per cui apri l'app. Il nome sotto, nel sans e
+   più piccolo, fa da identificatore. Prima era il contrario. */
+.riga-oggi-stato {
   font-family: var(--display); font-variation-settings: 'opsz' 24;
   font-size: 1.0625rem; color: var(--argento); margin: 0 0 2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.riga-oggi-stato {
+.riga-oggi-nome {
   font-family: var(--dati); font-size: .75rem; font-weight: 500; letter-spacing: .03em;
-  margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: var(--frase); margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+/* Chi è già a posto per oggi non deve gridare, ma nemmeno sparire:
+   resta leggibile, solo più indietro degli altri. */
+.riga-oggi.riga-quieta { opacity: .62; }
 /* Stesso disegno del bottone-cerchio già usato per la matita del
    selettore A/H: bordo sottile, oro solo quando importa. Non un terzo
    stile di bottone da imparare. */
 .riga-gesto {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 40px; width: 40px; border-radius: var(--r-chip); flex-shrink: 0;
-  color: var(--oro); border: 1px solid rgba(201,169,106,.35); background: transparent;
+  color: var(--oro); border: 1px solid rgba(201,169,106,.35);
+  background: rgba(201,169,106,.05);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   transition: transform .22s var(--molla-corta), background .22s var(--piano);
 }
 .riga-gesto svg { width: 16px; height: 16px; }
@@ -1105,7 +1127,11 @@ h1.nome.tagliato {
 }
 .dett-linea { margin-top: 5px; font-family: var(--dati); font-size: .8125rem; color: var(--argento-off); }
 .dett-stato { display: inline-block; margin-top: 9px; }
-.riga p {
+/* Solo le righe dei gesti nella scheda dettaglio. Prima era .riga p, che
+   colpiva ogni paragrafo dentro qualunque riga dell'app: stando in fondo
+   al foglio vinceva a parità di specificità, e appiattiva a 1rem anche
+   lo stato e il nome nell'elenco di Oggi, annullando la gerarchia. */
+.riga-gesto-dett p {
   font-family: var(--display); font-variation-settings: 'opsz' 18;
   font-weight: 300; font-size: 1rem; line-height: 1.56; color: var(--argento); opacity: .88;
 }
@@ -1179,6 +1205,7 @@ h1.nome.tagliato {
   min-height: 44px; padding: 11px 18px; border-radius: var(--r-chip); font-size: .75rem;
   letter-spacing: .13em; text-transform: uppercase;
   color: var(--argento-off); border: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   transition: border-color .25s var(--piano), background .25s var(--piano), transform .22s var(--molla-corta);
 }
 .scelta.accesa { color: var(--argento); border-color: rgba(255,107,44,.55); background: rgba(255,107,44,.10); }

@@ -55,11 +55,15 @@ Non esiste più `pareti.js`: l'app aveva quattro pareti scorrevoli (Oggi, Collez
 
 ## La schermata di oggi
 
-Il cuore dell'app è una carta sola: il quadrante dell'orologio che ha più bisogno di attenzione, il motivo scritto in una frase, e un bottone per registrare il gesto. Quadrante, motivo e bottone stanno dentro un unico bordo, non tre elementi indipendenti impilati nella pagina — così il bottone si legge chiaramente come riferito a quell'orologio, non come un comando neutro.
+Un elenco, non una vetrina. Tutti gli orologi della collezione, ordinati per bisogno: in cima chi chiede più attenzione, in fondo chi sta bene. Il primo ha una riga più alta, con bordo e il gesto in evidenza, ma resta parte dello stesso elenco: non è una sezione separata, quindi non può ripetere un orologio già mostrato.
 
-Dopo il tocco, una conferma col nome dell'orologio appena segnato resta a schermo quattro secondi prima che la carta passi al prossimo. Serve a evitare che un secondo tocco per abitudine cada su un orologio diverso, dato che il bersaglio sotto il dito cambierebbe altrimenti nello stesso istante del primo tocco.
+**Lo stato viene prima del nome.** È la scelta che regge tutta la schermata. Oggi non è un catalogo: per sfogliare c'è la collezione, e c'è il Registro. Risponde a una domanda sola, di chi devo occuparmi adesso. Col nome in testa bisognerebbe leggere ogni riga per intero per saperlo; con lo stato in testa l'occhio scorre e chi sta male salta fuori da solo. Il nome resta, più piccolo: serve a identificare, non a farsi cercare.
 
-Sotto la carta, la collezione intera scorre in un carosello orizzontale, ordinata per urgenza: ogni carta apre il dettaglio di quell'orologio.
+Il colore vive sul pallino e sul cerchio del gesto, non sul testo dello stato: con lo stato in corpo grande, colorarlo lo renderebbe meno leggibile proprio dove deve leggersi meglio. Il colore dice quanto urge, il testo dice cosa serve.
+
+Non c'è più il quadrante disegnato. Occupava un terzo dello schermo per ospitare del testo dentro un cerchio: il testo andava a capo male, e l'elemento più grande della pagina non portava nessuna informazione. Chi non ha bisogno di niente non sparisce dall'elenco, resta più indietro degli altri.
+
+Dopo il tocco sulla riga in cima, una conferma col nome dell'orologio appena segnato resta a schermo quattro secondi prima che l'elenco si riordini. Serve a evitare che un secondo tocco per abitudine cada su un orologio diverso, dato che l'ordine cambierebbe altrimenti nello stesso istante del primo tocco.
 
 ## I gesti
 
@@ -124,7 +128,17 @@ Il service worker **non** fa `skipWaiting`: una versione nuova resta in attesa e
 
 ## Da dove viene il disegno
 
-Il linguaggio visivo prende il quadrante di un King Seiko SLA083 (il Vanac blu-violetto con lo skyline di Tokyo) come riferimento diretto, non come ispirazione generica: i colori sono campionati dall'immagine vera, l'architettura dell'anello (campo piatto, cerchio d'oro, filo d'argento, corona scanalata con dodici indici, ghiera esterna) è misurata sulla foto, non disegnata a occhio.
+**I colori** prendono il quadrante di un King Seiko SLA083 (il Vanac blu-violetto con lo skyline di Tokyo) come riferimento diretto, non come ispirazione generica: sono campionati dall'immagine vera. Il quadrante disegnato che l'app mostrava in apertura non c'è più, la palette che ne è nata sì.
+
+**Il materiale** ibrida le due lezioni che iOS 27 e Android 17 hanno imparato nel 2026, un anno in cui i due sistemi hanno smesso di divergere: Android ha adottato le superfici traslucide di Apple, e Apple ha passato l'anno a rendere le proprie leggibili. L'ibridazione onesta non è mettere insieme un po' dell'uno e un po' dell'altro, è prendere il punto in cui sono arrivati entrambi: vetro, con il contrasto sotto controllo.
+
+Le superfici sono semitrasparenti con sfocatura, e raccolgono il bagliore d'ambiente che cambia con le quattro fasce orarie: il pannello si tinge dell'ora del giorno da solo. Quel bagliore esisteva già nell'app, ma restava dietro tutto senza che niente lo usasse. `color-mix` tiene il vetro agganciato alle stesse variabili di fascia, così non esistono valori paralleli da mantenere a mano.
+
+Ogni superficie ha due orli: uno scuro sotto per dare profondità e staccarla dal fondo, uno chiaro sopra per darle spessore. È precisamente la correzione che iOS 27 ha introdotto dopo un anno di lamentele: senza l'orlo scuro il vetro galleggia senza peso.
+
+**Il contrasto** è stato misurato, non stimato. Il vetro rischiava di ripetere l'errore che Apple ha dovuto rincorrere, e in effetti il primo tentativo mandava il testo secondario all'alba a 4,04:1, sotto soglia. Ma la lastra a tinta piena che c'era prima stava a 3,04:1: il problema esisteva già, peggiore. Un velo scuro sotto il vetro, calibrato al minimo misurato che serve (32%), porta il caso peggiore a 4,65:1 in tutte e quattro le fasce con il bagliore acceso al massimo.
+
+**Le forme** seguono l'importanza: otto raggi in scala invece dei quattro di prima, quando ogni elemento nuovo finiva per riusare quello della lastra anche senza esserlo.
 
 **Le forme e il movimento** seguono il linguaggio di Android 16, senza toccare un colore: pastiglie piene per i comandi, 16px per righe e campi, 28px per il foglio che sale dal basso, la molla per ciò che si sposta e mai per opacità o colore.
 

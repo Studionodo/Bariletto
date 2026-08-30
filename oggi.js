@@ -93,14 +93,20 @@ function mostraConfermaGesto(rigaAz, nome) {
   rigaAz.replaceChildren(conf);
 }
 
-/* Una riga compatta: pallino di stato, nome, una riga di stato, e il
-   gesto giusto per QUEL tipo di orologio, non lo stesso per tutti. Un
-   manuale può caricarsi senza essere indossato lo stesso giorno, un
-   gesto diverso e reale, non una semplificazione: il tocco qui fa
-   "Caricato, ma non indossato", non "Indossato oggi" travestito. Se
-   l'hai già segnato oggi, il gesto lascia il posto a una spunta ferma:
-   toccarlo di nuovo non aggiungerebbe nulla, solo un secondo timbro
-   sulla stessa giornata. */
+/* Una riga compatta. Lo stato viene prima del nome, ed è la scelta che
+   regge tutta la schermata: Oggi non è un catalogo (per sfogliare c'è
+   la collezione, e c'è il Registro), risponde a una domanda sola, di
+   chi devo occuparmi adesso. Col nome in testa dovresti leggere ogni
+   riga per intero per saperlo; con lo stato in testa scorri l'occhio e
+   chi sta male salta fuori da solo. Il nome resta, più piccolo: serve
+   a identificare, non a farsi cercare.
+
+   Il gesto è quello giusto per QUEL tipo di orologio, non lo stesso per
+   tutti: un manuale può caricarsi senza essere indossato lo stesso
+   giorno, quindi il tocco qui fa "Caricato, ma non indossato", non
+   "Indossato oggi" travestito. Se l'hai già segnato oggi, il gesto
+   lascia il posto a una spunta ferma: toccarlo di nuovo non
+   aggiungerebbe nulla, solo un secondo timbro sulla stessa giornata. */
 function rigaCompatta(o, b, alPolso) {
   const r = el("div", "riga fra riga-oggi");
   r.setAttribute("role", "button");
@@ -116,14 +122,20 @@ function rigaCompatta(o, b, alPolso) {
   const pallino = el("span", "pallino");
   pallino.style.background = COLORE[b.stato];
   const info = el("div", "riga-oggi-info");
-  info.append(el("p", "riga-oggi-nome", o.nome));
+
+  /* Prima lo stato, poi il nome. */
   const stato = el("p", "riga-oggi-stato");
-  if (alPolso) { stato.textContent = t("oggi.giaMesso"); stato.style.color = "var(--oro)"; }
+  if (alPolso) { stato.textContent = t("oggi.giaMesso"); }
   else if (Number.isFinite(b.restanti) && b.restanti > 0) {
     stato.textContent = t("oggi.restano", { q: durata(b.restanti) });
-    stato.style.color = COLORE[b.stato];
-  } else { stato.textContent = nomeStato(b.stato); stato.style.color = COLORE[b.stato]; }
-  info.append(stato);
+  } else { stato.textContent = nomeStato(b.stato); }
+  info.append(stato, el("p", "riga-oggi-nome", o.nome));
+
+  /* Il colore vive sul pallino e sul gesto, non sul testo dello stato:
+     con lo stato ora in corpo grande, colorarlo lo renderebbe meno
+     leggibile proprio nel punto in cui deve leggersi meglio. Il colore
+     dice "quanto urge", il testo dice "cosa", due lavori distinti. */
+  if (alPolso) { pallino.style.background = "var(--oro)"; r.classList.add("riga-quieta"); }
   sx.append(pallino, info);
   r.append(sx);
 
@@ -137,6 +149,8 @@ function rigaCompatta(o, b, alPolso) {
     const gesto = el("button", "riga-gesto");
     gesto.innerHTML = manuale ? ICONA_CORONA : ICONA_CHECK;
     gesto.setAttribute("aria-label", manuale ? t("soloCaricato") : t("messo"));
+    gesto.style.color = COLORE[b.stato];
+    gesto.style.borderColor = COLORE[b.stato];
     gesto.onclick = (e) => {
       e.stopPropagation();
       gesto.disabled = true;

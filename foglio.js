@@ -271,16 +271,20 @@ function disegnaCollezione() {
       const alPolso = o.ultimoPolso && sameDay(o.ultimoPolso, oggiTs);
       const r = el("button", "lastra riga-piena");
       const pallino = el("span", "pallino");
-      pallino.style.background = COLORE[b.stato];
+      pallino.style.background = alPolso ? "var(--oro)" : COLORE[b.stato];
       const c = el("div", "corpo-lastra");
-      c.append(el("div", "titolo-lastra", o.nome));
-      const sotto = el("div", "sotto-lastra");
-      sotto.append(el("span", "etichetta mini", nomeCorto(o.calibroNome)));
-      sotto.append(el("span", "punto-sep", "\u00B7"));
-      const stato = el("span", "etichetta mini stato");
+      /* Stessa gerarchia della schermata Oggi: prima cosa chiede
+         l'orologio, poi quale orologio è. Prima il nome stava in testa
+         e lo stato finiva schiacciato in coda, dopo il calibro e un
+         puntino separatore: l'ultima cosa che si leggeva era quella
+         che conta di più. */
+      const stato = el("div", "titolo-lastra");
       stato.textContent = alPolso ? t("oggi.giaMesso") : nomeStato(b.stato);
-      stato.style.color = alPolso ? "var(--oro)" : COLORE[b.stato];
-      sotto.append(stato);
+      c.append(stato);
+      const sotto = el("div", "sotto-lastra");
+      sotto.append(el("span", "etichetta mini", o.nome));
+      sotto.append(el("span", "punto-sep", "\u00B7"));
+      sotto.append(el("span", "etichetta mini", nomeCorto(o.calibroNome)));
       c.append(sotto);
       r.append(pallino, c, el("span", "freccia", "\u203A"));
       /* apriScheda si rifiuta di aprirsi sopra un foglio già visibile:
@@ -661,7 +665,7 @@ function schedaDettaglio(corpo) {
   corpo.append(el("span", "gruppo", t("st.gesti")));
   const box = el("div");
   gesti(o).forEach((testo, i) => {
-    const r = el("div", "riga");
+    const r = el("div", "riga riga-gesto-dett");
     r.append(el("span", "etichetta mini num-gesto", String(i + 1).padStart(2, "0")),
              el("p", null, testo));
     box.append(r);

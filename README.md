@@ -6,11 +6,11 @@ Conta le ore che non guardi. Quale orologio mettere oggi, e cosa fargli.
 
 ## Cos'è
 
-Bariletto è una web app (PWA) per chi ha più di un orologio meccanico o automatico e vuole sapere, ogni giorno, quale indossare e di cosa ha bisogno: carica, luce, cronometro, revisione. Funziona interamente offline, non ha server, non ha account: tutti i dati restano sul telefono di chi la usa.
+Bariletto è una web app (PWA) per chi ha più di un orologio meccanico o automatico e vuole sapere, ogni giorno, di cosa ha bisogno ciascuno: carica, luce, cronografo, revisione. Apri l'app e trovi la collezione in un elenco, con lo stato di ognuno in evidenza e in cima quello che chiede più attenzione. Funziona interamente offline, non ha server, non ha account: tutti i dati restano sul telefono di chi la usa.
 
 ## Cosa fa
 
-- Suggerisce ogni giorno quale orologio della collezione merita attenzione, in base a quanto tempo è fermo o scarico.
+- Mostra ogni giorno lo stato di tutta la collezione in un elenco, ordinato per bisogno: in cima chi è fermo o scarico, in fondo chi sta bene. Lo stato viene prima del nome, perché la domanda è di chi occuparsi, non quale orologio è quale.
 - Registra con un tocco le azioni comuni: l'ho indossato, l'ho caricato, gli ho dato luce, ho azzerato il cronografo.
 - Tiene un archivio di oltre 150 calibri meccanici e al quarzo, con le regole specifiche di ciascuno (autonomia di carica, finestre in cui non toccare la corona, tipo di scappamento).
 - Segnala quando un orologio automatico rischia di fermarsi, o quando uno al quarzo si avvicina alla fine prevista della pila.

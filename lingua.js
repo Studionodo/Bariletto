@@ -12,7 +12,7 @@ const VOCI = {
     codice: "it-IT",
     frase: "conta le ore che non guardi",
     "info.cosE": "Cos'è Bariletto",
-    "info.cosE.testo1": "Bariletto è per chi ha più di un orologio meccanico o automatico, e non riesce a tenere a mente le regole di ognuno. Aggiungi la tua collezione, un calibro a catalogo, o dichiarato a mano se non lo trovi, e ogni giorno l'app ti dice qual è quello che ha davvero bisogno di te: chi si sta scaricando, chi aspetta la corona, chi aspetta i pulsanti del cronografo. Un tocco registra il gesto, e da lì l'app riparte a contare.",
+    "info.cosE.testo1": "Bariletto è per chi ha più di un orologio meccanico o automatico, e non riesce a tenere a mente le regole di ognuno. Aggiungi la tua collezione, un calibro a catalogo, o dichiarato a mano se non lo trovi, e apri l'app: trovi tutti i tuoi orologi in un elenco, e per ognuno cosa chiede adesso. Chi si sta scaricando, chi aspetta la corona, chi aspetta i pulsanti del cronografo, chi sta benissimo e non vuole niente. In cima c'è quello che ha più bisogno di te. Un tocco registra il gesto, e da lì l'app riparte a contare.",
     "info.cosE.testo2": "Tiene anche un registro di tutto quello che fai, sempre consultabile e correggibile, un archivio di oltre 150 schede sui movimenti più conosciuti per chi vuole capirne di più, un backup completo che ti porti dove vuoi, e due fogli pensati per la stampa.",
     "info.cosE.testo3": "Funziona interamente offline. Non ha account, non raccoglie niente, non parla con nessun server. Tutto resta sul telefono su cui lo scrivi.",
 
@@ -239,7 +239,7 @@ const VOCI = {
     codice: "en-GB",
     frase: "counts the hours you don't watch", collezione: "Collection", registro: "Log",
     "info.cosE": "What is Bariletto",
-    "info.cosE.testo1": "Bariletto is for anyone with more than one mechanical or automatic watch, who can't keep track of each one's own rules. Add your collection, a catalogued calibre, or declared by hand if you can't find it, and every day the app tells you which one actually needs you: which is running down, which is waiting for the crown, which is waiting for its chronograph pushers. One tap logs the gesture, and the counting starts again from there.",
+    "info.cosE.testo1": "Bariletto is for anyone with more than one mechanical or automatic watch, who can't keep track of each one's own rules. Add your collection, a catalogued calibre, or declared by hand if you can't find it, and open the app: you get all your watches in one list, and what each one is asking for right now. Which is running down, which is waiting for the crown, which is waiting for its chronograph pushers, which is perfectly fine and wants nothing. The one that needs you most sits at the top. One tap logs the gesture, and the counting starts again from there.",
     "info.cosE.testo2": "It also keeps a log of everything you do, always readable and correctable, an archive of over 150 write-ups on the best-known movements for anyone who wants to know more, a full backup you can take anywhere, and two sheets built for printing.",
     "info.cosE.testo3": "It works entirely offline. No account, nothing collected, no talking to any server. Everything stays on the phone you write it on.",
     "oggi.nulla": "Nothing needs attention",

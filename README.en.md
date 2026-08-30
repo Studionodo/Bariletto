@@ -6,11 +6,11 @@ Counts the hours you're not looking. Which watch to wear today, and what it need
 
 ## What it is
 
-Bariletto is a web app (PWA) for anyone with more than one mechanical or automatic watch who wants to know, every day, which one to wear and what it needs: winding, light exposure, chronograph reset, service. It runs entirely offline, has no server, and no account: all data stays on the device it's used on.
+Bariletto is a web app (PWA) for anyone with more than one mechanical or automatic watch who wants to know, every day, what each one needs: winding, light exposure, chronograph reset, service. Open the app and you get the whole collection as a list, each watch's state up front, and the one that needs you most at the top. It runs entirely offline, has no server, and no account: all data stays on the device it's used on.
 
 ## What it does
 
-- Suggests which watch in the collection deserves attention each day, based on how long it's been sitting unworn or unwound.
+- Shows the whole collection's state each day as a list, ordered by need: what's stopped or run down at the top, what's fine at the bottom. State comes before the name, because the question is who to look after, not which watch is which.
 - Logs common actions with one tap: wore it, wound it, exposed it to light, reset the chronograph.
 - Keeps an archive of over 150 mechanical and quartz calibers, each with its own specific rules (power reserve, time windows to avoid touching the crown, escapement type).
 - Flags when an automatic watch is at risk of stopping, or when a quartz watch is approaching its expected battery end.
