@@ -727,6 +727,16 @@ h1.nome.tagliato {
 .eroe-oggi .riga-titolo-quiete { justify-content: center; }
 .eroe-oggi .motivo.secondario { text-align: center; }
 
+/* La riga di quiete: sostituisce la carta grande quando nessuno chiede
+   niente. Centrata, a differenza dell'elenco sotto: qui non c'è un nome
+   a cui allinearsi, è una frase che parla della collezione intera. */
+.quiete-oggi {
+  width: 100%; text-align: center;
+  margin: var(--s4) 0 var(--s3);
+}
+.quiete-oggi .riga-titolo-quiete { justify-content: center; }
+.quiete-oggi .motivo.secondario { margin: 0 auto; }
+
 /* L'elenco: le righe portano già il proprio divisore in alto (.riga),
    quindi qui serve solo lo stacco dal titolo di sezione sopra e la
    soppressione del filo sulla prima, che altrimenti raddoppierebbe

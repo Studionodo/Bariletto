@@ -196,12 +196,48 @@ function costruisciOggi() {
     .sort((a, b) => a.b.restanti - b.b.restanti)[0];
   const primo = proposto || cala || classifica[0];
 
-  d.append(rigaEroe(primo.o, primo.b, !!proposto));
+  /* Il risalto si guadagna con l'urgenza, non con la posizione. Prima
+     il primo orologio riceveva sempre la carta grande, bordo, sfondo e
+     bottone pieno, anche quando il suo unico messaggio era "non c'è
+     niente da fare": la cosa più ingombrante dello schermo dedicata al
+     contenuto meno urgente possibile, mentre un orologio nella stessa
+     identica situazione, due righe sotto, stava in una riga di due
+     parole. Due pesi diversi per lo stesso dato.
 
-  if (proposto && (proposto.o.mano || proposto.o.tipo === "manuale")) {
-    const car = el("button", "quieta dopo-corto", t("soloCaricato"));
-    car.onclick = () => segnaCarica(proposto.o);
-    d.append(car);
+     "moto" è l'unico stato che non chiede niente: gli altri quattro
+     (riserva, fermo, scarico, azionare) chiedono tutti qualcosa. Se in
+     cima non c'è nessuno che chiede, nessuna carta grande: tutti in
+     elenco, compreso il primo. Il giorno in cui qualcuno sta davvero
+     male, quello e solo quello si prende il trattamento diverso. */
+  const chiedeDavvero = primo.b.stato !== "moto";
+
+  if (chiedeDavvero) {
+    d.append(rigaEroe(primo.o, primo.b, !!proposto));
+
+    if (proposto && (proposto.o.mano || proposto.o.tipo === "manuale")) {
+      const car = el("button", "quieta dopo-corto", t("soloCaricato"));
+      car.onclick = () => segnaCarica(proposto.o);
+      d.append(car);
+    }
+  } else {
+    /* Senza carta grande, tre cose che vivevano al suo interno
+       sparirebbero: la frase di quiete, l'informazione su quando il
+       primo si fermerà, e l'icona che apre la spiegazione del
+       conteggio, che è l'unico modo per riaprirla dopo il primo
+       utilizzo. Qui tornano in una riga discreta sopra l'elenco:
+       stessa informazione, senza il teatro di una carta bordata per
+       dire che non c'è niente da fare. */
+    const quiete = el("div", "quiete-oggi");
+    const capo = el("div", "riga-titolo-quiete");
+    capo.append(el("p", "titolo-quiete", t("oggi.nulla")),
+      infoTocco(t("primoUso.titolo"),
+        [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
+    quiete.append(capo);
+    quiete.append(el("p", "motivo secondario",
+      Number.isFinite(primo.b.restanti) && primo.b.restanti > 0
+        ? primo.o.nome + " " + t("oggi.prossimoOra", { q: durata(primo.b.restanti) })
+        : t("oggi.tuttiCarichi")));
+    d.append(quiete);
   }
 
   /* Portare un cronografo non vuol dire averlo azionato: la frizione
@@ -215,13 +251,16 @@ function costruisciOggi() {
     d.append(b);
   });
 
-  /* Il resto della collezione: lo stesso elenco, meno l'orologio già
-     mostrato sopra. Prima qui c'era un carosello orizzontale che
-     ripeteva tutta la collezione, eroe compreso — la stessa cosa
-     mostrata due volte a due centimetri di distanza. Un elenco solo
-     non può ripetersi per costruzione: o una riga è l'eroe, o è qui
-     sotto, mai entrambe. */
-  const resto = classifica.filter((x) => x.o.id !== primo.o.id);
+  /* Il resto della collezione. L'elenco esclude il primo solo se il
+     primo è finito nella carta grande: se non l'ha guadagnata, sta qui
+     con tutti gli altri, e la schermata è un elenco solo, uniforme.
+     Prima qui c'era un carosello orizzontale che ripeteva tutta la
+     collezione, eroe compreso — la stessa cosa mostrata due volte a due
+     centimetri di distanza. Un elenco non può ripetersi per
+     costruzione: o una riga è l'eroe, o è qui sotto, mai entrambe. */
+  const resto = chiedeDavvero
+    ? classifica.filter((x) => x.o.id !== primo.o.id)
+    : classifica;
   if (resto.length) {
     const capoRiga = el("div", "titolo-riga dopo");
     capoRiga.append(el("span", "titolo-sezione", t("coll.tutta")));
