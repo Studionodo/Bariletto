@@ -100,7 +100,19 @@ function rigaCompatta(o, b, alPolso) {
      stato darebbe un semaforo dove tutto grida e nessuno emerge: la
      distinzione che serve davvero è fra chi chiede qualcosa e chi no.
      Chi chiede prende un accento; gli altri restano righe normali. */
-  if (!alPolso && b.stato !== "moto") r.classList.add("riga-chiede");
+  /* L'accento non dipende dall'averlo indossato oggi, ma dal fatto che
+     ci sia ancora qualcosa da fare. Un cronografo che porti al polso
+     oggi ma i cui pulsanti vanno azionati resta un orologio che chiede
+     qualcosa: prima la condizione richiedeva "non indossato oggi", e
+     quel caso restava senza nessun segnale. */
+  if (b.stato !== "moto") {
+    r.classList.add("riga-chiede");
+    /* Il filo prende il colore dello stato, la stessa mappa del
+       pallino: uno scarico e un cronografo da azionare non hanno lo
+       stesso peso, e con il filo sempre oro sembravano identici. */
+    r.style.boxShadow = "inset 2px 0 0 " + COLORE[b.stato];
+    if (b.stato === "scarico" || b.stato === "fermo") r.classList.add("riga-urgente");
+  }
   /* Se lo stato è cambiato da quando hai guardato l'ultima volta, la
      riga si accende un attimo e poi resta ferma. Solo alla prima
      costruzione della schermata: dopo un tocco tuo il cambiamento non
@@ -197,7 +209,17 @@ function costruisciOggi() {
      cima non c'è nessuno che chiede, nessuna carta grande: tutti in
      elenco, compreso il primo. Il giorno in cui qualcuno sta davvero
      male, quello e solo quello si prende il trattamento diverso. */
-  const chiedeDavvero = primo.b.stato !== "moto";
+  /* Guarda tutta la collezione, non solo il primo. Prima bastava che il
+     primo in classifica fosse in moto perché l'intestazione dichiarasse
+     "nessuno chiede attenzione", anche con altri orologi scarichi più
+     in basso: il titolo diceva l'opposto dell'elenco sotto. Ora la
+     quiete è vera solo se nessuno, davvero nessuno, chiede qualcosa. */
+  const inAllarme = classifica.filter((x) => x.b.stato !== "moto");
+  const chiedeDavvero = inAllarme.length > 0;
+  /* Chi guida l'intestazione è il più grave, che dopo la correzione dei
+     punteggi coincide col primo, ma cercarlo esplicitamente rende la
+     cosa indipendente dall'ordinamento invece che fidarsi che regga. */
+  const capofila = chiedeDavvero ? inAllarme[0] : primo;
 
   /* Niente più carta grande. Era l'ultimo pezzo di un secondo sistema
      visivo che conviveva con l'elenco: l'abbiamo prima resa
@@ -216,11 +238,11 @@ function costruisciOggi() {
   const testa = el("div", "testa-oggi");
   const capoTesta = el("div", "riga-titolo-quiete");
   if (chiedeDavvero) {
-    capoTesta.append(el("p", "titolo-quiete", primo.o.nome),
+    capoTesta.append(el("p", "titolo-quiete", capofila.o.nome),
       infoTocco(t("info.gesti.titolo"),
         [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
     testa.append(capoTesta);
-    testa.append(el("p", "motivo", primo.b.motivo));
+    testa.append(el("p", "motivo", capofila.b.motivo));
   } else {
     capoTesta.append(el("p", "titolo-quiete", t("oggi.nulla")),
       infoTocco(t("primoUso.titolo"),

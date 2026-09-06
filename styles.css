@@ -788,15 +788,23 @@ h1.nome.tagliato {
 .riga-oggi.riga-quieta { opacity: .62; }
 
 /* Due livelli, non un semaforo. Chi chiede qualcosa prende un velo
-   tenue e un filo d'oro sul bordo sinistro; chi sta bene resta una riga
-   normale. Colorare ogni riga secondo il proprio stato darebbe cinque
-   livelli di allarme in cui nessuno emerge. */
+   tenue e un filo sul bordo sinistro; chi sta bene resta una riga
+   normale. Il filo prende il colore dello stato invece di essere sempre
+   oro: nell'app l'oro significa "guarda qui", l'arancione "urge". Con
+   il filo sempre oro, uno scarico e un cronografo da azionare avevano
+   lo stesso peso, che è falso. Il colore lo mette il codice, riusando
+   la stessa mappa del pallino: nessun colore nuovo. */
 .riga-oggi.riga-chiede {
   background: rgba(255,255,255,.028);
   box-shadow: inset 2px 0 0 var(--oro);
   border-radius: var(--r-minimo);
   padding-left: 10px; padding-right: 8px;
 }
+/* Chi è scarico o fermo pesa di più: velo un po' più marcato, a parità
+   di altezza. Righe di altezza diversa spezzerebbero il ritmo
+   dell'elenco, ed è il difetto per cui abbiamo tolto la carta grande:
+   qui la presenza si alza col contrasto, non con la geometria. */
+.riga-oggi.riga-urgente { background: rgba(255,107,44,.07); }
 
 /* Il guizzo del cambio di stato: una volta sola, all'apertura, sulle
    righe cambiate da quando hai guardato l'ultima volta. Non è
@@ -946,6 +954,11 @@ h1.nome.tagliato {
   display: flex; gap: 13px; padding: 15px 0; text-align: left;
   border-top: 1px solid rgba(255,255,255,.055);
 }
+/* Usata da tempo nel codice ma senza alcuna regola: la riga la portava
+   e riceveva comunque il filetto, perché non essendo la prima figlia
+   nemmeno :first-child la salvava. Il nome dichiarava un'intenzione che
+   il foglio di stile non realizzava. */
+.riga.senza-filo { border-top: none; }
 .riga:first-child { border-top: none; }
 .riga.fra { justify-content: space-between; align-items: center; }
 
