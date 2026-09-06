@@ -748,12 +748,23 @@ h1.nome.tagliato {
 /* La riga di quiete: sostituisce la carta grande quando nessuno chiede
    niente. Centrata, a differenza dell'elenco sotto: qui non c'è un nome
    a cui allinearsi, è una frase che parla della collezione intera. */
-.testa-oggi {
-  width: 100%; text-align: center;
-  margin: var(--s4) 0 var(--s3);
+/* Il titolo della collezione con la sua icona: due elementi che
+   stanno insieme a sinistra, mentre "Aggiungi" resta all'estremo
+   opposto. Senza questo contenitore l'icona verrebbe spinta al centro
+   dalla distribuzione della riga. */
+.titolo-con-info { display: flex; align-items: center; gap: 6px; min-width: 0; }
+
+/* La frase estesa, solo sulle righe che chiedono attenzione: dice
+   perché, da quanto e cosa fare. Corpo minore dello stato e a capo
+   libero, perché è una spiegazione da leggere, non un'etichetta da
+   scorrere: qui troncare con i puntini perderebbe proprio la parte
+   utile. */
+.riga-oggi-perche {
+  margin: 5px 0 0; max-width: 100%;
+  font-family: var(--display); font-variation-settings: 'opsz' 18;
+  font-weight: 300; font-size: .8125rem; line-height: 1.45;
+  color: var(--argento-off);
 }
-.testa-oggi .riga-titolo-quiete { justify-content: center; }
-.testa-oggi .motivo { margin: var(--s2) auto 0; }
 
 /* L'elenco: le righe portano già il proprio divisore in alto (.riga),
    quindi qui serve solo lo stacco dal titolo di sezione sopra e la
@@ -805,6 +816,10 @@ h1.nome.tagliato {
    dell'elenco, ed è il difetto per cui abbiamo tolto la carta grande:
    qui la presenza si alza col contrasto, non con la geometria. */
 .riga-oggi.riga-urgente { background: rgba(255,107,44,.07); }
+/* Una riga con la frase estesa è più alta per forza: le do un po' di
+   respiro sopra e sotto invece di lasciarla stretta contro le vicine.
+   L'altezza cresce solo dove c'è davvero altro testo, non ovunque. */
+.riga-oggi:has(.riga-oggi-perche) { padding-top: 15px; padding-bottom: 15px; }
 
 /* Il guizzo del cambio di stato: una volta sola, all'apertura, sulle
    righe cambiate da quando hai guardato l'ultima volta. Non è

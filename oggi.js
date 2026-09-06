@@ -131,6 +131,17 @@ function rigaCompatta(o, b, alPolso) {
   } else { stato.textContent = nomeStato(b.stato); }
   info.append(stato, el("p", "riga-oggi-nome", o.nome));
 
+  /* Chi chiede attenzione porta anche la frase estesa, che dice il
+     perché, da quanto e cosa fare. Prima viveva solo nell'intestazione,
+     quindi la si leggeva per un orologio solo: se due erano scarichi,
+     del secondo sapevi soltanto "scarico". Solo qui, non su tutte le
+     righe: un orologio tranquillo non ha niente da spiegare in tre
+     righe ("restano 34 ore" è già completo), e allargarle tutte
+     costringerebbe a scorrere molto di più per lo stesso contenuto. */
+  if (b.stato !== "moto" && b.motivo) {
+    info.append(el("p", "riga-oggi-perche", b.motivo));
+  }
+
   /* Il colore vive sul pallino e sul gesto, non sul testo dello stato:
      con lo stato ora in corpo grande, colorarlo lo renderebbe meno
      leggibile proprio nel punto in cui deve leggersi meglio. Il colore
@@ -221,39 +232,6 @@ function costruisciOggi() {
      cosa indipendente dall'ordinamento invece che fidarsi che regga. */
   const capofila = chiedeDavvero ? inAllarme[0] : primo;
 
-  /* Niente più carta grande. Era l'ultimo pezzo di un secondo sistema
-     visivo che conviveva con l'elenco: l'abbiamo prima resa
-     condizionale, poi le abbiamo tolto l'arancione pieno, e restava
-     sproporzionata. Quando una cosa chiede tre correzioni di fila e il
-     problema resta, di solito il problema è la cosa. Con una struttura
-     sola la sproporzione è impossibile per costruzione, non evitata da
-     una regola che potrebbe sbagliare.
-
-     Due cose vivevano solo lì dentro e sarebbero sparite: la frase
-     estesa che spiega perché un orologio chiede attenzione (le righe
-     mostrano lo stato breve, e nemmeno il dettaglio la contiene), e
-     l'icona che apre la spiegazione dei tre gesti. Tornano entrambe
-     qui sopra, in una riga di intestazione che cambia voce a seconda
-     che ci sia o no qualcosa da fare. */
-  const testa = el("div", "testa-oggi");
-  const capoTesta = el("div", "riga-titolo-quiete");
-  if (chiedeDavvero) {
-    capoTesta.append(el("p", "titolo-quiete", capofila.o.nome),
-      infoTocco(t("info.gesti.titolo"),
-        [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
-    testa.append(capoTesta);
-    testa.append(el("p", "motivo", capofila.b.motivo));
-  } else {
-    capoTesta.append(el("p", "titolo-quiete", t("oggi.nulla")),
-      infoTocco(t("primoUso.titolo"),
-        [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
-    testa.append(capoTesta);
-    testa.append(el("p", "motivo secondario",
-      Number.isFinite(primo.b.restanti) && primo.b.restanti > 0
-        ? primo.o.nome + " " + t("oggi.prossimoOra", { q: durata(primo.b.restanti) })
-        : t("oggi.tuttiCarichi")));
-  }
-  d.append(testa);
 
   /* Portare un cronografo non vuol dire averlo azionato: la frizione
      vuole girare. Invariato rispetto a prima. */
@@ -272,32 +250,40 @@ function costruisciOggi() {
      compreso, la stessa cosa mostrata due volte a due centimetri di
      distanza. */
   const resto = classifica;
-  if (resto.length) {
-    const capoRiga = el("div", "titolo-riga dopo");
-    capoRiga.append(el("span", "titolo-sezione", t("coll.tutta")));
-    const aggRapida = el("button", "agg-rapida");
-    aggRapida.setAttribute("aria-label", t("agg.pieno"));
-    aggRapida.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>' + t("agg.breve") + '</span>';
-    aggRapida.onclick = () => apriScheda();
-    capoRiga.append(aggRapida);
-    d.append(capoRiga);
 
-    const elenco = el("div", "elenco-oggi");
-    resto.forEach(({ o, b }) => elenco.append(rigaCompatta(o, b, eOggi(o))));
-    d.append(elenco);
-  } else {
-    /* Un solo orologio: prima qui si saltava l'elenco perché l'orologio
-       era già nella carta grande sopra. Senza quella carta, saltarlo
-       vorrebbe dire non mostrarlo affatto. */
-    const aggRapida = el("button", "agg-rapida dopo");
-    aggRapida.setAttribute("aria-label", t("agg.pieno"));
-    aggRapida.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>' + t("agg.breve") + '</span>';
-    aggRapida.onclick = () => apriScheda();
-    d.append(aggRapida);
-    const elenco = el("div", "elenco-oggi");
-    resto.forEach(({ o, b }) => elenco.append(rigaCompatta(o, b, eOggi(o))));
-    d.append(elenco);
-  }
+  /* Un ramo solo. Prima ce n'erano due, e quello con un solo orologio
+     saltava la riga di titolo: senza intestazione in cima, l'icona
+     info vive lì, quindi con un orologio solo sarebbe sparita insieme
+     alla riga, portandosi via l'unico accesso ai due pannelli. I due
+     rami facevano già quasi la stessa cosa: il titolo della collezione
+     ha senso anche con un orologio, e ora non c'è più niente sopra da
+     cui distinguerlo. */
+  const capoRiga = el("div", "titolo-riga dopo");
+  /* L'icona sta accanto al titolo della collezione, non appesa
+     all'orologio più grave del giorno: i due pannelli parlano dell'app
+     (come funzionano i gesti, come viene contato), non di un orologio
+     in particolare. Prima erano due icone alternative, e quale
+     comparisse dipendeva dallo stato della collezione: un comando che
+     apre cose diverse a seconda del giorno è imprevedibile, quindi
+     sono un pannello solo. La riga esiste già e ha due estremi:
+     l'icona ci entra senza aggiungere altezza. */
+  const titoloColl = el("div", "titolo-con-info");
+  titoloColl.append(el("span", "titolo-sezione", t("coll.tutta")),
+    infoTocco(t("info.comeFunziona"),
+      [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4"),
+       t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
+  capoRiga.append(titoloColl);
+
+  const aggRapida = el("button", "agg-rapida");
+  aggRapida.setAttribute("aria-label", t("agg.pieno"));
+  aggRapida.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>' + t("agg.breve") + '</span>';
+  aggRapida.onclick = () => apriScheda();
+  capoRiga.append(aggRapida);
+  d.append(capoRiga);
+
+  const elenco = el("div", "elenco-oggi");
+  resto.forEach(({ o, b }) => elenco.append(rigaCompatta(o, b, eOggi(o))));
+  d.append(elenco);
 
   /* Chiudo il ciclo: gli stati di adesso diventano quelli con cui la
      prossima apertura si confronterà. Il salvataggio non blocca il
