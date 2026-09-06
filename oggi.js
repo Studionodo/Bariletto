@@ -196,9 +196,6 @@ function costruisciOggi() {
     return d;
   }
 
-  d.append(el("span", "etichetta data-oggi", new Date().toLocaleDateString(locale(),
-    { weekday: "long", day: "numeric", month: "long" })));
-
   const eOggi = (o) => o.ultimoPolso && sameDay(o.ultimoPolso, Date.now());
   const liberi = classifica.filter(({ o }) => !eOggi(o));
   const proposto = liberi.length ? liberi[0] : null;

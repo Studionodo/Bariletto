@@ -189,7 +189,23 @@ function costruisciCornice() {
        solo su questo elemento. */
     const cosE = el("button", "link-cosE", t("info.cosE"));
     cosE.onclick = () => apriCosE();
-    testata.append(marchio, frase, cosE);
+    /* La data stava dentro la pagina Oggi, centrata, mentre marchio e
+       frase sono a sinistra: due assi diversi nella stessa zona, ed era
+       il motivo per cui quello spazio sembrava affollato pur avendo
+       poche cose. Qui chiude la riga del link, che finora usava metà
+       larghezza e lasciava il resto vuoto: non aggiunge altezza, ne
+       recupera, perché la pagina Oggi perde un blocco e il suo margine.
+       In più compare anche in Registro, dove prima mancava e dove
+       sapere che giorno è aiuta a leggere le voci.
+
+       Formato corto, senza il giorno della settimana per esteso: su una
+       riga condivisa quattro parole in maiuscolo spaziato ruberebbero
+       il posto al link e andrebbero a capo sui telefoni stretti. */
+    const rigaBassa = el("div", "riga-testata");
+    const data = el("span", "data-testata", new Date().toLocaleDateString(locale(),
+      { day: "numeric", month: "long" }));
+    rigaBassa.append(cosE, data);
+    testata.append(marchio, frase, rigaBassa);
   }
   misuraTestata();
 

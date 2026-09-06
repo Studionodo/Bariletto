@@ -441,7 +441,26 @@ body::before {
 .elenco      { margin-top: var(--s3); }
 .link-centro { display: block; margin-inline: auto; margin-top: var(--s3); }
 .link-centro.stretto { margin-top: var(--s2); }
-.data-oggi   { display: block; margin-bottom: var(--s3); }
+/* La riga bassa della testata: il link a sinistra, la data all'estremo
+   opposto. Prima il link stava da solo e metà larghezza restava vuota.
+   pointer-events va riacceso qui come sul link, perché #testata lo
+   spegne su tutto per lasciar passare i tocchi al contenuto sotto: la
+   data non è cliccabile, ma il contenitore non deve intercettare nulla
+   al posto suo. */
+.riga-testata {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--s3); pointer-events: none;
+}
+.riga-testata .link-cosE { flex: 0 0 auto; }
+/* Stesso microscritto delle altre etichette dell'app, un tono più
+   spento del link accanto: dice che giorno è, non invita a toccare. */
+.data-testata {
+  flex: 0 1 auto; min-width: 0;
+  font-family: var(--dati); font-size: .625rem; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--argento-off); opacity: .72;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 
 /* --- tipografia --- */
