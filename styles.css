@@ -632,13 +632,22 @@ h1.nome.tagliato {
    «L'ho messo» e «Salva» impegnano: cambiano l'archivio. Cambiare pagina
    o aprire una scheda no, e non possono vestirsi allo stesso modo.
    --------------------------------------------------------------------- */
+/* Il gesto principale. Era arancione pieno con un alone luminoso da
+   22px, il trattamento più forte che l'app possieda, per un'azione che
+   si compie a volte: gridava l'atto di registrazione e sussurrava
+   l'informazione per cui apri l'app. Ora è un contorno arancione su
+   vetro: resta l'elemento più evidente della schermata, perché è
+   l'unico in quel colore e l'unico largo quanto la carta, ma smette di
+   fare da cartellone. L'arancione pieno resta disponibile per lo stato
+   di allarme vero, dove significa qualcosa. */
 .azione {
   font-family: var(--dati); font-size: .75rem; font-weight: 600;
   letter-spacing: .19em; text-transform: uppercase;
   min-height: 48px; padding: 15px 38px; border-radius: var(--r-chip);
-  background: var(--arancio); color: #160D07;
-  border: 1px solid transparent;
-  box-shadow: 0 0 22px rgba(255,107,44,.16);
+  background: rgba(255,107,44,.08); color: var(--arancio);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,107,44,.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
   transition: border-radius .28s var(--molla), transform .28s var(--molla),
               background .3s var(--piano), color .3s var(--piano),
               border-color .3s var(--piano), box-shadow .3s var(--piano);
@@ -647,15 +656,24 @@ h1.nome.tagliato {
   background: none; color: var(--argento-off);
   border-color: rgba(155,149,172,.28); box-shadow: none; cursor: default;
 }
+/* Ora che la principale non è più una superficie piena, la secondaria
+   rischiava di diventarle identica: resta senza sfondo e senza vetro,
+   solo il contorno, così la differenza fra le due si legge ancora. */
 .azione.secondaria {
   background: none; color: var(--argento);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
   border-color: rgba(255,107,44,.42); box-shadow: none;
 }
 .azione.secondaria:active { background: rgba(255,107,44,.10); }
 .azione.larga { width: 100%; }
 /* Sotto il dito la pastiglia si squadra e rientra: è il gesto di
-   risposta di Android, e costa due righe. */
-.azione:not([disabled]):active { border-radius: var(--r-premuto); transform: scale(.975); }
+   risposta di Android, e costa due righe. Senza più lo sfondo pieno il
+   solo rientro si sentirebbe poco, quindi il fondo si accende: la
+   risposta al tocco resta evidente quanto prima. */
+.azione:not([disabled]):active {
+  border-radius: var(--r-premuto); transform: scale(.975);
+  background: rgba(255,107,44,.26);
+}
 
 .quieta {
   font-size: .8125rem; color: var(--argento-off); letter-spacing: .05em;
@@ -730,12 +748,12 @@ h1.nome.tagliato {
 /* La riga di quiete: sostituisce la carta grande quando nessuno chiede
    niente. Centrata, a differenza dell'elenco sotto: qui non c'è un nome
    a cui allinearsi, è una frase che parla della collezione intera. */
-.quiete-oggi {
+.testa-oggi {
   width: 100%; text-align: center;
   margin: var(--s4) 0 var(--s3);
 }
-.quiete-oggi .riga-titolo-quiete { justify-content: center; }
-.quiete-oggi .motivo.secondario { margin: 0 auto; }
+.testa-oggi .riga-titolo-quiete { justify-content: center; }
+.testa-oggi .motivo { margin: var(--s2) auto 0; }
 
 /* L'elenco: le righe portano già il proprio divisore in alto (.riga),
    quindi qui serve solo lo stacco dal titolo di sezione sopra e la
@@ -768,6 +786,35 @@ h1.nome.tagliato {
 /* Chi è già a posto per oggi non deve gridare, ma nemmeno sparire:
    resta leggibile, solo più indietro degli altri. */
 .riga-oggi.riga-quieta { opacity: .62; }
+
+/* Due livelli, non un semaforo. Chi chiede qualcosa prende un velo
+   tenue e un filo d'oro sul bordo sinistro; chi sta bene resta una riga
+   normale. Colorare ogni riga secondo il proprio stato darebbe cinque
+   livelli di allarme in cui nessuno emerge. */
+.riga-oggi.riga-chiede {
+  background: rgba(255,255,255,.028);
+  box-shadow: inset 2px 0 0 var(--oro);
+  border-radius: var(--r-minimo);
+  padding-left: 10px; padding-right: 8px;
+}
+
+/* Il guizzo del cambio di stato: una volta sola, all'apertura, sulle
+   righe cambiate da quando hai guardato l'ultima volta. Non è
+   un'intermittenza: quella si impara a ignorare, e diventa illeggibile
+   se tre righe pulsano insieme proprio quando servirebbe leggerle. */
+@keyframes guizzo-cambio {
+  0%   { background-color: rgba(201,169,106,.20); }
+  100% { background-color: transparent; }
+}
+.riga-oggi.riga-cambiata { animation: guizzo-cambio 1.6s var(--piano); }
+/* Chi ha chiesto meno movimento non deve perdere il segnale, quindi il
+   cambiamento resta visibile in modo statico invece di animarsi. */
+@media (prefers-reduced-motion: reduce) {
+  .riga-oggi.riga-cambiata {
+    animation: none;
+    box-shadow: inset 2px 0 0 var(--viola);
+  }
+}
 /* Stesso disegno del bottone-cerchio già usato per la matita del
    selettore A/H: bordo sottile, oro solo quando importa. Non un terzo
    stile di bottone da imparare. */
@@ -838,6 +885,36 @@ h1.nome.tagliato {
    sopra il titolo, poco sotto — così il titolo appartiene a quello che
    viene dopo e non galleggia in mezzo.
    ------------------------------------------------------------------ */
+/* L'isola: una superficie per un gruppo di righe. Stesso vetro delle
+   lastre, nessun colore nuovo. I filetti fra le righe restano, dentro;
+   fuori spariscono, perché lo spazio fra due isole già separa. */
+.isola {
+  width: 100%; border-radius: var(--r-medio);
+  padding: 0 var(--s3);
+  background-color: var(--vetro-slab);
+  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
+  backdrop-filter: blur(var(--sfoca)); -webkit-backdrop-filter: blur(var(--sfoca));
+  box-shadow: var(--rilievo);
+  overflow: hidden;
+}
+.isola + .isola { margin-top: var(--s2); }
+/* Dentro un foglio che è già vetro, la stessa densità darebbe vetro
+   sopra vetro: qui basta un accenno di superficie per dire "questo è un
+   gruppo", senza aggiungere un secondo strato da guardare attraverso. */
+.isola.isola-dentro {
+  background-color: rgba(255,255,255,.035);
+  background-image: none;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  border-radius: var(--r-lastra);
+}
+/* Le righe cliccabili perdono il proprio arrotondamento al tocco: lo
+   dà l'isola, che le contiene e le ritaglia. */
+.isola .attrezzo:first-of-type,
+.isola .voce-diario:first-child,
+.isola .riga:first-child { border-top: none; }
+.isola .attrezzo:active { background: rgba(255,255,255,.04); }
+
 .sezione {
   width: 100%; margin-top: 52px; padding-top: var(--s5);
   border-top: 1px solid rgba(255,255,255,.09);
@@ -1192,6 +1269,16 @@ h1.nome.tagliato {
   text-transform: uppercase; color: var(--argento-off); padding-top: 2px;
 }
 .spec dd { font-family: var(--dati); font-size: .875rem; color: var(--argento); min-width: 0; }
+/* La revisione fa storia a sé. "Prossima revisione consigliata" occupa
+   quasi tutta la larghezza da sola: in una griglia a due colonne
+   minmax(0,auto) le concede la larghezza a contenuto intero, e il
+   valore viene schiacciato contro il bordo fino a spezzarsi. Separare
+   le griglie non era bastato, perché la causa non era la convivenza
+   con le altre voci ma la lunghezza dell'etichetta. Qui l'unica
+   soluzione è impilare: etichetta sopra, valore sotto, larghezza piena
+   per entrambi. */
+.spec.impilata { grid-template-columns: 1fr; gap: 2px; }
+.spec.impilata dd { font-size: 1rem; }
 
 /* Griglia, non flex: con flex il testo diventa una voce che non si
    restringe e allarga tutto il foglio oltre lo schermo. */

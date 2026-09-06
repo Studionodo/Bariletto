@@ -20,10 +20,41 @@ function titoloConInfo(classe, testo, titoloInfo, testoInfo) {
   return riga;
 }
 
+/* Raccoglie le sequenze di righe adiacenti in un'isola con una
+   superficie propria. Prima ogni riga era testo su fondo con un filetto
+   sopra: un filetto separa ma non raggruppa, quindi sei blocchi
+   separati da sei linee si leggono come sei cose in fila, non come un
+   insieme organizzato. Dentro l'isola i filetti restano, a dividere le
+   righe fra loro; fuori non servono più, perché lo spazio vuoto fra due
+   isole dice già da solo dove finisce un gruppo.
+
+   Agisce dopo la costruzione invece che dentro ogni sezione: le sezioni
+   restano come sono, e le righe che non fanno parte di una sequenza
+   (note, esiti, titoli) non vengono inglobate per costruzione, senza
+   doverlo prevedere caso per caso. */
+function raggruppaInIsole(contenitore, selettore) {
+  if (!contenitore) return contenitore;
+  const figli = [...contenitore.children];
+  let corrente = null;
+  figli.forEach((nodo) => {
+    if (nodo.matches && nodo.matches(selettore)) {
+      if (!corrente) {
+        corrente = el("div", "isola");
+        contenitore.insertBefore(corrente, nodo);
+      }
+      corrente.append(nodo);
+    } else {
+      corrente = null;
+    }
+  });
+  return contenitore;
+}
+
 function costruisciAltro() {
   const d = el("div", "colonna testo");
   d.append(sezioneRegistro(), sezioneCollezione(), sezioneAttrezzi(), sezioneCarta(), sezioneDati(), sezioneNotifiche());
   d.append(fondoLingua());
+  [...d.querySelectorAll("section.sezione")].forEach((s) => raggruppaInIsole(s, ".attrezzo"));
   return d;
 }
 

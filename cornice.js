@@ -301,6 +301,15 @@ async function avvio() {
     orologi = await leggiTutti("orologi");
     registro = await leggiTutti("registro");
 
+    /* Gli stati dell'ultima volta che hai guardato. Serve a far notare
+       cosa è cambiato da allora: senza, "cambio di stato" non è
+       osservabile, perché l'app non ricorda com'erano prima. Caricata
+       qui, prima del primo disegno, altrimenti la prima schermata,
+       cioè proprio quella dove il confronto conta, non avrebbe niente
+       con cui confrontarsi. */
+    const mem = await tx("stato", "readonly", (s) => s.get("statiVisti"));
+    statiPrecedenti = (mem && mem.valore) || null;
+
     costruisciCornice();
     misuraViewportVisibile();
     if (window.visualViewport) {

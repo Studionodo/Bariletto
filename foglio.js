@@ -213,6 +213,12 @@ function disegnaRegistro() {
     r.append(testo, x);
     corpo.append(r);
   });
+
+  /* Le voci sono già raggruppate per giorno dall'intestazione con la
+     lineetta dorata: qui il raggruppamento visivo non lo invento, do
+     una superficie a un insieme che esisteva già come concetto. Ogni
+     sequenza di voci fra due intestazioni diventa la sua isola. */
+  raggruppaInIsole(corpo, ".voce-diario");
   f.append(corpo);
 }
 
@@ -636,16 +642,18 @@ function schedaDettaglio(corpo) {
   if (o.ah) riga(t("ah"), o.ah.toLocaleString(locale()));
   corpo.append(dl);
 
-  /* Una lista a sé, non righe aggiunte a quella sopra: l'etichetta
-     "Prossima revisione consigliata" è molto più lunga delle altre
-     ("Riserva", "A/H"), e in una griglia condivisa la colonna delle
-     etichette si allarga per fare posto a quella più lunga — stringendo
-     la colonna dei valori al punto da far andare a capo "Seiko 7S26".
-     Due griglie separate non si influenzano a vicenda; dopo-corto dà
-     il margine che mancava quando erano solo due blocchi vicini. */
+  /* Una lista a sé, e per giunta impilata. L'etichetta "Prossima
+     revisione consigliata" è molto più lunga delle altre ("Riserva",
+     "A/H"): in una griglia condivisa allargava la colonna delle
+     etichette schiacciando i valori, e separarla in una griglia propria
+     non è bastato, perché la causa non era la convivenza ma la sua
+     lunghezza. Su due colonne quell'etichetta si prende quasi tutta la
+     riga da sola e il valore finisce spezzato contro il bordo. Impilata
+     (classe "impilata") etichetta e valore hanno entrambi la larghezza
+     piena, ed è l'unica disposizione che regge su un telefono. */
   const prossima = prossimaRevisione(o);
   if (prossima != null) {
-    const dlRev = el("dl", "spec dopo-corto");
+    const dlRev = el("dl", "spec impilata dopo-corto");
     dlRev.append(el("dt", null, t("st.prossimaRevisione")),
                  el("dd", null, t("st.revisioneCirca", { anno: new Date(prossima).getFullYear() })));
     corpo.append(dlRev);
@@ -679,12 +687,19 @@ function schedaDettaglio(corpo) {
   corpo.append(ult);
   const suo = [...registro].filter((v) => v.orologio === o.id)
                            .sort((a, b) => b.quando - a.quando);
+  const storico = el("div", "isola isola-dentro");
   suo.slice(0, 5).forEach((v) => {
     const r = el("div", "riga fra");
     r.append(el("span", "etichetta mini", t(v.azione)),
              el("span", "etichetta mini", quando(v.quando)));
-    corpo.append(r);
+    storico.append(r);
   });
+  /* Solo se c'è qualcosa dentro: un'isola vuota sarebbe un rettangolo
+     di vetro che non contiene niente. E marcata "isola-dentro" perché
+     qui sta dentro un foglio che è già vetro: con la stessa densità
+     delle altre sarebbe vetro sopra vetro, meno leggibile invece che
+     più ordinato. */
+  if (suo.length) corpo.append(storico);
 }
 
 function piedeDettaglio() {

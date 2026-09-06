@@ -11,12 +11,25 @@
    sopra.
 
    Qui non c'è più un solo orologio scelto per te dentro una vetrina:
-   c'è un elenco delle cose da fare, ordinato per urgenza. La prima riga
-   è quella che l'app sceglierebbe comunque — più alta, con il gesto
-   in evidenza — le altre sotto sono compatte, un gesto a un tocco
-   ciascuna, senza dover entrare nel dettaglio per agire. Nessun
-   orologio compare due volte. I colori restano quelli di sempre: cambia
-   la struttura, non la palette. */
+   c'è un elenco delle cose da fare, ordinato per urgenza. Una struttura
+   sola, uguale per tutti, dalla prima riga all'ultima: non esiste più
+   una carta separata in cima, e quindi non può più esistere il caso di
+   un orologio tranquillo che pesa dieci volte un altro orologio
+   ugualmente tranquillo solo perché è il primo. Sopra l'elenco resta
+   una riga di intestazione che dice cosa serve fare, o che non serve
+   niente. Ogni riga ha il suo gesto a un tocco, senza dover entrare nel
+   dettaglio per agire. I colori restano quelli di sempre: cambia la
+   struttura, non la palette. */
+
+/* Gli stati dell'ultima volta che l'app è stata guardata, caricati
+   all'avvio da cornice.js. Servono a far notare cosa è cambiato da
+   allora, una volta sola: un elemento che lampeggia in permanenza è
+   quello che si impara a ignorare più in fretta, e sparirebbe del tutto
+   per chi ha attivato la riduzione del movimento sul telefono. */
+var statiPrecedenti = null;
+/* Vale solo per la prima schermata dopo l'apertura: da lì in poi ogni
+   cambiamento lo hai provocato tu, e segnalartelo sarebbe rumore. */
+var primaCostruzione = true;
 
 /* Le due icone dei gesti sulle righe compatte. A tratto, senza
    riempimento, stesso linguaggio già usato per la matita del
@@ -44,44 +57,6 @@ function segnaConLampo(azioneOra, o, elementoDaAnimare) {
   });
 }
 
-/* La riga eroe: la prima dell'elenco, quella che l'app propone. Nome,
-   motivo per intero, il gesto in un bottone pieno. Nessuno stato scritto
-   a parte: il motivo stesso lo dice già, in una frase, non in
-   un'etichetta secca ripetuta due volte come succedeva prima con
-   l'anello e la frase sotto che dicevano la stessa riserva in due modi
-   diversi. */
-function rigaEroe(o, b, proposto) {
-  const carta = el("div", "carta-gesto eroe-oggi");
-  carta.append(el("h1", "nome", o.nome));
-  if (o.linea) carta.append(el("span", "linea", o.linea));
-
-  if (proposto) {
-    carta.append(el("p", "motivo", b.motivo));
-    const rigaAz = el("div", "riga-azione-principale");
-    const az = el("button", "azione dopo", t("messo"));
-    az.onclick = () => {
-      az.disabled = true;
-      segnaConConferma(o, (nome) => mostraConfermaGesto(rigaAz, nome));
-    };
-    rigaAz.append(az, infoTocco(t("info.gesti.titolo"),
-      [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
-    carta.append(rigaAz);
-  } else {
-    /* Quiete: nessun gesto da proporre, o perché ci hai già pensato
-       oggi, o perché nessuno ha davvero bisogno di te adesso. Stesso
-       testo di sempre, stesso popup del primo utilizzo raggiungibile. */
-    const rigaQuiete = el("div", "riga-titolo-quiete");
-    rigaQuiete.append(el("p", "titolo-quiete", t("oggi.nulla")),
-      infoTocco(t("primoUso.titolo"),
-        [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
-    carta.append(rigaQuiete);
-    carta.append(el("p", "motivo secondario",
-      Number.isFinite(b.restanti) && b.restanti > 0
-        ? o.nome + " " + t("oggi.prossimoOra", { q: durata(b.restanti) })
-        : t("oggi.tuttiCarichi")));
-  }
-  return carta;
-}
 
 /* Sostituisce la sola riga del bottone con la conferma del nome appena
    segnato. Non tocca il resto della carta né la pagina: il ridisegno
@@ -121,6 +96,19 @@ function rigaCompatta(o, b, alPolso) {
   const sx = el("div", "riga-oggi-sx");
   const pallino = el("span", "pallino");
   pallino.style.background = COLORE[b.stato];
+  /* Due livelli, non cinque. Colorare ogni riga secondo il proprio
+     stato darebbe un semaforo dove tutto grida e nessuno emerge: la
+     distinzione che serve davvero è fra chi chiede qualcosa e chi no.
+     Chi chiede prende un accento; gli altri restano righe normali. */
+  if (!alPolso && b.stato !== "moto") r.classList.add("riga-chiede");
+  /* Se lo stato è cambiato da quando hai guardato l'ultima volta, la
+     riga si accende un attimo e poi resta ferma. Solo alla prima
+     costruzione della schermata: dopo un tocco tuo il cambiamento non
+     è una notizia, l'hai appena provocato. */
+  if (primaCostruzione && statiPrecedenti && statiPrecedenti[o.id] &&
+      statiPrecedenti[o.id] !== b.stato) {
+    r.classList.add("riga-cambiata");
+  }
   const info = el("div", "riga-oggi-info");
 
   /* Prima lo stato, poi il nome. */
@@ -211,34 +199,39 @@ function costruisciOggi() {
      male, quello e solo quello si prende il trattamento diverso. */
   const chiedeDavvero = primo.b.stato !== "moto";
 
-  if (chiedeDavvero) {
-    d.append(rigaEroe(primo.o, primo.b, !!proposto));
+  /* Niente più carta grande. Era l'ultimo pezzo di un secondo sistema
+     visivo che conviveva con l'elenco: l'abbiamo prima resa
+     condizionale, poi le abbiamo tolto l'arancione pieno, e restava
+     sproporzionata. Quando una cosa chiede tre correzioni di fila e il
+     problema resta, di solito il problema è la cosa. Con una struttura
+     sola la sproporzione è impossibile per costruzione, non evitata da
+     una regola che potrebbe sbagliare.
 
-    if (proposto && (proposto.o.mano || proposto.o.tipo === "manuale")) {
-      const car = el("button", "quieta dopo-corto", t("soloCaricato"));
-      car.onclick = () => segnaCarica(proposto.o);
-      d.append(car);
-    }
+     Due cose vivevano solo lì dentro e sarebbero sparite: la frase
+     estesa che spiega perché un orologio chiede attenzione (le righe
+     mostrano lo stato breve, e nemmeno il dettaglio la contiene), e
+     l'icona che apre la spiegazione dei tre gesti. Tornano entrambe
+     qui sopra, in una riga di intestazione che cambia voce a seconda
+     che ci sia o no qualcosa da fare. */
+  const testa = el("div", "testa-oggi");
+  const capoTesta = el("div", "riga-titolo-quiete");
+  if (chiedeDavvero) {
+    capoTesta.append(el("p", "titolo-quiete", primo.o.nome),
+      infoTocco(t("info.gesti.titolo"),
+        [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
+    testa.append(capoTesta);
+    testa.append(el("p", "motivo", primo.b.motivo));
   } else {
-    /* Senza carta grande, tre cose che vivevano al suo interno
-       sparirebbero: la frase di quiete, l'informazione su quando il
-       primo si fermerà, e l'icona che apre la spiegazione del
-       conteggio, che è l'unico modo per riaprirla dopo il primo
-       utilizzo. Qui tornano in una riga discreta sopra l'elenco:
-       stessa informazione, senza il teatro di una carta bordata per
-       dire che non c'è niente da fare. */
-    const quiete = el("div", "quiete-oggi");
-    const capo = el("div", "riga-titolo-quiete");
-    capo.append(el("p", "titolo-quiete", t("oggi.nulla")),
+    capoTesta.append(el("p", "titolo-quiete", t("oggi.nulla")),
       infoTocco(t("primoUso.titolo"),
         [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
-    quiete.append(capo);
-    quiete.append(el("p", "motivo secondario",
+    testa.append(capoTesta);
+    testa.append(el("p", "motivo secondario",
       Number.isFinite(primo.b.restanti) && primo.b.restanti > 0
         ? primo.o.nome + " " + t("oggi.prossimoOra", { q: durata(primo.b.restanti) })
         : t("oggi.tuttiCarichi")));
-    d.append(quiete);
   }
+  d.append(testa);
 
   /* Portare un cronografo non vuol dire averlo azionato: la frizione
      vuole girare. Invariato rispetto a prima. */
@@ -251,16 +244,12 @@ function costruisciOggi() {
     d.append(b);
   });
 
-  /* Il resto della collezione. L'elenco esclude il primo solo se il
-     primo è finito nella carta grande: se non l'ha guadagnata, sta qui
-     con tutti gli altri, e la schermata è un elenco solo, uniforme.
-     Prima qui c'era un carosello orizzontale che ripeteva tutta la
-     collezione, eroe compreso — la stessa cosa mostrata due volte a due
-     centimetri di distanza. Un elenco non può ripetersi per
-     costruzione: o una riga è l'eroe, o è qui sotto, mai entrambe. */
-  const resto = chiedeDavvero
-    ? classifica.filter((x) => x.o.id !== primo.o.id)
-    : classifica;
+  /* Tutti, sempre. Non esistendo più una carta separata sopra, non c'è
+     più niente da escludere: l'elenco è la schermata. Prima qui c'era
+     un carosello orizzontale che ripeteva tutta la collezione, eroe
+     compreso, la stessa cosa mostrata due volte a due centimetri di
+     distanza. */
+  const resto = classifica;
   if (resto.length) {
     const capoRiga = el("div", "titolo-riga dopo");
     capoRiga.append(el("span", "titolo-sezione", t("coll.tutta")));
@@ -275,13 +264,28 @@ function costruisciOggi() {
     resto.forEach(({ o, b }) => elenco.append(rigaCompatta(o, b, eOggi(o))));
     d.append(elenco);
   } else {
-    /* Un solo orologio in collezione: l'eroe è tutta la collezione,
-       niente elenco sotto. Il + resta comunque raggiungibile. */
+    /* Un solo orologio: prima qui si saltava l'elenco perché l'orologio
+       era già nella carta grande sopra. Senza quella carta, saltarlo
+       vorrebbe dire non mostrarlo affatto. */
     const aggRapida = el("button", "agg-rapida dopo");
     aggRapida.setAttribute("aria-label", t("agg.pieno"));
     aggRapida.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>' + t("agg.breve") + '</span>';
     aggRapida.onclick = () => apriScheda();
     d.append(aggRapida);
+    const elenco = el("div", "elenco-oggi");
+    resto.forEach(({ o, b }) => elenco.append(rigaCompatta(o, b, eOggi(o))));
+    d.append(elenco);
+  }
+
+  /* Chiudo il ciclo: gli stati di adesso diventano quelli con cui la
+     prossima apertura si confronterà. Il salvataggio non blocca il
+     disegno, e se fallisce si perde solo un guizzo, non un dato. */
+  primaCostruzione = false;
+  const mappa = {};
+  classifica.forEach(({ o, b }) => { mappa[o.id] = b.stato; });
+  statiPrecedenti = mappa;
+  if (typeof salva === "function" && typeof db !== "undefined" && db) {
+    salva("stato", { chiave: "statiVisti", valore: mappa }).catch(() => {});
   }
 
   return d;
