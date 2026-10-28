@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><body><script>
+// Database come lo lascia la v150: versione 2, tre depositi, orologi senza «aggiunto».
+const G=86400000, ora=Date.now();
+const orologi=[
+ {id:"seikoskx-aaaa1",nome:"Seiko SKX007",linea:"Diver's 200m",calibro:"7S26",calibroNome:"Seiko 7S26",tipo:"automatico",mano:false,arresto:false,data:true,giorno:true,riserva:41,ah:21600,finestra:[21,3],fonte:"comunita",ultimoPolso:ora-41*G,ultimaLuce:null,ultimoCrono:null,ultimaCarica:null},
+ {id:"kingseiko-bbbb2",nome:"King Seiko SLA083",linea:"Vanac",calibro:"6R35",calibroNome:"Seiko 6R35",tipo:"automatico",mano:true,arresto:true,data:true,giorno:false,riserva:45,ah:28800,finestra:[21,3],fonte:"comunita",ultimoPolso:ora-3*G,ultimaLuce:null,ultimoCrono:null,ultimaCarica:ora-1*G},
+ {id:"speedy-cccc3",nome:"Omega Speedmaster Professional",linea:"",calibro:"manuale",calibroNome:"Omega 1861",tipo:"manuale",mano:true,arresto:true,data:false,giorno:false,riserva:50,ah:21600,finestra:[21,3],fonte:"ufficiale",ultimoPolso:ora-9*G,ultimaLuce:null,ultimoCrono:ora-9*G,ultimaCarica:ora-9*G},
+ {id:"m-nuovo",nome:"Orient Bambino",linea:"",calibro:"manuale",calibroNome:"Orient F6724",tipo:"automatico",mano:true,arresto:true,data:true,giorno:false,riserva:40,ah:21600,ultimoPolso:null,ultimaLuce:null,ultimoCrono:null,ultimaCarica:null},
+];
+const reg=[];
+[41,48,55,62,70].forEach(g=>reg.push({orologio:"seikoskx-aaaa1",nome:"Seiko SKX007",azione:"reg.portato",quando:ora-g*G,prima:{}}));
+[3,5,6,10,12,20].forEach(g=>reg.push({orologio:"kingseiko-bbbb2",nome:"King Seiko SLA083",azione:"reg.portato",quando:ora-g*G,prima:{}}));
+reg.push({orologio:"kingseiko-bbbb2",nome:"King Seiko SLA083",azione:"reg.caricato",quando:ora-1*G,prima:{ultimaCarica:null}});
+[9,15].forEach(g=>reg.push({orologio:"speedy-cccc3",nome:"Omega Speedmaster Professional",azione:"reg.portato",quando:ora-g*G,prima:{}}));
+const r=indexedDB.open("bariletto",2);
+r.onupgradeneeded=e=>{const d=e.target.result;d.createObjectStore("orologi",{keyPath:"id"});d.createObjectStore("registro",{keyPath:"id",autoIncrement:true});d.createObjectStore("stato",{keyPath:"chiave"});};
+r.onsuccess=()=>{const d=r.result;const t=d.transaction(["orologi","registro","stato"],"readwrite");
+ orologi.forEach(o=>t.objectStore("orologi").put(o)); reg.forEach(v=>t.objectStore("registro").add(v));
+ t.objectStore("stato").put({chiave:"lingua",valore:"it"});
+ t.oncomplete=()=>{d.close();document.title="seminato";};};
+</script>

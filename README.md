@@ -1,35 +1,58 @@
-# Bariletto
+# Ninna
 
-Conta le ore che non guardi. Quale orologio mettere oggi, e cosa fargli.
+Prevede pisolini e nanna, e spiega perché.
 
-*[Read this in English](README.en.md)*
+[Read this in English](README.en.md)
 
 ## Cos'è
 
-Bariletto è una web app (PWA) per chi ha più di un orologio meccanico o automatico e vuole sapere, ogni giorno, di cosa ha bisogno ciascuno: carica, luce, cronografo, revisione. Apri l'app e trovi la collezione in un elenco, con lo stato di ognuno in evidenza e in cima quello che chiede più attenzione. Funziona interamente offline, non ha server, non ha account: tutti i dati restano sul telefono di chi la usa.
+Ninna è una web app (PWA) per genitori di neonati e bambini piccoli che vogliono capire i ritmi del sonno del proprio figlio invece di indovinarli. Calcola quando arriverà il prossimo pisolino o l'ora della nanna, e mostra sempre il perché: nessuna previsione a scatola chiusa. Funziona interamente offline dopo il primo caricamento, non ha server propri, non ha account: tutti i dati restano sul telefono di chi la usa.
 
 ## Cosa fa
 
-- Mostra ogni giorno lo stato di tutta la collezione in un elenco, ordinato per bisogno: in cima chi è fermo o scarico, in fondo chi sta bene. Lo stato viene prima del nome, perché la domanda è di chi occuparsi, non quale orologio è quale.
-- Registra con un tocco le azioni comuni: l'ho indossato, l'ho caricato, gli ho dato luce, ho azzerato il cronografo.
-- Tiene un archivio di oltre 150 calibri meccanici e al quarzo, con le regole specifiche di ciascuno (autonomia di carica, finestre in cui non toccare la corona, tipo di scappamento).
-- Segnala quando un orologio automatico rischia di fermarsi, o quando uno al quarzo si avvicina alla fine prevista della pila.
-- Calcola una data indicativa per la prossima revisione, se inserisci acquisto e ultima manutenzione.
-- Notifiche di sistema opzionali (solo Android/Chrome) per non dimenticare un orologio fermo da troppo.
-- Registro cronologico di ogni azione fatta su ogni orologio, consultabile per intero.
+**Prevedere il sonno**
 
-## Come funziona
+- **Prevede il prossimo sonno** in base alla finestra di veglia tipica dell'età del bambino, corretta giorno dopo giorno con i ritmi reali osservati.
+- **Distingue da sola pisolino e nanna**: decide quale dei due proporre in base ai pisolini già fatti, all'orario e alla vicinanza alla routine serale, così il genitore non deve sceglierlo a occhio.
+- **Spiega ogni previsione**: un tasto dedicato mostra il calcolo per esteso, non solo il risultato.
+- **Segnala le transizioni**: quando il bambino sembra abbandonare un pisolino, lo indica come informazione, mai come istruzione.
 
-Bariletto non misura la carica minuto per minuto: registra un solo dato per azione, il momento dell'ultimo tocco, e da lì calcola cosa serve fare in base al calibro specifico di quell'orologio. È una stima costruita sulle specifiche tecniche dichiarate dai produttori, non una misura diretta della riserva di carica reale.
+**Registrare**
 
-## Tecnologia
+- **Attività quotidiane**: pisolini, nanna notturna, allattamento, biberon, pappa, pannolino, tiralatte, risvegli notturni.
+- **Timeline della giornata**: una barra dalle 00 alle 24 con i blocchi di sonno e le poppate, per vedere com'è andata senza leggere una lista.
+- **Correzione degli orari**: ogni voce registrata si può correggere dopo, se l'hai segnata in ritardo.
+- **Salute**: vitamine e farmaci con il nome di quello somministrato, perché "farmaco" da solo non dice nulla se il bambino ne prende più di uno.
+- **Crescita**: peso, altezza e circonferenza cranica nel tempo, con l'andamento del peso. Nessuna curva di crescita e nessun percentile: solo i dati del tuo bambino, mai confrontati con una popolazione di riferimento.
 
-JavaScript puro, senza framework. Dati salvati in locale nel browser (IndexedDB). Nessuna libreria esterna, nessuna chiamata a server propri.
+**Accompagnare**
 
-## Uso
+- **Suoni per la nanna**: sette suoni generati in tempo reale (bianco, rosa, marrone, onde, pioggia, battito cardiaco, shhh), con timer di spegnimento e un lettore compatto raggiungibile da ogni schermata.
+- **Modalità notte**: schermo nero con un solo tasto grande, pensato per allattare o gestire un risveglio senza accendere la luce.
+- **Notifiche**: avvisa quando si avvicina il prossimo sonno o la routine serale.
+- **Scorciatoie rapide**: tenendo premuta l'icona dell'app compaiono "Inizia pisolino" e "Inizia nanna".
+- **Una guida in 13 articoli** su finestre di veglia, segnali di sonnolenza, sonno sicuro, regressioni e uso dell'app, scritta in tono informativo, mai prescrittivo.
 
-Apri l'app da browser su `bariletto.vercel.app`, oppure installala come app dal menu del browser per usarla offline dalla schermata home.
+**Condividere e adattare**
 
-## Licenza
+- **Riepilogo per il pediatra**: una tabella degli ultimi 14 giorni con medie, integratori e misure di crescita, pronta da stampare o salvare in PDF.
+- **Backup ed esportazione**: JSON per un backup completo o per passare i dati a un altro genitore, CSV per un'analisi personale.
+- **Statistiche senza giudizio**: sonno degli ultimi 7 giorni e numeri di oggi affiancati agli intervalli tipici per l'età, senza etichette di merito e senza obiettivi da centrare.
+- **Modalità solo diario**: nasconde previsioni, confronti e statistiche quando guardare i numeri smette di aiutare.
+- **Aspetto e lingua**: tema chiaro, scuro o automatico secondo il sistema; italiano e inglese, con cambio immediato.
 
-Vedi [LICENSE](LICENSE).
+## Come tratta i dati
+
+Nessun dato del bambino lascia mai il dispositivo: niente registrazione, niente cloud, niente sincronizzazione. Tutto resta in memoria locale, esportabile quando vuoi in JSON o CSV.
+
+Nessuna terza parte riceve richieste dall'app: caratteri tipografici, icone e codice sono serviti dall'app stessa, non da reti di distribuzione esterne. Le uniche connessioni possibili sono quelle verso l'hosting da cui l'app viene scaricata e aggiornata, come per qualunque sito, e il collegamento a Ko-fi, che si apre solo se scegli tu di toccarlo.
+
+Il prezzo di questa scelta è che oggi non esiste ancora una condivisione automatica dei dati tra due genitori: l'unico modo è esportare un file e passarlo manualmente.
+
+## Ninna non è un dispositivo medico
+
+È uno strumento di organizzazione. Per qualunque dubbio sulla salute o sul sonno del bambino, il riferimento resta il pediatra.
+
+---
+
+Un progetto **Studionodo**.

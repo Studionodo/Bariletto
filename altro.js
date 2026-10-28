@@ -20,41 +20,10 @@ function titoloConInfo(classe, testo, titoloInfo, testoInfo) {
   return riga;
 }
 
-/* Raccoglie le sequenze di righe adiacenti in un'isola con una
-   superficie propria. Prima ogni riga era testo su fondo con un filetto
-   sopra: un filetto separa ma non raggruppa, quindi sei blocchi
-   separati da sei linee si leggono come sei cose in fila, non come un
-   insieme organizzato. Dentro l'isola i filetti restano, a dividere le
-   righe fra loro; fuori non servono più, perché lo spazio vuoto fra due
-   isole dice già da solo dove finisce un gruppo.
-
-   Agisce dopo la costruzione invece che dentro ogni sezione: le sezioni
-   restano come sono, e le righe che non fanno parte di una sequenza
-   (note, esiti, titoli) non vengono inglobate per costruzione, senza
-   doverlo prevedere caso per caso. */
-function raggruppaInIsole(contenitore, selettore) {
-  if (!contenitore) return contenitore;
-  const figli = [...contenitore.children];
-  let corrente = null;
-  figli.forEach((nodo) => {
-    if (nodo.matches && nodo.matches(selettore)) {
-      if (!corrente) {
-        corrente = el("div", "isola");
-        contenitore.insertBefore(corrente, nodo);
-      }
-      corrente.append(nodo);
-    } else {
-      corrente = null;
-    }
-  });
-  return contenitore;
-}
-
 function costruisciAltro() {
   const d = el("div", "colonna testo");
   d.append(sezioneRegistro(), sezioneCollezione(), sezioneAttrezzi(), sezioneCarta(), sezioneDati(), sezioneNotifiche());
   d.append(fondoLingua());
-  [...d.querySelectorAll("section.sezione")].forEach((s) => raggruppaInIsole(s, ".attrezzo"));
   return d;
 }
 
@@ -257,20 +226,11 @@ function fondoLingua() {
    dal caffè, qui non c'è niente da imparare, solo un archivio da
    consultare. La sostituisco con qualcosa che dica cosa fa Bariletto
    invece di dire cosa non fa. Le altre due righe (privacy, copyright)
-   sono vere qui esattamente come lì: nessun account, nessuna nuvola.
-   Il link GitHub, aggiunto dopo, segue lo stesso posto che ha in Posa:
-   in coda alla riga dei diritti, non una riga sua propria — è una nota
-   in più su una riga già lì, non un nuovo comando che chiede attenzione. */
+   sono vere qui esattamente come lì: nessun account, nessuna nuvola. */
 function colophon() {
   const c = el("div", "colophon");
   c.append(el("p", null, t("col.riga2")));
-  const diritti = el("p", "colophon-diritti");
-  diritti.append(document.createTextNode(t("col.riga3") + " · "));
-  const gh = el("a", null, "GitHub");
-  gh.href = "https://github.com/Studionodo";
-  gh.target = "_blank"; gh.rel = "noopener noreferrer";
-  diritti.append(gh);
-  c.append(diritti);
+  c.append(el("p", "colophon-diritti", t("col.riga3")));
   return c;
 }
 

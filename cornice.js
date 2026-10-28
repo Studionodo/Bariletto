@@ -179,33 +179,7 @@ function costruisciCornice() {
     marchio.dataset.nome = NOME_APP;
     const frase = el("div", null, t("frase"));
     frase.id = "frase";
-    /* Prima Bariletto si spiegava solo nel momento in cui la collezione
-       era vuota, il giorno zero: chiuso quel messaggio, spariva per
-       sempre. Un link sempre raggiungibile, qui nella testata comune a
-       entrambe le pagine, tiene la spiegazione a un tocco di distanza
-       in ogni momento, non solo alla primissima apertura. #testata ha
-       pointer-events: none su tutto il resto (deve lasciar passare i
-       tocchi verso il contenuto sotto): qui va riacceso esplicitamente,
-       solo su questo elemento. */
-    const cosE = el("button", "link-cosE", t("info.cosE"));
-    cosE.onclick = () => apriCosE();
-    /* La data stava dentro la pagina Oggi, centrata, mentre marchio e
-       frase sono a sinistra: due assi diversi nella stessa zona, ed era
-       il motivo per cui quello spazio sembrava affollato pur avendo
-       poche cose. Qui chiude la riga del link, che finora usava metà
-       larghezza e lasciava il resto vuoto: non aggiunge altezza, ne
-       recupera, perché la pagina Oggi perde un blocco e il suo margine.
-       In più compare anche in Registro, dove prima mancava e dove
-       sapere che giorno è aiuta a leggere le voci.
-
-       Formato corto, senza il giorno della settimana per esteso: su una
-       riga condivisa quattro parole in maiuscolo spaziato ruberebbero
-       il posto al link e andrebbero a capo sui telefoni stretti. */
-    const rigaBassa = el("div", "riga-testata");
-    const data = el("span", "data-testata", new Date().toLocaleDateString(locale(),
-      { day: "numeric", month: "long" }));
-    rigaBassa.append(cosE, data);
-    testata.append(marchio, frase, rigaBassa);
+    testata.append(marchio, frase);
   }
   misuraTestata();
 
@@ -316,15 +290,6 @@ async function avvio() {
 
     orologi = await leggiTutti("orologi");
     registro = await leggiTutti("registro");
-
-    /* Gli stati dell'ultima volta che hai guardato. Serve a far notare
-       cosa è cambiato da allora: senza, "cambio di stato" non è
-       osservabile, perché l'app non ricorda com'erano prima. Caricata
-       qui, prima del primo disegno, altrimenti la prima schermata,
-       cioè proprio quella dove il confronto conta, non avrebbe niente
-       con cui confrontarsi. */
-    const mem = await tx("stato", "readonly", (s) => s.get("statiVisti"));
-    statiPrecedenti = (mem && mem.valore) || null;
 
     costruisciCornice();
     misuraViewportVisibile();

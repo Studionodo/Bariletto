@@ -214,7 +214,7 @@ async function mostraPrimoUsoSeServe() {
     t("primoUso.bottone"));
 }
 
-async function segnaOra(o, ridisegnaSubito = true, controllaPrimoUso = true) {
+async function segnaOra(o) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
                   ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
@@ -230,8 +230,8 @@ async function segnaOra(o, ridisegnaSubito = true, controllaPrimoUso = true) {
   registro = await leggiTutti("registro");
   scelto = o.id;
   ripulisciNotifica(o.id);
-  if (ridisegnaSubito) disegna();
-  if (controllaPrimoUso) mostraPrimoUsoSeServe();
+  disegna();
+  mostraPrimoUsoSeServe();
 }
 
 /* Annulla l'atto di INDOSSARE, non l'ultima cosa fatta: se nel frattempo
@@ -280,28 +280,8 @@ const togliVoce   = (v) => unaVolta(() => togliVoceOra(v));
 const segnaCarica = (o) => unaVolta(() => segnaCaricaOra(o));
 const segnaCrono  = (o) => unaVolta(() => segnaCronoOra(o));
 
-/* Il bottone principale di Oggi non ridisegna subito: salva, poi lascia
-   che chi ha chiamato mostri una conferma con il nome dell'orologio
-   appena segnato, e solo dopo passa al prossimo. Senza questo, un
-   secondo tocco per abitudine può cadere su un orologio diverso, perché
-   il bersaglio sotto il dito cambia nello stesso istante del tocco. */
-function segnaConConferma(o, alConfermato) {
-  /* Il popup bloccante "Come funziona il conteggio" e la conferma
-     "Segnato, [nome]" si contendevano lo stesso istante: al primissimo
-     tocco in assoluto comparivano quasi insieme, e il popup, a schermo
-     intero, copriva la conferma per tutta la sua durata. Chi impiegava
-     più di 4 secondi a leggere il popup non vedeva mai la conferma.
-     Rimandando anche il controllo del primo utilizzo alla fine dei 4
-     secondi, i due momenti non si accavallano più: prima la conferma
-     ha il suo tempo per intero, poi, solo se serve, la spiegazione. */
-  unaVolta(() => segnaOra(o, false, false)).then(() => {
-    if (typeof alConfermato === "function") alConfermato(o.nome);
-    setTimeout(() => { disegna(); mostraPrimoUsoSeServe(); }, 4000);
-  });
-}
-
 /* Caricare senza indossare: gli orologi nel cassetto si caricano lo stesso. */
-async function segnaCaricaOra(o, ridisegnaSubito = true, controllaPrimoUso = true) {
+async function segnaCaricaOra(o) {
   const ora = Date.now();
   const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
                   ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
@@ -310,21 +290,16 @@ async function segnaCaricaOra(o, ridisegnaSubito = true, controllaPrimoUso = tru
   await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.caricato", quando: ora, prima });
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
-  if (ridisegnaSubito) disegna();
-  if (controllaPrimoUso) mostraPrimoUsoSeServe();
+  disegna();
+  mostraPrimoUsoSeServe();
 }
 
 /* Il cronografo si segna solo se lo dici tu. */
 async function segnaCronoOra(o) {
   const ora = Date.now();
-  /* Mancava qui quello che segnaOra e segnaCaricaOra fanno già: senza
-     "prima", cancellare questa voce dal Registro toglieva la riga ma
-     lasciava ultimoCrono impostato per sempre, come se il gesto non si
-     potesse mai disfare. */
-  const prima = { ultimoCrono: o.ultimoCrono };
   o.ultimoCrono = ora;
   await salva("orologi", o);
-  await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora, prima });
+  await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora });
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
   disegna();

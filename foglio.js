@@ -3,20 +3,6 @@
    Sale dal basso ed è l'unico posto da cui si scrive un orologio.
    ------------------------------------------------------------------ */
 
-/* Ogni foglio che si apre marca il resto della pagina come inert, e il
-   browser toglie il fuoco da qualunque cosa lo avesse prima (di solito
-   il bottone appena toccato). Senza dare il fuoco a qualcosa di nuovo,
-   chi naviga da tastiera o con uno screen reader resta senza appiglio.
-   Il titolo lo riceve invece del primo campo: un titolo non apre la
-   tastiera. Un solo punto per questo comportamento, richiamato da ogni
-   funzione che apre un foglio, invece di ripeterlo in ognuna. */
-function focoSulTitolo(foglio) {
-  const titolo = (foglio || q("#foglio"))?.querySelector(".capo-titolo");
-  if (!titolo) return;
-  titolo.setAttribute("tabindex", "-1");
-  setTimeout(() => titolo.focus({ preventScroll: true }), 420);
-}
-
 /* ====================== pannello informativo ======================= */
 /* Un'iconcina "i" accanto a una voce che ha bisogno di una riga in più
    di quanto lo spazio in pagina permetta. Riusa #velo/#foglio — stessa
@@ -45,62 +31,7 @@ function apriInfo(titolo, testi) {
   requestAnimationFrame(() => velo.classList.add("su"));
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
-  focoSulTitolo(foglio);
 }
-
-/* Il pannello "Cos'è Bariletto": stessa apparizione di apriInfo, ma il
-   corpo ha un proprio interruttore ITALIANO/ENGLISH, indipendente dalla
-   lingua generale dell'app. Chi vuole leggere la spiegazione nell'altra
-   lingua senza cambiare tutta l'interfaccia deve poterlo fare qui, sul
-   posto: prima questo pannello seguiva solo la lingua già impostata
-   altrove, un controllo in meno da duplicare ma anche un modo in meno
-   per raggiungere l'altra lingua senza uscire da qui. */
-function apriCosE() {
-  const uscente = q("#velo");
-  if (uscente) { if (uscente.classList.contains("su")) return; uscente.remove(); }
-  const velo = el("div"); velo.id = "velo";
-  const foglio = el("div", "corto"); foglio.id = "foglio";
-  const capo = el("div", "capo");
-  capo.append(el("span", "capo-titolo", NOME_APP));
-  const azioni = el("div", "capo-azioni");
-  const x = el("button", "chiudi", t("chiudi")); x.onclick = chiudiScheda;
-  azioni.append(x);
-  capo.append(azioni);
-  foglio.append(capo);
-
-  const corpo = el("div", "foglio-corpo");
-  foglio.append(corpo);
-
-  /* Parte dalla lingua già attiva nell'app: un punto di partenza
-     sensato, non un valore fisso. Da qui in poi vive per conto suo,
-     tocca l'interruttore quante volte vuoi senza che l'app fuori
-     cambi lingua con te. */
-  let linguaPannello = LINGUA;
-
-  function disegnaCorpoCosE() {
-    corpo.innerHTML = "";
-    const scelte = el("div", "scelte");
-    [["it", "ITALIANO"], ["en", "ENGLISH"]].forEach(([id, etichetta]) => {
-      const b = el("button", "scelta" + (linguaPannello === id ? " accesa" : ""), etichetta);
-      b.onclick = () => { linguaPannello = id; disegnaCorpoCosE(); };
-      scelte.append(b);
-    });
-    corpo.append(scelte);
-    const voci = linguaPannello === "it" ? VOCI.it : VOCI.en;
-    ["info.cosE.testo1", "info.cosE.testo2", "info.cosE.testo3"].forEach((k) => {
-      corpo.append(el("p", "info-testo", voci[k]));
-    });
-  }
-  disegnaCorpoCosE();
-
-  velo.append(foglio); document.body.append(velo);
-  inerte(true);
-  requestAnimationFrame(() => velo.classList.add("su"));
-  velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
-  addEventListener("keydown", tastoScheda);
-  focoSulTitolo(foglio);
-}
-
 
 /* La fabbrica dell'iconcina stessa: un bottone piccolo, sempre uguale,
    che apre il pannello con il titolo e il testo passati. Usata da più
@@ -134,7 +65,6 @@ function apriInfoBloccante(titolo, testi, testoBottone) {
   requestAnimationFrame(() => velo.classList.add("su"));
   /* Niente addEventListener su velo per il tocco fuori, niente
      tastoScheda per Escape: qui si esce solo dal bottone. */
-  focoSulTitolo(foglio);
 }
 
 function infoTocco(titolo, testi, classeExtra) {
@@ -160,7 +90,6 @@ function apriRegistro() {
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
   disegnaRegistro();
-  focoSulTitolo(foglio);
 }
 
 function disegnaRegistro() {
@@ -213,22 +142,16 @@ function disegnaRegistro() {
     r.append(testo, x);
     corpo.append(r);
   });
-
-  /* Le voci sono già raggruppate per giorno dall'intestazione con la
-     lineetta dorata: qui il raggruppamento visivo non lo invento, do
-     una superficie a un insieme che esisteva già come concetto. Ogni
-     sequenza di voci fra due intestazioni diventa la sua isola. */
-  raggruppaInIsole(corpo, ".voce-diario");
   f.append(corpo);
 }
 
 
 /* =================== la collezione: a colpo d'occhio =============== */
-/* L'elenco di Oggi ordina per urgenza e risponde a «di chi mi devo
-   occupare»; qui è l'opposto — alfabetico, pensato per scorrere con
-   l'occhio invece che per agire. Righe proprie con lo stile .lastra,
-   lo stesso già usato per l'archivio dei movimenti: non un secondo
-   linguaggio visivo per un'altra vista sugli stessi dati. */
+/* Il carosello di Oggi ordina per urgenza e scorre di lato: risponde a
+   «di chi mi devo occupare», non a «cosa possiedo». Qui è l'opposto —
+   alfabetico, tutto scorre in verticale, pensato per scorrere con
+   l'occhio invece che per agire. Riusa cartaOrologio(), la stessa carta
+   del carosello: stesso linguaggio visivo, un'altra disposizione. */
 function apriCollezione() {
   const uscente = q("#velo");
   if (uscente) { if (uscente.classList.contains("su")) return; uscente.remove(); }
@@ -241,7 +164,6 @@ function apriCollezione() {
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
   disegnaCollezione();
-  focoSulTitolo(foglio);
 }
 
 function disegnaCollezione() {
@@ -277,20 +199,16 @@ function disegnaCollezione() {
       const alPolso = o.ultimoPolso && sameDay(o.ultimoPolso, oggiTs);
       const r = el("button", "lastra riga-piena");
       const pallino = el("span", "pallino");
-      pallino.style.background = alPolso ? "var(--oro)" : COLORE[b.stato];
+      pallino.style.background = COLORE[b.stato];
       const c = el("div", "corpo-lastra");
-      /* Stessa gerarchia della schermata Oggi: prima cosa chiede
-         l'orologio, poi quale orologio è. Prima il nome stava in testa
-         e lo stato finiva schiacciato in coda, dopo il calibro e un
-         puntino separatore: l'ultima cosa che si leggeva era quella
-         che conta di più. */
-      const stato = el("div", "titolo-lastra");
-      stato.textContent = alPolso ? t("oggi.giaMesso") : nomeStato(b.stato);
-      c.append(stato);
+      c.append(el("div", "titolo-lastra", o.nome));
       const sotto = el("div", "sotto-lastra");
-      sotto.append(el("span", "etichetta mini", o.nome));
-      sotto.append(el("span", "punto-sep", "\u00B7"));
       sotto.append(el("span", "etichetta mini", nomeCorto(o.calibroNome)));
+      sotto.append(el("span", "punto-sep", "\u00B7"));
+      const stato = el("span", "etichetta mini stato");
+      stato.textContent = alPolso ? t("oggi.giaMesso") : nomeStato(b.stato);
+      stato.style.color = alPolso ? "var(--oro)" : COLORE[b.stato];
+      sotto.append(stato);
       c.append(sotto);
       r.append(pallino, c, el("span", "freccia", "\u203A"));
       /* apriScheda si rifiuta di aprirsi sopra un foglio già visibile:
@@ -348,7 +266,6 @@ function apriArchivio(filtro) {
   velo.addEventListener("click", (e) => { if (e.target === velo) chiudiScheda(); });
   addEventListener("keydown", tastoScheda);
   disegnaArchivio();
-  focoSulTitolo(foglio);
 }
 
 function disegnaArchivio() {
@@ -370,13 +287,12 @@ function disegnaArchivio() {
   corpo.append(el("div", "elenco archivio-elenco"));
   f.append(corpo);
   ridisegnaListaArchivio();
-  /* Niente fuoco sul campo di ricerca. Prima lo prendeva da solo 260ms
-     dopo l'apertura, e su telefono tira su la tastiera subito — nel
-     modale centrato, che deve stare fermo al centro, la tastiera che
-     si apre da sola sposta tutto senza che l'utente l'abbia chiesto.
-     Il fuoco atterra invece sul titolo (vedi focoSulTitolo, chiamato da
-     apriArchivio): stesso appiglio per l'accessibilità, senza aprire
-     la tastiera. Il campo la apre solo quando l'utente lo tocca. */
+  /* Niente focus automatico. Prima il campo prendeva il fuoco da solo
+     260ms dopo l'apertura, e su telefono questo tira su la tastiera
+     subito — nel modale centrato, che deve stare fermo al centro, la
+     tastiera che si apre da sola sposta tutto senza che l'utente
+     l'abbia chiesto. Ora il fuoco arriva solo quando l'utente tocca
+     il campo, come dovrebbe essere in un popup di lettura. */
 }
 
 function ridisegnaListaArchivio() {
@@ -470,12 +386,6 @@ function apriScheda(esistente, modo) {
     data: esistente.data, giorno: esistente.giorno, indiretti: esistente.indiretti,
     crono: !!esistente.crono, tourbillon: !!esistente.tourbillon,
     riserva: esistente.riserva, ah: esistente.ah,
-    /* Se l'A/H salvato non è uno dei cinque valori comuni, il campo
-       libero deve aprirsi subito mostrando il numero vero: altrimenti
-       nessuna chip risulterebbe evidenziata e il valore, pur salvato
-       correttamente, sparirebbe dalla vista finché non si tocca la
-       matita da soli. */
-    ahLibero: !AH_COMUNI.includes(esistente.ah),
   } : null;
 
   /* Due modi nello stesso foglio: «dettaglio» legge, «modifica» scrive.
@@ -504,12 +414,8 @@ function apriScheda(esistente, modo) {
   addEventListener("keydown", tastoScheda);
 
   disegnaScheda();
-  /* Stesso comportamento di ogni altro foglio (vedi focoSulTitolo): il
-     fuoco atterra sul titolo, non sul primo campo, così non apre la
-     tastiera da solo. Prima atterrava sul campo nome solo per gli
-     orologi nuovi; ora è coerente anche in dettaglio e in modifica di
-     un orologio esistente, dove prima non c'era nessun appiglio. */
-  focoSulTitolo(foglio);
+  const primo = foglio.querySelector(".campo");
+  if (primo && !esistente) setTimeout(() => primo.focus(), 420);
 }
 
 /* Con il foglio aperto, tutto il resto esce dal percorso di tabulazione.
@@ -537,22 +443,8 @@ function chiudiScheda() {
   setTimeout(() => { v.remove(); if (!q("#velo")) { bozza = null; voceArchivioAperta = null; } }, 380);
 }
 
-/* disegnaScheda butta via e ricrea .foglio-corpo ad ogni tocco: ogni
-   spunta di "Il gesto", ogni cambio di tipo, ogni scelta A/H passa da
-   qui. Un elemento nuovo parte sempre da scroll zero, quindi senza
-   questo la pagina saltava in cima ad ogni singola voce toccata, anche
-   scorrendo a metà di un modulo lungo come "Dichiara a mano". Il
-   ripristino vale solo restando sullo stesso modoFoglio: passando da
-   "modifica" a "cerca-calibro" o a "dettaglio" lo schermo cambia
-   davvero, e lì ripartire dall'alto è quello che ci si aspetta. */
-let modoFoglioPrecedente = null;
-
 function disegnaScheda(filtro = "") {
   const f = q("#foglio"); if (!f) return;
-  const corpoUscente = f.querySelector(".foglio-corpo");
-  const scrollDaRipristinare =
-    (modoFoglioPrecedente === modoFoglio && corpoUscente) ? corpoUscente.scrollTop : 0;
-  modoFoglioPrecedente = modoFoglio;
   f.innerHTML = "";
 
   const capo = el("div", "capo");
@@ -585,14 +477,8 @@ function disegnaScheda(filtro = "") {
   const corpo = el("div", "foglio-corpo");
   f.append(corpo);
 
-  if (modoFoglio === "dettaglio") {
-    schedaDettaglio(corpo); f.append(piedeDettaglio());
-    corpo.scrollTop = scrollDaRipristinare; return;
-  }
-  if (modoFoglio === "cerca-calibro") {
-    schedaCercaCalibro(corpo, filtro);
-    corpo.scrollTop = scrollDaRipristinare; return;
-  }
+  if (modoFoglio === "dettaglio") { schedaDettaglio(corpo); f.append(piedeDettaglio()); return; }
+  if (modoFoglio === "cerca-calibro") { schedaCercaCalibro(corpo, filtro); return; }
 
   corpo.append(el("span", "gruppo", t("s.identita")));
   corpo.append(campo(t("s.nome"), t("s.nomeAiuto"), bozza.nome, 60,
@@ -615,7 +501,6 @@ function disegnaScheda(filtro = "") {
   const piede = el("div", "foglio-piede");
   piede.append(bottoneSalva());
   f.append(piede);
-  corpo.scrollTop = scrollDaRipristinare;
 }
 
 /* ---------- il modo lettura: gesti, storia e azione del giorno --------
@@ -642,18 +527,16 @@ function schedaDettaglio(corpo) {
   if (o.ah) riga(t("ah"), o.ah.toLocaleString(locale()));
   corpo.append(dl);
 
-  /* Una lista a sé, e per giunta impilata. L'etichetta "Prossima
-     revisione consigliata" è molto più lunga delle altre ("Riserva",
-     "A/H"): in una griglia condivisa allargava la colonna delle
-     etichette schiacciando i valori, e separarla in una griglia propria
-     non è bastato, perché la causa non era la convivenza ma la sua
-     lunghezza. Su due colonne quell'etichetta si prende quasi tutta la
-     riga da sola e il valore finisce spezzato contro il bordo. Impilata
-     (classe "impilata") etichetta e valore hanno entrambi la larghezza
-     piena, ed è l'unica disposizione che regge su un telefono. */
+  /* Una lista a sé, non righe aggiunte a quella sopra: l'etichetta
+     "Prossima revisione consigliata" è molto più lunga delle altre
+     ("Riserva", "A/H"), e in una griglia condivisa la colonna delle
+     etichette si allarga per fare posto a quella più lunga — stringendo
+     la colonna dei valori al punto da far andare a capo "Seiko 7S26".
+     Due griglie separate non si influenzano a vicenda; dopo-corto dà
+     il margine che mancava quando erano solo due blocchi vicini. */
   const prossima = prossimaRevisione(o);
   if (prossima != null) {
-    const dlRev = el("dl", "spec impilata dopo-corto");
+    const dlRev = el("dl", "spec dopo-corto");
     dlRev.append(el("dt", null, t("st.prossimaRevisione")),
                  el("dd", null, t("st.revisioneCirca", { anno: new Date(prossima).getFullYear() })));
     corpo.append(dlRev);
@@ -673,7 +556,7 @@ function schedaDettaglio(corpo) {
   corpo.append(el("span", "gruppo", t("st.gesti")));
   const box = el("div");
   gesti(o).forEach((testo, i) => {
-    const r = el("div", "riga riga-gesto-dett");
+    const r = el("div", "riga");
     r.append(el("span", "etichetta mini num-gesto", String(i + 1).padStart(2, "0")),
              el("p", null, testo));
     box.append(r);
@@ -682,24 +565,17 @@ function schedaDettaglio(corpo) {
 
   corpo.append(el("span", "gruppo", t("g.storia")));
   const ult = el("div", "riga fra senza-filo");
-  ult.append(el("span", "etichetta mini", t("g.ultimaVolta")),
+  ult.append(el("span", "etichetta mini", t("g.storia")),
              el("span", "etichetta mini", quando(o.ultimoPolso)));
   corpo.append(ult);
   const suo = [...registro].filter((v) => v.orologio === o.id)
                            .sort((a, b) => b.quando - a.quando);
-  const storico = el("div", "isola isola-dentro");
   suo.slice(0, 5).forEach((v) => {
     const r = el("div", "riga fra");
     r.append(el("span", "etichetta mini", t(v.azione)),
              el("span", "etichetta mini", quando(v.quando)));
-    storico.append(r);
+    corpo.append(r);
   });
-  /* Solo se c'è qualcosa dentro: un'isola vuota sarebbe un rettangolo
-     di vetro che non contiene niente. E marcata "isola-dentro" perché
-     qui sta dentro un foglio che è già vetro: con la stessa densità
-     delle altre sarebbe vetro sopra vetro, meno leggibile invece che
-     più ordinato. */
-  if (suo.length) corpo.append(storico);
 }
 
 function piedeDettaglio() {
@@ -799,33 +675,6 @@ function schedaRicerca(f, filtro) {
   const sotto = el("div", "dopo-corto esiti-link");
   f.append(sotto);
 
-  /* "Non lo trovo: lo dichiaro io" cambia strada, non si limita a
-     portarti altrove come "Cerca nel catalogo": prima era lo stesso
-     identico link di testo, stesso peso, stessa disattenzione. Nella
-     ricerca a schermo intero (schedaCercaCalibro, poco più sotto in
-     questo file) questo stesso bottone ha già la veste di un'azione
-     vera — qui restava un link, la stessa azione con due pesi diversi
-     a seconda di dove capitavi. Creato una volta sola, non a ogni
-     ridisegno di riempi(): il suo comportamento legge cerca.value al
-     momento del tocco, non ha bisogno di essere ricostruito a ogni
-     lettera digitata. */
-  const man = el("button", "azione secondaria larga dopo-corto", t("s.manuale"));
-  man.onclick = () => {
-    bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600, ahLibero: false };
-    bozza.manualeTesto = cerca.value.trim();
-    disegnaScheda();
-  };
-  f.append(man);
-
-  /* La tastiera riduce lo spazio visibile del foglio, e i suggerimenti
-     compaiono più in basso di quanto sembri guardando il campo di
-     testo: senza aiuto restano fuori vista, raggiungibili solo
-     scorrendo a mano. Il flag ricorda se erano già visibili: la prima
-     comparsa li porta in vista da sola, ma non a ogni tasto premuto
-     mentre restano non vuoti, altrimenti la pagina si muoverebbe sotto
-     le dita mentre si scrive. */
-  let risultatiGiaVisti = false;
-
   function riempi(testo) {
     esiti.innerHTML = ""; sotto.innerHTML = "";
     const trovati = testo.trim() ? cercaCalibri(testo) : [];
@@ -843,21 +692,21 @@ function schedaRicerca(f, filtro) {
       });
     }
 
-    /* Un solo link qui dentro: sfogliare tutto il catalogo resta un
-       tocco leggero, senza occupare spazio quando non serve. "Lo
-       dichiaro io" vive fuori da questa funzione, vedi sopra. */
+    /* Due link, sempre presenti, mai una sezione che invade: sfogliare
+       tutto il catalogo o dichiarare il movimento a mano restano a un
+       tocco di distanza senza occupare spazio quando non servono. */
     const vediTutti = el("button", "quieta stretto",
       trovati.length > 4 ? t("s.altriRisultati") : t("s.cercaCatalogo", { n: CALIBRI.length }));
     vediTutti.onclick = () => { modoFoglio = "cerca-calibro"; disegnaScheda(cerca.value); };
     sotto.append(vediTutti);
 
-    if (trovati.length && !risultatiGiaVisti) {
-      risultatiGiaVisti = true;
-      requestAnimationFrame(() => esiti.scrollIntoView({ block: "nearest", behavior: "smooth" }));
-    } else if (!trovati.length) {
-      /* Campo svuotato: la prossima comparsa torna a contare come prima volta. */
-      risultatiGiaVisti = false;
-    }
+    const man = el("button", "quieta stretto", t("s.manuale"));
+    man.onclick = () => {
+      bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600 };
+      bozza.manualeTesto = cerca.value.trim();
+      disegnaScheda();
+    };
+    sotto.append(man);
   }
   cerca.oninput = () => riempi(cerca.value);
   riempi(filtro);
@@ -897,7 +746,7 @@ function schedaCercaCalibro(f, filtro) {
 
   const man = el("button", "azione secondaria larga", t("s.manuale"));
   man.onclick = () => {
-    bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600, ahLibero: false };
+    bozza.manuale = { tipo: "automatico", mano: true, arresto: true, data: true, giorno: false, indiretti: false, crono: false, tourbillon: false, riserva: 41, ah: 21600 };
     bozza.manualeTesto = cerca.value.trim();
     modoFoglio = "modifica";
     disegnaScheda();
@@ -938,70 +787,6 @@ function schedaScelto(f) {
   if (bozza.id) f.append(bottoneElimina());
 }
 
-/* Un default sensato per ogni tipo, non lo stesso 41 ore/21.600 A/H
-   riciclato per tutti: automatico e quarzo non hanno nulla in comune.
-   I valori per ecodrive/kinetic ed elettrico/diapason sono gli stessi
-   già usati come default in normalizza(); quello per quarzo viene dalla
-   media delle famiglie quarzo già in archivio (circa 4-5 anni), non
-   inventato. Nessun tipo a batteria ha un vero A/H da contare. */
-const DEFAULT_PER_TIPO = {
-  automatico: { riserva: 41, ah: 21600 },
-  manuale: { riserva: 41, ah: 21600 },
-  cronografo: { riserva: 41, ah: 21600 },
-  springdrive: { riserva: 72, ah: 0 },
-  ecodrive: { riserva: 4320, ah: 0 },
-  kinetic: { riserva: 4320, ah: 0 },
-  quarzo: { riserva: 43800, ah: 0 },
-  elettrico: { riserva: 17520, ah: 0 },
-  diapason: { riserva: 17520, ah: 0 },
-};
-
-/* I cinque valori più comuni davvero presenti nell'archivio (28.800 e
-   21.600 coprono da soli l'80% dei calibri meccanici catalogati): un
-   tocco per il caso comune, la matita per il caso raro invece di un
-   campo numerico sempre aperto che per la maggior parte delle volte
-   sarebbe solo più lento da usare. */
-const AH_COMUNI = [28800, 21600, 18000, 25200, 36000];
-
-/* Solo per i tipi che hanno davvero un bilanciere che oscilla: gli
-   altri (a batteria, o senza scappamento convenzionale come lo Spring
-   Drive) non hanno un A/H vero da dichiarare, restano a 0. */
-const TIPI_CON_AH = ["automatico", "manuale", "cronografo"];
-
-function campoAH(m) {
-  const box = el("div", "ah-campo");
-  box.append(el("span", "etichetta mini", t("ah")));
-  const fila = el("div", "scelte");
-  AH_COMUNI.forEach((v) => {
-    const b = el("button", "scelta" + (!m.ahLibero && m.ah === v ? " accesa" : ""), v.toLocaleString(locale()));
-    b.onclick = () => { m.ah = v; m.ahLibero = false; disegnaScheda(); };
-    fila.append(b);
-  });
-  /* La matita: il valore giusto non è quasi mai uno dei cinque comuni,
-     ma quando serve un numero diverso deve restare a un tocco, non
-     nascosto in un menu. */
-  const matita = el("button", "matita" + (m.ahLibero ? " accesa" : ""));
-  matita.setAttribute("aria-label", t("s.ahAltro"));
-  matita.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
-  matita.onclick = () => { m.ahLibero = true; disegnaScheda(); };
-  fila.append(matita);
-  box.append(fila);
-
-  if (m.ahLibero) {
-    const inp = el("input", "campo numero dopo-corto");
-    inp.type = "number"; inp.inputMode = "numeric"; inp.min = "1000"; inp.step = "100";
-    inp.placeholder = t("s.ahLibero");
-    /* Vuoto se il valore corrente è già uno dei cinque comuni (la
-       matita è stata toccata solo per guardare, non per cambiare
-       davvero): altrimenti mostra il numero personalizzato già scelto,
-       pronto per essere corretto invece che riscritto da capo. */
-    inp.value = AH_COMUNI.includes(m.ah) ? "" : m.ah;
-    inp.oninput = () => { m.ah = Math.max(0, Number(inp.value) || 0); };
-    box.append(inp);
-  }
-  return box;
-}
-
 function schedaManuale(f) {
   const m = bozza.manuale;
   f.append(el("div", "sepa"), el("span", "etichetta mini", t("s.dichiara")));
@@ -1010,20 +795,7 @@ function schedaManuale(f) {
   const fila = el("div", "scelte");
   tipi.forEach((id) => {
     const b = el("button", "scelta" + (m.tipo === id ? " accesa" : ""), t("t." + id));
-    b.onclick = () => {
-      /* Cambiare tipo senza aggiornare la riserva lasciava, ad esempio,
-         un ecodrive appena scelto con "41 ore" ereditate dall'automatico
-         di partenza, mostrate come "2 giorni": implausibile, e da
-         correggere a mano ogni volta. Solo se il tipo cambia davvero,
-         altrimenti un secondo tocco sullo stesso tipo non deve annullare
-         un valore che l'utente ha già personalizzato. */
-      if (m.tipo !== id) {
-        m.tipo = id;
-        const d = DEFAULT_PER_TIPO[id] || DEFAULT_PER_TIPO.automatico;
-        m.riserva = d.riserva; m.ah = d.ah; m.ahLibero = false;
-      }
-      disegnaScheda();
-    };
+    b.onclick = () => { m.tipo = id; disegnaScheda(); };
     fila.append(b);
   });
   f.append(fila);
@@ -1044,10 +816,6 @@ function schedaManuale(f) {
   gruppo.append(et, inp);
   f.append(gruppo);
   f.append(el("p", "nota", t("s.nota")));
-
-  /* Stessa posizione logica della riserva: "come si comporta questo
-     movimento". Solo per i tipi che hanno davvero qualcosa da dire qui. */
-  if (TIPI_CON_AH.includes(m.tipo)) f.append(campoAH(m));
 
   /* crono è ortogonale al tipo — un quarzo può avere i pulsanti del
      cronografo quanto un automatico (7T92, VK63, i Peacock al quarzo
@@ -1079,10 +847,7 @@ function schedaManuale(f) {
 function bottoneSalva() {
   const b = el("button", "azione", t(bozza.id ? "s.salvaMod" : "s.salva"));
   b.id = "salva";
-  /* Un nome da solo non basta: senza calibro né dichiarazione manuale,
-     salvaBozzaOra() non saprebbe che movimento assegnare e l'app si
-     romperebbe cercando di leggere il tipo da un calibro inesistente. */
-  b.disabled = !bozza.nome.trim() || !(bozza.calibro || bozza.manuale);
+  b.disabled = !bozza.nome.trim();
   b.onclick = salvaBozza;
   return b;
 }
@@ -1130,16 +895,11 @@ const eliminaOrologio = () => unaVolta(eliminaOrologioOra);
 const salvaBozza      = () => unaVolta(salvaBozzaOra);
 
 function aggiornaSalva() {
-  const b = q("#salva"); if (b) b.disabled = !bozza.nome.trim() || !(bozza.calibro || bozza.manuale);
+  const b = q("#salva"); if (b) b.disabled = !bozza.nome.trim();
 }
 
 async function salvaBozzaOra() {
   if (!bozza) return;
-  /* Seconda difesa, indipendente dal bottone disabilitato: se questa
-     funzione venisse mai richiamata da un altro punto senza calibro né
-     dichiarazione manuale, meglio uscire in silenzio che lasciare che
-     daCalibro(null, ...) provi a leggere .tipo da un valore nullo. */
-  if (!bozza.manuale && !bozza.calibro) return;
   const vecchio = bozza.id ? orologi.find((x) => x.id === bozza.id) : null;
   let o;
   if (bozza.manuale) {

@@ -58,68 +58,11 @@
 
   --bordo: 26px;
 
-  /* Scala delle forme. Prima erano quattro valori, e ogni elemento
-     nuovo finiva per riusare --r-lastra anche quando non era una
-     lastra. Ora la forma segue l'importanza: più un elemento è grande
-     e conta, più si arrotonda verso il cerchio. */
-  --r-minimo:  8px;
-  --r-piccolo: 12px;
-  --r-premuto: 14px;
-  --r-lastra:  16px;
-  --r-medio:   20px;
-  --r-grande:  24px;
-  --r-foglio:  28px;
+  /* Scala delle forme: tutto si arrotonda verso il cerchio dell'anello. */
   --r-chip:   999px;
-
-  /* ----------------------------------------------------------------
-     Il vetro.
-     Le superfici erano tinte piene: il bagliore d'ambiente (#luce), che
-     cambia con le quattro fasce orarie, restava dietro tutto senza che
-     niente lo raccogliesse. Rese semitrasparenti, le superfici lo
-     lasciano passare: il pannello si tinge dell'ora del giorno da solo,
-     senza una riga di codice che glielo dica. Il materiale diventa
-     parte dell'identità invece che un effetto preso in prestito.
-
-     color-mix tiene il colore agganciato alle variabili di fascia: se
-     cambia --slab all'alba, cambia anche il suo vetro, senza dover
-     mantenere otto valori paralleli a mano.
-
-     I due orli vengono dalla correzione che iOS 27 ha introdotto sul
-     proprio vetro dopo un anno di lamentele sulla leggibilità: un orlo
-     scuro sotto dà profondità e stacca la superficie dal fondo, un
-     riflesso chiaro sopra le dà spessore. Senza il primo il vetro
-     galleggia senza peso, ed è esattamente il difetto che Apple ha
-     dovuto rincorrere.
-     ---------------------------------------------------------------- */
-  --sfoca: 18px;
-  --vetro-slab: color-mix(in srgb, var(--slab) 62%, transparent);
-  --vetro-wall: color-mix(in srgb, var(--wall) 78%, transparent);
-  --vetro-room: color-mix(in srgb, var(--room) 70%, transparent);
-  /* Il velo scuro sotto il vetro. Senza, il bagliore d'ambiente che
-     passa attraverso schiarisce il pannello e il testo secondario
-     scende sotto soglia, con un margine che cambia da fascia a fascia:
-     all'alba, la più calda, era il punto peggiore. Il velo stabilizza
-     il fondo qualunque cosa ci passi dietro, ed è la stessa correzione
-     che iOS 27 ha applicato al proprio vetro dopo un anno di lamentele
-     sulla leggibilità. Misurato: sulla lastra a tinta piena di prima
-     lo stesso testo stava a 3,04:1 all'alba, quindi il vetro col velo
-     non peggiora un contrasto già stretto, lo allarga. Il valore è il
-     minimo misurato che tiene ogni testo sopra 4,5:1 in tutte e quattro
-     le fasce con il bagliore acceso al massimo: 32%, non un numero
-     scelto a occhio. */
-  --velo-vetro: rgba(0,0,0,.32);
-  --orlo-luce:  rgba(255,255,255,.13);
-  --orlo-buio:  rgba(0,0,0,.40);
-  /* Un solo posto per il rilievo del vetro, invece di ripetere due
-     ombre leggermente diverse su ogni superficie. */
-  --rilievo:
-    inset 0 1px 0 var(--orlo-luce),
-    inset 0 -1px 0 var(--orlo-buio),
-    0 1px 2px rgba(0,0,0,.30);
-  --rilievo-alto:
-    inset 0 1px 0 var(--orlo-luce),
-    inset 0 -1px 0 var(--orlo-buio),
-    0 20px 60px rgba(0,0,0,.55);
+  --r-lastra: 16px;
+  --r-foglio: 28px;
+  --r-premuto: 14px;
 
   --molla:  cubic-bezier(.34, 1.42, .52, 1);
   --molla-corta: cubic-bezier(.3, 1.3, .5, 1);
@@ -155,16 +98,6 @@
 [data-ora="giorno"]     { --room:#11182C; --wall:#1C2A4F; --slab:#253A74; --glow:#98BDE1; --velo:.20; }
 [data-ora="crepuscolo"] { --room:#220D2B; --wall:#3F1551; --slab:#5C1C78; --glow:#CE27CE; --velo:.34; }
 [data-ora="notte"]      { --room:#0C091A; --wall:#1A143E; --slab:#261D63; --glow:#2E399E; --velo:.24; }
-
-/* Senza backdrop-filter il vetro non sfoca: resterebbero superfici
-   semitrasparenti su un fondo mosso, cioè testo sopra un'immagine, il
-   difetto peggiore di questo linguaggio. Dove manca il supporto si
-   torna alle tinte piene: meno raffinato, sempre leggibile. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .lastra, .scelto, .carta-gesto, #aggiorna { background-color: var(--slab); }
-  #foglio, .foglio-piede { background-color: var(--wall); }
-  .campo { background-color: var(--room); }
-}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -284,18 +217,6 @@ body::before {
   color: var(--frase);
   pointer-events: none;
 }
-/* L'unico elemento della testata che deve reagire al tocco: il resto
-   ha pointer-events: none per lasciar passare i tocchi al contenuto
-   sotto, questo lo riaccende solo su di sé. */
-.link-cosE {
-  position: relative; z-index: 4; display: block; pointer-events: auto;
-  margin-top: 5px; margin-left: 1px; padding: 4px 0;
-  font-family: var(--dati); font-size: .75rem; font-weight: 500;
-  letter-spacing: .01em; color: var(--viola);
-  text-decoration: underline; text-underline-offset: 2px;
-  text-decoration-color: rgba(158,137,236,.4);
-}
-.link-cosE:active { color: var(--argento); }
 
 
 /* ------------------------------------------------------------------
@@ -350,10 +271,6 @@ body::before {
    Lo swipe da solo non si vede — due parole in fondo lo rendono
    scopribile senza spiegazioni.
    ------------------------------------------------------------------ */
-/* La barra delle pagine: la superficie più permanente dell'app, sempre
-   a schermo mentre il contenuto le scorre sotto. È il caso da manuale
-   della barra di vetro in entrambi i sistemi. La sfumatura resta, così
-   il contenuto non taglia di netto contro il bordo superiore. */
 #indice {
   position: fixed; z-index: 5;
   left: 0; right: 0; bottom: 0;
@@ -361,12 +278,9 @@ body::before {
   padding-bottom: env(safe-area-inset-bottom);
   display: flex; align-items: center; justify-content: center; gap: var(--s1);
   background: linear-gradient(to top,
-    color-mix(in srgb, var(--room) 82%, transparent) 0%,
-    color-mix(in srgb, var(--room) 74%, transparent) 55%,
-    color-mix(in srgb, var(--room) 40%, transparent) 82%,
+    var(--room) 0%, var(--room) 55%,
+    color-mix(in srgb, var(--room) 60%, transparent) 82%,
     transparent 100%);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  box-shadow: inset 0 1px 0 var(--orlo-luce);
 }
 .voce-indice {
   position: relative;
@@ -387,41 +301,95 @@ body::before {
 .voce-indice.acceso::after { width: 22px; }
 
 
+/* ------------------------------------------------------------------
+   L'anello incassato: scavato, non sollevato.
+   ------------------------------------------------------------------ */
+.anello {
+  width: var(--anello); height: var(--anello); border-radius: 50%;
+  flex: 0 0 auto;
+  margin: 0 auto; position: relative;
+  /* Il testo deve stare dentro il campo piatto, cioè entro 0,74 del
+     raggio: con la corona e gli indici lo spazio utile è meno del quadrato. */
+  padding: 0 calc(var(--anello) * .21);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  /* Il quadrante del Vanac non è liscio: scandendone una colonna si
+     contano 99 inversioni di luce, è rigato in orizzontale. Qui la
+     rigatura è finissima e a bassissimo contrasto: deve dare materia
+     senza disturbare il testo che ci sta sopra. */
+  background:
+    repeating-linear-gradient(to bottom,
+      rgba(255,255,255,.030) 0px, rgba(255,255,255,.030) 1px,
+      rgba(0,0,0,.045) 1px, rgba(0,0,0,.045) 3px),
+    radial-gradient(circle at 50% 38%,
+      color-mix(in srgb, var(--quadrante) 66%, var(--wall)) 0%,
+      color-mix(in srgb, var(--quadrante) 42%, var(--wall)) 44%,
+      color-mix(in srgb, var(--quadrante) 16%, var(--room)) 82%);
+  box-shadow:
+    inset 0 3px 18px rgba(0,0,0,.80),
+    inset 0 -1px 0 rgba(255,255,255,.10),
+    inset 0 1px 0 rgba(0,0,0,.55),
+    0 2px 10px rgba(0,0,0,.55),
+    0 1px 0 rgba(255,255,255,.045);
+}
+/* La ghiera in oro. Sul King Seiko l'oro è struttura, non accento:
+   l'8,6% del quadrante. Qui non copio l'anello dei minuti con le tacche
+   — sarebbe imitazione — prendo il colore e ne faccio un bisello di
+   metallo lavorato, con la luce che cade a 30° da destra come nel logo. */
+.anello::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  padding: calc(var(--anello) * .0085);
+  background: conic-gradient(from 300deg,
+    #6B5533 0deg, var(--oro) 42deg, #E4CE8C 78deg, #F0E4B0 100deg,
+    var(--oro) 140deg, #5A4629 205deg, #4A3A24 250deg,
+    #8A6E42 305deg, #6B5533 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+/* Il filetto interno: la seconda linea d'oro, che stacca la ghiera. */
+.anello::after {
+  content: ""; position: absolute; inset: calc(var(--anello) * .075); border-radius: 50%;
+  border: 1px solid rgba(201,169,106,.34);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.45);
+  pointer-events: none;
+}
+.anello.tocca { cursor: pointer; transition: transform .24s var(--molla-corta); }
+.anello.tocca:active { transform: scale(.97); }
+
+/* L'architettura del quadrante sta sotto al testo e non intercetta i tocchi. */
+.quadrante { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+.stato-anello { display: block; margin-bottom: 6px; }
+.dato-anello { letter-spacing: .16em; }
+.dato-anello.secondario { opacity: .62; margin-top: 5px; }
+/* L'icona dell'anello sta fuori dal cerchio, non sopra il testo: il
+   quadrante deve restare leggibile senza un segno estraneo in mezzo.
+   Il calcolo la mette appena oltre il bordo dorato, in alto a destra,
+   qualunque sia la dimensione reale dell'anello sullo schermo. */
+.info-tocco.info-anello {
+  /* Terzo giro su questo calcolo, e stavolta l'ho fatto sulle
+     coordinate vere del riquadro, non su un'assunzione di dove sta il
+     centro. Con top:X e right:X su un contenitore quadrato di lato S,
+     il centro dell'icona (raggio r) sta a (S-X-r, X+r) dall'angolo in
+     alto a sinistra — non semplicemente a "R meno X" dal centro del
+     contenitore, come avevo assunto due volte. La distanza vera dal
+     centro è (R-X-r) * radice(2). Per ottenere un margine g tra il
+     bordo dell'icona e il bordo dorato: X = R - r - (R+r+g) / radice(2).
+     Verificato con un browser vero (Playwright, non calcolo a mano):
+     8px di distanza reale, letta con getBoundingClientRect(), a ogni
+     dimensione dell'anello. */
+  position: absolute;
+  top: calc(var(--anello) * .14645 - 24.44px);
+  right: calc(var(--anello) * .14645 - 24.44px);
+  background: var(--room);
+}
 /* Il bottone principale con l'icona accanto: una riga sola, centrata
    come stava il bottone da solo prima. */
 .riga-azione-principale { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: var(--s4); }
 .riga-azione-principale .azione { margin-top: 0; }
 .riga-azione-secondaria { display: flex; align-items: center; gap: 4px; }
 .riga-azione-secondaria.centrata { justify-content: center; }
-
-/* Nome, motivo e bottone raggruppati in un'unica carta: solo un bordo
-   tenue, nessuno sfondo aggiunto — il bagliore ambientale (#luce)
-   resta l'unica atmosfera. Stesso oro tenue già usato altrove nell'app,
-   stesso raggio delle altre lastre. */
-.carta-gesto {
-  width: 100%;
-  display: flex; flex-direction: column; align-items: center;
-  border: 1px solid rgba(201,169,106,.30);
-  border-radius: var(--r-grande);
-  background-color: var(--vetro-slab);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro));
-  backdrop-filter: blur(var(--sfoca)) saturate(1.1); -webkit-backdrop-filter: blur(var(--sfoca)) saturate(1.1);
-  box-shadow: var(--rilievo);
-  padding: var(--s4) var(--s3) var(--s3);
-  margin-top: var(--s2);
-}
-/* La conferma prende il posto del bottone, non aggiunge una riga: la
-   pagina non deve saltare né allungarsi nell'istante in cui compare. */
-.conferma-gesto {
-  display: flex; align-items: center; gap: var(--s2);
-  font-family: var(--dati); font-size: .875rem; color: var(--argento);
-  animation: entra-conferma .22s var(--piano);
-}
-.conferma-gesto .pallino { background: var(--oro); }
-@keyframes entra-conferma {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 /* Il titolo di sezione con l'icona info accanto: il margine sotto che
    prima stava sul titolo stesso ora serve sulla riga che lo avvolge —
    un flex item non spinge giù il resto della pagina da solo. Due
@@ -441,26 +409,7 @@ body::before {
 .elenco      { margin-top: var(--s3); }
 .link-centro { display: block; margin-inline: auto; margin-top: var(--s3); }
 .link-centro.stretto { margin-top: var(--s2); }
-/* La riga bassa della testata: il link a sinistra, la data all'estremo
-   opposto. Prima il link stava da solo e metà larghezza restava vuota.
-   pointer-events va riacceso qui come sul link, perché #testata lo
-   spegne su tutto per lasciar passare i tocchi al contenuto sotto: la
-   data non è cliccabile, ma il contenitore non deve intercettare nulla
-   al posto suo. */
-.riga-testata {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: var(--s3); pointer-events: none;
-}
-.riga-testata .link-cosE { flex: 0 0 auto; }
-/* Stesso microscritto delle altre etichette dell'app, un tono più
-   spento del link accanto: dice che giorno è, non invita a toccare. */
-.data-testata {
-  flex: 0 1 auto; min-width: 0;
-  font-family: var(--dati); font-size: .625rem; font-weight: 500;
-  letter-spacing: .16em; text-transform: uppercase;
-  color: var(--argento-off); opacity: .72;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.data-oggi   { display: block; margin-bottom: var(--s3); }
 
 
 /* --- tipografia --- */
@@ -588,27 +537,9 @@ h1.nome.tagliato {
    ciascuno, e solo su schermi eccezionalmente alti se ne accorge
    qualcuno. */
 .vuoto-spaziatore { flex: 1 1 0; max-height: 220px; }
-/* Il gruppo alto (frase + bottone) usato nello stato di collezione
-   vuota: finora era una classe senza regole, e funzionava per caso
-   perché .colonna è già flex centrata. Dichiarata esplicitamente, così
-   non dipende da una proprietà ereditata che qualcuno potrebbe
-   cambiare altrove senza sapere che questo blocco ci contava. */
-.vuoto-gruppo-alto {
-  display: flex; flex-direction: column; align-items: center;
-  width: 100%; flex-shrink: 0;
-}
-/* Prima era un paragrafo generico da 13px: cinque persone su cinque,
-   provando l'app per la prima volta, non l'hanno notato. Eppure è
-   l'unica spiegazione di cosa fa l'intera app, letta esattamente una
-   volta da ogni persona nuova. Stesso trattamento già riservato a
-   .motivo, la frase che l'app considera la più importante da leggere
-   ogni giorno: non un'invenzione nuova, lo stesso peso per un testo
-   che se lo merita altrettanto. */
 .presentazione-vuoto {
-  font-family: var(--display); font-variation-settings: 'opsz' 20;
-  font-weight: 300; font-size: 1rem; line-height: 1.6;
-  color: var(--argento); opacity: .94;
-  max-width: 340px; text-wrap: balance;
+  font-size: .8125rem; line-height: 1.6; color: var(--argento); opacity: .92;
+  max-width: 320px; text-wrap: balance;
 }
 
 /* Titolo con un'azione a fianco, sempre raggiungibile senza scorrere —
@@ -638,8 +569,6 @@ h1.nome.tagliato {
   letter-spacing: .02em; color: var(--argento);
   border: 1px solid rgba(232,232,236,.20);
   background: rgba(232,232,236,.04);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
   transition: background .22s var(--piano), border-color .22s var(--piano),
               transform .22s var(--molla-corta);
 }
@@ -651,22 +580,13 @@ h1.nome.tagliato {
    «L'ho messo» e «Salva» impegnano: cambiano l'archivio. Cambiare pagina
    o aprire una scheda no, e non possono vestirsi allo stesso modo.
    --------------------------------------------------------------------- */
-/* Il gesto principale. Era arancione pieno con un alone luminoso da
-   22px, il trattamento più forte che l'app possieda, per un'azione che
-   si compie a volte: gridava l'atto di registrazione e sussurrava
-   l'informazione per cui apri l'app. Ora è un contorno arancione su
-   vetro: resta l'elemento più evidente della schermata, perché è
-   l'unico in quel colore e l'unico largo quanto la carta, ma smette di
-   fare da cartellone. L'arancione pieno resta disponibile per lo stato
-   di allarme vero, dove significa qualcosa. */
 .azione {
   font-family: var(--dati); font-size: .75rem; font-weight: 600;
   letter-spacing: .19em; text-transform: uppercase;
   min-height: 48px; padding: 15px 38px; border-radius: var(--r-chip);
-  background: rgba(255,107,44,.08); color: var(--arancio);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,107,44,.55);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  background: var(--arancio); color: #160D07;
+  border: 1px solid transparent;
+  box-shadow: 0 0 22px rgba(255,107,44,.16);
   transition: border-radius .28s var(--molla), transform .28s var(--molla),
               background .3s var(--piano), color .3s var(--piano),
               border-color .3s var(--piano), box-shadow .3s var(--piano);
@@ -675,24 +595,15 @@ h1.nome.tagliato {
   background: none; color: var(--argento-off);
   border-color: rgba(155,149,172,.28); box-shadow: none; cursor: default;
 }
-/* Ora che la principale non è più una superficie piena, la secondaria
-   rischiava di diventarle identica: resta senza sfondo e senza vetro,
-   solo il contorno, così la differenza fra le due si legge ancora. */
 .azione.secondaria {
   background: none; color: var(--argento);
-  backdrop-filter: none; -webkit-backdrop-filter: none;
   border-color: rgba(255,107,44,.42); box-shadow: none;
 }
 .azione.secondaria:active { background: rgba(255,107,44,.10); }
 .azione.larga { width: 100%; }
 /* Sotto il dito la pastiglia si squadra e rientra: è il gesto di
-   risposta di Android, e costa due righe. Senza più lo sfondo pieno il
-   solo rientro si sentirebbe poco, quindi il fondo si accende: la
-   risposta al tocco resta evidente quanto prima. */
-.azione:not([disabled]):active {
-  border-radius: var(--r-premuto); transform: scale(.975);
-  background: rgba(255,107,44,.26);
-}
+   risposta di Android, e costa due righe. */
+.azione:not([disabled]):active { border-radius: var(--r-premuto); transform: scale(.975); }
 
 .quieta {
   font-size: .8125rem; color: var(--argento-off); letter-spacing: .05em;
@@ -711,191 +622,73 @@ h1.nome.tagliato {
 
 
 /* ------------------------------------------------------------------
-   Il carosello della collezione è sparito con la riscrittura di Oggi
-   in elenco: nessun altro punto dell'app lo usa più (verificato con
-   una ricerca su ogni file), quindi il suo CSS è andato con lui invece
-   di restare morto in questo foglio.
+   Il carosello della collezione.
+
+   Prima la collezione allungava la pagina di una riga per orologio.
+   Qui scorre di lato: la pagina resta della sua altezza, e la collezione
+   cresce senza spingere niente più in basso. Le carte escono dal bordo
+   dello schermo apposta — il taglio è quello che dice «ce ne sono altre».
    ------------------------------------------------------------------ */
-.pallino { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-
-/* ------------------------------------------------------------------
-   L'elenco di Oggi: righe compatte, una per orologio che non è l'eroe.
-   Riusa .riga e .riga.fra già del Registro (divisore in alto, spazio
-   fra i due lati): la stessa forma che l'app usa già per "un gruppo di
-   righe", non un contenitore nuovo per un elenco che è concettualmente
-   lo stesso tipo di cosa.
-   ------------------------------------------------------------------ */
-/* La riga eroe. Affianca .carta-gesto, che porta già bordo, raggio e
-   spaziatura: qui servono solo le differenze. Allineata a sinistra,
-   non centrata: il centraggio serviva ad assecondare un cerchio, e il
-   cerchio non c'è più. Così il nome dell'eroe parte sulla stessa
-   colonna dei nomi dell'elenco sotto, e l'occhio scende dritto. */
-.eroe-oggi {
-  align-items: stretch; text-align: left;
-  padding: var(--s4) var(--s3);
-  margin-bottom: var(--s2);
+.carosello {
+  display: flex; gap: 10px; width: calc(100% + var(--bordo) * 2);
+  overflow-x: auto; overflow-y: hidden;
+  /* Il carosello si tiene il proprio scorrimento: arrivato in fondo il
+     gesto non deve passare al ponte e cambiare pagina. È l'unico punto
+     dove serve, ed è qui che va — non sulla pagina intera. */
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  /* Misure fisse, non percentuali: le percentuali di scroll-padding si
+     risolvono su una base diversa da quelle di padding, e l'aggancio
+     cadeva quarantadue pixel più in là — la fila si presentava già
+     spostata, come se fosse stata scorsa da sola. */
+  margin-inline: calc(var(--bordo) * -1);
+  padding: 2px var(--bordo) var(--s2);
+  scroll-padding-left: var(--bordo);
+  scrollbar-width: none;
 }
-/* Nome e linea, dentro l'eroe, erano dimensionati in proporzione al
-   diametro dell'anello, via calc(var(--anello) * ...). Quell'anello non
-   esiste più nel DOM, misuraAnello() esce subito e la variabile resta
-   al valore fisso di riserva: una misura calcolata su un oggetto
-   scomparso. Qui prendono misure proprie, in rem, come tutto il resto
-   dell'app. */
-.eroe-oggi h1.nome {
-  font-size: 1.5rem; line-height: 1.15;
-  margin: 0 0 2px; max-width: 100%;
-}
-.eroe-oggi .linea {
-  font-size: .8125rem;
-  display: block; margin-bottom: var(--s1);
-}
-/* Il motivo, dentro l'eroe, perde il centraggio e il max-width da 320px
-   che lo tenevano stretto sotto il cerchio: qui ha la larghezza piena
-   della carta. Fuori dall'eroe .motivo resta esattamente com'era. */
-.eroe-oggi .motivo {
-  margin: var(--s2) 0 0; max-width: none; text-align: left;
-}
-/* Il bottone dell'eroe occupa la riga: è il gesto principale della
-   schermata, non uno dei tanti. */
-.eroe-oggi .riga-azione-principale { margin-top: var(--s4); }
-.eroe-oggi .riga-azione-principale .azione { flex: 1; }
-/* Lo stato di quiete resta centrato: lì non c'è un nome a cui
-   allinearsi, c'è una frase sola che parla della collezione intera. */
-.eroe-oggi .riga-titolo-quiete { justify-content: center; }
-.eroe-oggi .motivo.secondario { text-align: center; }
+.carosello::-webkit-scrollbar { display: none; }
 
-/* La riga di quiete: sostituisce la carta grande quando nessuno chiede
-   niente. Centrata, a differenza dell'elenco sotto: qui non c'è un nome
-   a cui allinearsi, è una frase che parla della collezione intera. */
-/* Il titolo della collezione con la sua icona: due elementi che
-   stanno insieme a sinistra, mentre "Aggiungi" resta all'estremo
-   opposto. Senza questo contenitore l'icona verrebbe spinta al centro
-   dalla distribuzione della riga. */
-.titolo-con-info { display: flex; align-items: center; gap: 6px; min-width: 0; }
-
-/* La frase estesa, solo sulle righe che chiedono attenzione: dice
-   perché, da quanto e cosa fare. Corpo minore dello stato e a capo
-   libero, perché è una spiegazione da leggere, non un'etichetta da
-   scorrere: qui troncare con i puntini perderebbe proprio la parte
-   utile. */
-.riga-oggi-perche {
-  margin: 5px 0 0; max-width: 100%;
-  font-family: var(--display); font-variation-settings: 'opsz' 18;
-  font-weight: 300; font-size: .8125rem; line-height: 1.45;
-  color: var(--argento-off);
+.carta {
+  scroll-snap-align: start; flex: 0 0 auto;
+  width: 178px; min-height: 142px;
+  display: flex; flex-direction: column; align-items: flex-start;
+  padding: 13px var(--s3); text-align: left;
+  border-radius: var(--r-lastra);
+  background: var(--slab); background-image: var(--trama);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 1px 2px rgba(0,0,0,.35);
+  transition: transform .22s var(--molla-corta);
 }
-
-/* L'elenco: le righe portano già il proprio divisore in alto (.riga),
-   quindi qui serve solo lo stacco dal titolo di sezione sopra e la
-   soppressione del filo sulla prima, che altrimenti raddoppierebbe
-   quello del titolo.
-   width: 100% non è ridondante: .colonna è un flex con align-items
-   center, quindi un figlio senza larghezza propria si restringe al
-   contenuto e finisce al centro. È il motivo per cui l'elenco appariva
-   rientrato e più stretto della carta sopra. */
-.elenco-oggi { margin-top: var(--s1); width: 100%; text-align: left; }
-.elenco-oggi .riga:first-child { border-top: none; }
-
-.riga-oggi { padding: 13px 2px; cursor: pointer; }
-.riga-oggi:active { background: rgba(255,255,255,.03); }
-.riga-oggi-sx { display: flex; align-items: center; gap: 11px; min-width: 0; flex: 1; }
-.riga-oggi-info { min-width: 0; }
-/* Lo stato per primo, nel serif e nel corpo grande: è la voce che
-   risponde alla domanda per cui apri l'app. Il nome sotto, nel sans e
-   più piccolo, fa da identificatore. Prima era il contrario. */
-.riga-oggi-stato {
+.carta:active { transform: scale(.97); }
+.carta.al-polso { opacity: .74; box-shadow: inset 0 1px 0 rgba(201,169,106,.18); }
+.carta .pallino { margin-bottom: 9px; }
+/* Due righe sempre, anche quando il nome ne occupa una: senza, il filo
+   e i dati sotto stavano a due altezze diverse da una carta all'altra e
+   la fila sembrava sghemba. */
+.carta-nome {
   font-family: var(--display); font-variation-settings: 'opsz' 24;
-  font-size: 1.0625rem; color: var(--argento); margin: 0 0 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-weight: 400; font-size: 1.0625rem; line-height: 1.2; color: var(--argento);
+  display: -webkit-box; -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+  min-height: 2.4em;
 }
-.riga-oggi-nome {
-  font-family: var(--dati); font-size: .75rem; font-weight: 500; letter-spacing: .03em;
-  color: var(--frase); margin: 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+/* I dati stanno sul fondo della carta, non subito sotto il nome: così
+   sono in linea fra carte di contenuto diverso. */
+.carta .filo { margin: 9px 0; width: 28px; }
+.carta-dato {
+  font-family: var(--dati); font-size: .6875rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--argento-off);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-/* Chi è già a posto per oggi non deve gridare, ma nemmeno sparire:
-   resta leggibile, solo più indietro degli altri. */
-.riga-oggi.riga-quieta { opacity: .62; }
-
-/* Due livelli, non un semaforo. Chi chiede qualcosa prende un velo
-   tenue e un filo sul bordo sinistro; chi sta bene resta una riga
-   normale. Il filo prende il colore dello stato invece di essere sempre
-   oro: nell'app l'oro significa "guarda qui", l'arancione "urge". Con
-   il filo sempre oro, uno scarico e un cronografo da azionare avevano
-   lo stesso peso, che è falso. Il colore lo mette il codice, riusando
-   la stessa mappa del pallino: nessun colore nuovo. */
-.riga-oggi.riga-chiede {
-  background: rgba(255,255,255,.028);
-  box-shadow: inset 2px 0 0 var(--oro);
-  border-radius: var(--r-minimo);
-  padding-left: 10px; padding-right: 8px;
-}
-/* Chi è scarico o fermo pesa di più: velo un po' più marcato, a parità
-   di altezza. Righe di altezza diversa spezzerebbero il ritmo
-   dell'elenco, ed è il difetto per cui abbiamo tolto la carta grande:
-   qui la presenza si alza col contrasto, non con la geometria. */
-.riga-oggi.riga-urgente { background: rgba(255,107,44,.07); }
-/* Una riga con la frase estesa è più alta per forza: le do un po' di
-   respiro sopra e sotto invece di lasciarla stretta contro le vicine.
-   L'altezza cresce solo dove c'è davvero altro testo, non ovunque. */
-.riga-oggi:has(.riga-oggi-perche) { padding-top: 15px; padding-bottom: 15px; }
-
-/* Il guizzo del cambio di stato: una volta sola, all'apertura, sulle
-   righe cambiate da quando hai guardato l'ultima volta. Non è
-   un'intermittenza: quella si impara a ignorare, e diventa illeggibile
-   se tre righe pulsano insieme proprio quando servirebbe leggerle. */
-@keyframes guizzo-cambio {
-  0%   { background-color: rgba(201,169,106,.20); }
-  100% { background-color: transparent; }
-}
-.riga-oggi.riga-cambiata { animation: guizzo-cambio 1.6s var(--piano); }
-/* Chi ha chiesto meno movimento non deve perdere il segnale, quindi il
-   cambiamento resta visibile in modo statico invece di animarsi. */
-@media (prefers-reduced-motion: reduce) {
-  .riga-oggi.riga-cambiata {
-    animation: none;
-    box-shadow: inset 2px 0 0 var(--viola);
-  }
-}
-/* Stesso disegno del bottone-cerchio già usato per la matita del
-   selettore A/H: bordo sottile, oro solo quando importa. Non un terzo
-   stile di bottone da imparare. */
-.riga-gesto {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 40px; width: 40px; border-radius: var(--r-chip); flex-shrink: 0;
-  color: var(--oro); border: 1px solid rgba(201,169,106,.35);
-  background: rgba(201,169,106,.05);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  transition: transform .22s var(--molla-corta), background .22s var(--piano);
-}
-.riga-gesto svg { width: 16px; height: 16px; }
-.riga-gesto:active { transform: scale(.92); background: rgba(201,169,106,.12); }
-.riga-gesto[disabled] { opacity: .5; }
-/* Il lampo: un impulso di colore invece di un ridisegno immediato,
-   perché qui non c'è un banner di testo da proteggere, solo un tocco
-   che merita un riscontro rapido. */
-@keyframes lampo-gesto {
-  0% { background: rgba(201,169,106,.4); transform: scale(1.12); }
-  100% { background: transparent; transform: scale(1); }
-}
-.riga-gesto.lampo { animation: lampo-gesto .6s var(--piano); }
-/* La spunta ferma per chi ha già ricevuto il gesto oggi: non è un
-   bottone, non reagisce al tocco, dice solo "fatto". */
-.riga-fatto {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 40px; height: 40px; flex-shrink: 0; color: var(--oro); opacity: .55;
-}
-.riga-fatto svg { width: 16px; height: 16px; }
+.carta-stato { margin-top: 5px; }
+.pallino { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 
 
 /* --- lastre: le righe piene, usate nelle liste dei fogli --- */
 .lastra {
   display: flex; align-items: center; gap: 13px;
   padding: 14px 16px; margin-bottom: 7px; border-radius: var(--r-lastra);
-  background-color: var(--vetro-slab);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
-  backdrop-filter: blur(var(--sfoca)); -webkit-backdrop-filter: blur(var(--sfoca));
-  box-shadow: var(--rilievo);
+  background: var(--slab); background-image: var(--trama);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 1px 2px rgba(0,0,0,.35);
   text-align: left; width: 100%;
 }
 .lastra.riga-piena { display: grid; grid-template-columns: 5px minmax(0,1fr) 14px; gap: 13px; align-items: center; }
@@ -927,36 +720,6 @@ h1.nome.tagliato {
    sopra il titolo, poco sotto — così il titolo appartiene a quello che
    viene dopo e non galleggia in mezzo.
    ------------------------------------------------------------------ */
-/* L'isola: una superficie per un gruppo di righe. Stesso vetro delle
-   lastre, nessun colore nuovo. I filetti fra le righe restano, dentro;
-   fuori spariscono, perché lo spazio fra due isole già separa. */
-.isola {
-  width: 100%; border-radius: var(--r-medio);
-  padding: 0 var(--s3);
-  background-color: var(--vetro-slab);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
-  backdrop-filter: blur(var(--sfoca)); -webkit-backdrop-filter: blur(var(--sfoca));
-  box-shadow: var(--rilievo);
-  overflow: hidden;
-}
-.isola + .isola { margin-top: var(--s2); }
-/* Dentro un foglio che è già vetro, la stessa densità darebbe vetro
-   sopra vetro: qui basta un accenno di superficie per dire "questo è un
-   gruppo", senza aggiungere un secondo strato da guardare attraverso. */
-.isola.isola-dentro {
-  background-color: rgba(255,255,255,.035);
-  background-image: none;
-  backdrop-filter: none; -webkit-backdrop-filter: none;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-  border-radius: var(--r-lastra);
-}
-/* Le righe cliccabili perdono il proprio arrotondamento al tocco: lo
-   dà l'isola, che le contiene e le ritaglia. */
-.isola .attrezzo:first-of-type,
-.isola .voce-diario:first-child,
-.isola .riga:first-child { border-top: none; }
-.isola .attrezzo:active { background: rgba(255,255,255,.04); }
-
 .sezione {
   width: 100%; margin-top: 52px; padding-top: var(--s5);
   border-top: 1px solid rgba(255,255,255,.09);
@@ -988,11 +751,6 @@ h1.nome.tagliato {
   display: flex; gap: 13px; padding: 15px 0; text-align: left;
   border-top: 1px solid rgba(255,255,255,.055);
 }
-/* Usata da tempo nel codice ma senza alcuna regola: la riga la portava
-   e riceveva comunque il filetto, perché non essendo la prima figlia
-   nemmeno :first-child la salvava. Il nome dichiarava un'intenzione che
-   il foglio di stile non realizzava. */
-.riga.senza-filo { border-top: none; }
 .riga:first-child { border-top: none; }
 .riga.fra { justify-content: space-between; align-items: center; }
 
@@ -1122,15 +880,6 @@ h1.nome.tagliato {
    non più leggero. Tolto: la riga dei diritti ora si legge come le
    altre, non ha bisogno di un livello suo. */
 .colophon-diritti { margin-top: 2px; }
-/* Stesso grigio già verificato per il contrasto (.colophon p, sopra),
-   non un colore nuovo: qui è una nota a piè di pagina, non un invito
-   ad agire come "Cos'è Bariletto" in testata. Solo la sottolineatura
-   dice che si tocca. */
-.colophon-diritti a {
-  color: inherit; text-decoration: underline; text-underline-offset: 2px;
-  text-decoration-color: rgba(146,151,173,.5);
-}
-.colophon-diritti a:active { color: var(--argento); }
 
 
 /* ------------------------------------------------------------------
@@ -1157,11 +906,9 @@ h1.nome.tagliato {
   width: min(440px, calc(100% - var(--bordo) * 2));
   max-height: min(640px, calc(var(--altezza-visibile, 100dvh) * .82));
   display: flex; flex-direction: column;
-  background-color: var(--vetro-wall);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
-  backdrop-filter: blur(26px) saturate(1.15); -webkit-backdrop-filter: blur(26px) saturate(1.15);
+  background: var(--wall); background-image: var(--trama);
   border-radius: var(--r-foglio);
-  box-shadow: var(--rilievo-alto);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 20px 60px rgba(0,0,0,.55);
   transform: scale(.94); opacity: 0;
   transition: transform .38s var(--molla), opacity .26s ease;
   text-align: left; overflow: hidden;
@@ -1216,11 +963,6 @@ h1.nome.tagliato {
   font-family: var(--display); font-variation-settings: 'opsz' 32, 'SOFT' 18;
   font-weight: 400; font-size: 1.0625rem; line-height: 1.2; color: var(--argento);
 }
-/* Riceve il fuoco all'apertura del foglio solo come appiglio per chi
-   naviga da tastiera o con uno screen reader: non è un controllo con
-   cui interagire, quindi niente contorno visibile, sarebbe letto come
-   un elemento rotto piuttosto che un'indicazione utile. */
-.capo-titolo:focus { outline: none; }
 .capo-azioni { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
 .chiudi {
   font-family: var(--dati); font-size: .625rem; font-weight: 600;
@@ -1238,11 +980,8 @@ h1.nome.tagliato {
 }
 .foglio-piede {
   flex-shrink: 0; padding: var(--s2) var(--bordo) calc(var(--s3) + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--orlo-buio);
-  box-shadow: inset 0 1px 0 var(--orlo-luce);
-  background-color: var(--vetro-wall);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro));
-  backdrop-filter: blur(26px); -webkit-backdrop-filter: blur(26px);
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: var(--wall);
 }
 .foglio-piede .azione { width: 100%; margin: 0; }
 .foglio-piede.due { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; }
@@ -1261,11 +1000,7 @@ h1.nome.tagliato {
 }
 .dett-linea { margin-top: 5px; font-family: var(--dati); font-size: .8125rem; color: var(--argento-off); }
 .dett-stato { display: inline-block; margin-top: 9px; }
-/* Solo le righe dei gesti nella scheda dettaglio. Prima era .riga p, che
-   colpiva ogni paragrafo dentro qualunque riga dell'app: stando in fondo
-   al foglio vinceva a parità di specificità, e appiattiva a 1rem anche
-   lo stato e il nome nell'elenco di Oggi, annullando la gerarchia. */
-.riga-gesto-dett p {
+.riga p {
   font-family: var(--display); font-variation-settings: 'opsz' 18;
   font-weight: 300; font-size: 1rem; line-height: 1.56; color: var(--argento); opacity: .88;
 }
@@ -1286,10 +1021,8 @@ h1.nome.tagliato {
 .campo-etichetta em { font-style: normal; font-size: .6875rem; opacity: .88; text-transform: none; letter-spacing: .04em; }
 .campo {
   width: 100%; min-width: 0; padding: 13px 14px;
-  background: var(--vetro-room); color: var(--argento);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,.09); border-radius: var(--r-piccolo);
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.28);
+  background: var(--room); color: var(--argento);
+  border: 1px solid rgba(255,255,255,.09); border-radius: var(--r-lastra);
   /* 16px pieni: sotto questa soglia iOS ingrandisce la pagina da solo
      appena tocchi il campo, e la schermata salta. */
   font-family: var(--dati); font-size: 1rem;
@@ -1300,11 +1033,8 @@ h1.nome.tagliato {
 
 .scelto {
   padding: var(--s4) var(--s3) var(--s3);
-  background-color: var(--vetro-slab);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
-  backdrop-filter: blur(var(--sfoca)); -webkit-backdrop-filter: blur(var(--sfoca));
-  border-radius: var(--r-medio);
-  box-shadow: var(--rilievo), 0 0 0 1px rgba(255,107,44,.20);
+  background: var(--slab); background-image: var(--trama); border-radius: var(--r-lastra);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 0 1px rgba(255,107,44,.20);
 }
 .scelto-nome {
   font-family: var(--display); font-variation-settings: 'opsz' 40;
@@ -1316,16 +1046,6 @@ h1.nome.tagliato {
   text-transform: uppercase; color: var(--argento-off); padding-top: 2px;
 }
 .spec dd { font-family: var(--dati); font-size: .875rem; color: var(--argento); min-width: 0; }
-/* La revisione fa storia a sé. "Prossima revisione consigliata" occupa
-   quasi tutta la larghezza da sola: in una griglia a due colonne
-   minmax(0,auto) le concede la larghezza a contenuto intero, e il
-   valore viene schiacciato contro il bordo fino a spezzarsi. Separare
-   le griglie non era bastato, perché la causa non era la convivenza
-   con le altre voci ma la lunghezza dell'etichetta. Qui l'unica
-   soluzione è impilare: etichetta sopra, valore sotto, larghezza piena
-   per entrambi. */
-.spec.impilata { grid-template-columns: 1fr; gap: 2px; }
-.spec.impilata dd { font-size: 1rem; }
 
 /* Griglia, non flex: con flex il testo diventa una voce che non si
    restringe e allarga tutto il foglio oltre lo schermo. */
@@ -1349,28 +1069,12 @@ h1.nome.tagliato {
   min-height: 44px; padding: 11px 18px; border-radius: var(--r-chip); font-size: .75rem;
   letter-spacing: .13em; text-transform: uppercase;
   color: var(--argento-off); border: 1px solid rgba(255,255,255,.10);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   transition: border-color .25s var(--piano), background .25s var(--piano), transform .22s var(--molla-corta);
 }
 .scelta.accesa { color: var(--argento); border-color: rgba(255,107,44,.55); background: rgba(255,107,44,.10); }
 .scelta:active { transform: scale(.96); }
 
 .riserva-campo { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s3); margin-bottom: var(--s1); }
-
-/* Il campo A/H: stessa fila di chip già vista per il tipo, con in coda
-   un bottone icona invece di un'ennesima chip di testo — la matita dice
-   "scrivi tu" senza bisogno di un'etichetta a parte. */
-.ah-campo { margin-bottom: var(--s3); }
-.ah-campo > .etichetta { display: block; margin-bottom: 6px; }
-.ah-campo .scelte { margin: 0; }
-.matita {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 44px; width: 44px; border-radius: var(--r-chip);
-  color: var(--argento-off); border: 1px solid rgba(255,255,255,.10);
-  transition: border-color .25s var(--piano), background .25s var(--piano), color .25s var(--piano);
-}
-.matita.accesa { color: var(--oro); border-color: rgba(201,169,106,.45); background: rgba(201,169,106,.10); }
-.matita:active { transform: scale(.96); }
 
 .interruttore {
   display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
@@ -1380,13 +1084,13 @@ h1.nome.tagliato {
 }
 .interruttore.acceso { color: var(--argento); }
 .pallina {
-  width: 34px; height: 18px; border-radius: var(--r-chip); flex-shrink: 0; position: relative;
-  background: rgba(255,255,255,.10); transition: background .25s var(--piano);
+  width: 34px; height: 18px; border-radius: 10px; flex-shrink: 0; position: relative;
+  background: rgba(255,255,255,.10); transition: background .25s ease;
 }
 .pallina::after {
   content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px;
   border-radius: 50%; background: var(--argento-off);
-  transition: transform .28s var(--molla-corta), background .25s var(--piano);
+  transition: transform .25s cubic-bezier(.22,1,.36,1), background .25s ease;
 }
 .interruttore.acceso .pallina { background: rgba(255,107,44,.26); }
 .interruttore.acceso .pallina::after { transform: translateX(16px); background: var(--arancio); }
@@ -1444,10 +1148,8 @@ h1.nome.tagliato {
   bottom: calc(var(--alta-indice) + 10px + env(safe-area-inset-bottom));
   display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
   padding: 10px 12px 10px 18px; border-radius: var(--r-chip);
-  background-color: var(--vetro-slab);
-  background-image: linear-gradient(var(--velo-vetro), var(--velo-vetro)), var(--trama);
-  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-  box-shadow: inset 0 1px 0 var(--orlo-luce), inset 0 -1px 0 var(--orlo-buio), 0 6px 22px rgba(0,0,0,.55);
+  background: var(--slab); background-image: var(--trama);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 6px 22px rgba(0,0,0,.55);
   animation: sali .46s var(--molla);
 }
 #aggiorna span { font-size: .8125rem; color: var(--argento); }

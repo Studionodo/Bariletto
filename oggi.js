@@ -1,175 +1,55 @@
 /* ------------------------------------------------------------------
    Pagina uno — Oggi
 
-   Prima c'era un quadrante disegnato con la precisione di un orologio
-   vero, e dentro ci scriveva sopra: nome, stato, calibro, A/H, riserva,
-   cinque corpi tipografici diversi stretti in un cerchio che non era
-   pensato per contenere testo. L'elemento più grande della pagina non
-   portava nessuna informazione, e quella vera restava piccola perché
-   doveva starci dentro. Sotto, la stessa collezione tornava una seconda
-   volta in un carosello, spesso ripetendo l'orologio appena mostrato
-   sopra.
+   Qui sta una cosa sola: quale orologio chiede attenzione, perché, e il
+   gesto per rispondergli. La collezione le sta sotto ma scorre di lato,
+   così non allunga la pagina di una riga per ogni orologio: prima era
+   quello a rendere la schermata interminabile.
+   ------------------------------------------------------------------ */
 
-   Qui non c'è più un solo orologio scelto per te dentro una vetrina:
-   c'è un elenco delle cose da fare, ordinato per urgenza. Una struttura
-   sola, uguale per tutti, dalla prima riga all'ultima: non esiste più
-   una carta separata in cima, e quindi non può più esistere il caso di
-   un orologio tranquillo che pesa dieci volte un altro orologio
-   ugualmente tranquillo solo perché è il primo. Sopra l'elenco resta
-   una riga di intestazione che dice cosa serve fare, o che non serve
-   niente. Ogni riga ha il suo gesto a un tocco, senza dover entrare nel
-   dettaglio per agire. I colori restano quelli di sempre: cambia la
-   struttura, non la palette. */
+const QUADRANTE = "<svg class=\"quadrante\" viewBox=\"0 0 200 200\" aria-hidden=\"true\"><circle cx=\"100\" cy=\"100\" r=\"86.5\" fill=\"none\" stroke=\"rgba(10,6,32,.30)\" stroke-width=\"17\"/><g stroke=\"rgba(255,255,255,.075)\" stroke-width=\".8\"><path d=\"M103.4,21.1L104.1,6.1\"/><path d=\"M110.3,21.7L112.3,6.8\"/><path d=\"M117.1,22.9L120.3,8.2\"/><path d=\"M123.8,24.7L128.3,10.4\"/><path d=\"M130.2,27.0L136.0,13.2\"/><path d=\"M136.5,29.9L143.4,16.6\"/><path d=\"M142.4,33.4L150.5,20.7\"/><path d=\"M148.1,37.3L157.2,25.4\"/><path d=\"M153.4,41.8L163.5,30.7\"/><path d=\"M158.2,46.6L169.3,36.5\"/><path d=\"M162.7,51.9L174.6,42.8\"/><path d=\"M166.6,57.6L179.3,49.5\"/><path d=\"M170.1,63.5L183.4,56.6\"/><path d=\"M173.0,69.8L186.8,64.0\"/><path d=\"M175.3,76.2L189.6,71.7\"/><path d=\"M177.1,82.9L191.8,79.7\"/><path d=\"M178.3,89.7L193.2,87.7\"/><path d=\"M178.9,96.6L193.9,95.9\"/><path d=\"M178.9,103.4L193.9,104.1\"/><path d=\"M178.3,110.3L193.2,112.3\"/><path d=\"M177.1,117.1L191.8,120.3\"/><path d=\"M175.3,123.8L189.6,128.3\"/><path d=\"M173.0,130.2L186.8,136.0\"/><path d=\"M170.1,136.5L183.4,143.4\"/><path d=\"M166.6,142.4L179.3,150.5\"/><path d=\"M162.7,148.1L174.6,157.2\"/><path d=\"M158.2,153.4L169.3,163.5\"/><path d=\"M153.4,158.2L163.5,169.3\"/><path d=\"M148.1,162.7L157.2,174.6\"/><path d=\"M142.4,166.6L150.5,179.3\"/><path d=\"M136.5,170.1L143.4,183.4\"/><path d=\"M130.2,173.0L136.0,186.8\"/><path d=\"M123.8,175.3L128.3,189.6\"/><path d=\"M117.1,177.1L120.3,191.8\"/><path d=\"M110.3,178.3L112.3,193.2\"/><path d=\"M103.4,178.9L104.1,193.9\"/><path d=\"M96.6,178.9L95.9,193.9\"/><path d=\"M89.7,178.3L87.7,193.2\"/><path d=\"M82.9,177.1L79.7,191.8\"/><path d=\"M76.2,175.3L71.7,189.6\"/><path d=\"M69.8,173.0L64.0,186.8\"/><path d=\"M63.5,170.1L56.6,183.4\"/><path d=\"M57.6,166.6L49.5,179.3\"/><path d=\"M51.9,162.7L42.8,174.6\"/><path d=\"M46.6,158.2L36.5,169.3\"/><path d=\"M41.8,153.4L30.7,163.5\"/><path d=\"M37.3,148.1L25.4,157.2\"/><path d=\"M33.4,142.4L20.7,150.5\"/><path d=\"M29.9,136.5L16.6,143.4\"/><path d=\"M27.0,130.2L13.2,136.0\"/><path d=\"M24.7,123.8L10.4,128.3\"/><path d=\"M22.9,117.1L8.2,120.3\"/><path d=\"M21.7,110.3L6.8,112.3\"/><path d=\"M21.1,103.4L6.1,104.1\"/><path d=\"M21.1,96.6L6.1,95.9\"/><path d=\"M21.7,89.7L6.8,87.7\"/><path d=\"M22.9,82.9L8.2,79.7\"/><path d=\"M24.7,76.2L10.4,71.7\"/><path d=\"M27.0,69.8L13.2,64.0\"/><path d=\"M29.9,63.5L16.6,56.6\"/><path d=\"M33.4,57.6L20.7,49.5\"/><path d=\"M37.3,51.9L25.4,42.8\"/><path d=\"M41.8,46.6L30.7,36.5\"/><path d=\"M46.6,41.8L36.5,30.7\"/><path d=\"M51.9,37.3L42.8,25.4\"/><path d=\"M57.6,33.4L49.5,20.7\"/><path d=\"M63.5,29.9L56.6,16.6\"/><path d=\"M69.8,27.0L64.0,13.2\"/><path d=\"M76.2,24.7L71.7,10.4\"/><path d=\"M82.9,22.9L79.7,8.2\"/><path d=\"M89.7,21.7L87.7,6.8\"/><path d=\"M96.6,21.1L95.9,6.1\"/></g><g fill=\"rgba(255,255,255,.10)\"><path d=\"M103.5,20.0L103.5,8.0L96.5,8.0L96.5,20.0Z\"/><path d=\"M141.9,31.8L147.9,21.4L144.1,19.2L138.1,29.6Z\"/><path d=\"M170.4,61.9L180.8,55.9L178.6,52.1L168.2,58.1Z\"/><path d=\"M180.0,102.2L192.0,102.2L192.0,97.8L180.0,97.8Z\"/><path d=\"M168.2,141.9L178.6,147.9L180.8,144.1L170.4,138.1Z\"/><path d=\"M138.1,170.4L144.1,180.8L147.9,178.6L141.9,168.2Z\"/><path d=\"M97.8,180.0L97.8,192.0L102.2,192.0L102.2,180.0Z\"/><path d=\"M58.1,168.2L52.1,178.6L55.9,180.8L61.9,170.4Z\"/><path d=\"M29.6,138.1L19.2,144.1L21.4,147.9L31.8,141.9Z\"/><path d=\"M20.0,97.8L8.0,97.8L8.0,102.2L20.0,102.2Z\"/><path d=\"M31.8,58.1L21.4,52.1L19.2,55.9L29.6,61.9Z\"/><path d=\"M61.9,29.6L55.9,19.2L52.1,21.4L58.1,31.8Z\"/></g><circle cx=\"100\" cy=\"100\" r=\"75\" fill=\"none\" stroke=\"rgba(201,169,106,.32)\" stroke-width=\"1.6\"/><circle cx=\"100\" cy=\"100\" r=\"78\" fill=\"none\" stroke=\"rgba(232,232,236,.20)\" stroke-width=\".7\"/></svg>";
 
-/* Gli stati dell'ultima volta che l'app è stata guardata, caricati
-   all'avvio da cornice.js. Servono a far notare cosa è cambiato da
-   allora, una volta sola: un elemento che lampeggia in permanenza è
-   quello che si impara a ignorare più in fretta, e sparirebbe del tutto
-   per chi ha attivato la riduzione del movimento sul telefono. */
-var statiPrecedenti = null;
-/* Vale solo per la prima schermata dopo l'apertura: da lì in poi ogni
-   cambiamento lo hai provocato tu, e segnalartelo sarebbe rumore. */
-var primaCostruzione = true;
-
-/* Le due icone dei gesti sulle righe compatte. A tratto, senza
-   riempimento, stesso linguaggio già usato per la matita del
-   selettore A/H e per il più dell'aggiunta rapida — non un terzo
-   stile di icona inventato per l'occasione. */
-const ICONA_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
-/* Non una generica freccia di rotazione — quella si legge come
-   "aggiorna" in qualunque altra app. Una corona scanalata con un
-   accenno di rotazione intorno: l'atto vero di dare corda, non una
-   metafora presa in prestito da un'icona che vuol dire altro ovunque. */
-const ICONA_CORONA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="7" width="5" height="11" rx="1.4"/><path d="M13.6 10.3h3.8M13.6 12.5h3.8M13.6 14.7h3.8"/><path d="M10.3 8.2a6 6 0 1 0 .9 9.1"/><path d="M9.2 15l1.3 2 2-1.4"/></svg>';
-
-/* Segna un gesto secondario — caricato su una riga, o il gesto su una
-   riga compatta qualsiasi — con un lampo invece di un ridisegno
-   immediato. Stessa idea della conferma piena dell'eroe (segnaConConferma
-   in archivio.js), ma più leggera: qui non c'è un banner di testo da
-   proteggere dal popup del primo utilizzo, solo un impulso di colore,
-   quindi il ridisegno può arrivare prima, non deve aspettare i 4
-   secondi interi pensati per una frase da leggere. */
-function segnaConLampo(azioneOra, o, elementoDaAnimare) {
-  unaVolta(() => azioneOra(o, false, false)).then(() => {
-    if (elementoDaAnimare) elementoDaAnimare.classList.add("lampo");
-    setTimeout(() => disegna(), 700);
-    setTimeout(() => mostraPrimoUsoSeServe(), 780);
-  });
+/* L'architettura del quadrante Vanac, misurata sulla foto: campo piatto
+   fino a 0,74 del raggio, cerchio d'oro a 0,75, filo d'argento a 0,78,
+   corona scanalata con dodici indici da 0,80 a 0,95. */
+function anelloOrologio(o, b) {
+  const a = el("div", "anello");
+  a.insertAdjacentHTML("afterbegin", QUADRANTE);
+  a.append(infoTocco(t("info.anello.titolo"),
+    [t("info.anello.testo1"), t("info.anello.testo2"), t("info.anello.testo3")], "info-anello"));
+  const st = el("span", "etichetta stato-anello", nomeStato(b.stato));
+  st.style.color = COLORE[b.stato];
+  a.append(st, el("h1", "nome", o.nome));
+  if (o.linea) a.append(el("span", "linea", o.linea));
+  a.append(el("div", "filo"),
+           el("span", "etichetta mini dato-anello", etichettaCalibro(o)),
+           el("span", "etichetta mini dato-anello secondario", etichettaRiserva(o)));
+  return a;
 }
 
-
-/* Sostituisce la sola riga del bottone con la conferma del nome appena
-   segnato. Non tocca il resto della carta né la pagina: il ridisegno
-   vero, quello che passa al prossimo orologio, arriva da solo dopo il
-   tempo di lettura, deciso da segnaConConferma. */
-function mostraConfermaGesto(rigaAz, nome) {
-  const conf = el("div", "conferma-gesto");
-  conf.append(el("span", "pallino"), el("span", "", t("oggi.segnato", { n: nome })));
-  rigaAz.replaceChildren(conf);
-}
-
-/* Una riga compatta. Lo stato viene prima del nome, ed è la scelta che
-   regge tutta la schermata: Oggi non è un catalogo (per sfogliare c'è
-   la collezione, e c'è il Registro), risponde a una domanda sola, di
-   chi devo occuparmi adesso. Col nome in testa dovresti leggere ogni
-   riga per intero per saperlo; con lo stato in testa scorri l'occhio e
-   chi sta male salta fuori da solo. Il nome resta, più piccolo: serve
-   a identificare, non a farsi cercare.
-
-   Il gesto è quello giusto per QUEL tipo di orologio, non lo stesso per
-   tutti: un manuale può caricarsi senza essere indossato lo stesso
-   giorno, quindi il tocco qui fa "Caricato, ma non indossato", non
-   "Indossato oggi" travestito. Se l'hai già segnato oggi, il gesto
-   lascia il posto a una spunta ferma: toccarlo di nuovo non
-   aggiungerebbe nulla, solo un secondo timbro sulla stessa giornata. */
-function rigaCompatta(o, b, alPolso) {
-  const r = el("div", "riga fra riga-oggi");
-  r.setAttribute("role", "button");
-  r.setAttribute("tabindex", "0");
-  r.setAttribute("aria-label", o.nome);
-  const apri = () => apriScheda(o, "dettaglio");
-  r.addEventListener("click", apri);
-  r.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); apri(); }
-  });
-
-  const sx = el("div", "riga-oggi-sx");
+/* Una carta del carosello. Dice le stesse tre cose della vecchia riga —
+   chi sei, che movimento monti, come stai — ma in verticale, perché in
+   una fila che scorre l'altezza è libera e la larghezza no. */
+function cartaOrologio(o, b, alPolso) {
+  const c = el("button", "carta" + (alPolso ? " al-polso" : ""));
   const pallino = el("span", "pallino");
   pallino.style.background = COLORE[b.stato];
-  /* Due livelli, non cinque. Colorare ogni riga secondo il proprio
-     stato darebbe un semaforo dove tutto grida e nessuno emerge: la
-     distinzione che serve davvero è fra chi chiede qualcosa e chi no.
-     Chi chiede prende un accento; gli altri restano righe normali. */
-  /* L'accento non dipende dall'averlo indossato oggi, ma dal fatto che
-     ci sia ancora qualcosa da fare. Un cronografo che porti al polso
-     oggi ma i cui pulsanti vanno azionati resta un orologio che chiede
-     qualcosa: prima la condizione richiedeva "non indossato oggi", e
-     quel caso restava senza nessun segnale. */
-  if (b.stato !== "moto") {
-    r.classList.add("riga-chiede");
-    /* Il filo prende il colore dello stato, la stessa mappa del
-       pallino: uno scarico e un cronografo da azionare non hanno lo
-       stesso peso, e con il filo sempre oro sembravano identici. */
-    r.style.boxShadow = "inset 2px 0 0 " + COLORE[b.stato];
-    if (b.stato === "scarico" || b.stato === "fermo") r.classList.add("riga-urgente");
-  }
-  /* Se lo stato è cambiato da quando hai guardato l'ultima volta, la
-     riga si accende un attimo e poi resta ferma. Solo alla prima
-     costruzione della schermata: dopo un tocco tuo il cambiamento non
-     è una notizia, l'hai appena provocato. */
-  if (primaCostruzione && statiPrecedenti && statiPrecedenti[o.id] &&
-      statiPrecedenti[o.id] !== b.stato) {
-    r.classList.add("riga-cambiata");
-  }
-  const info = el("div", "riga-oggi-info");
 
-  /* Prima lo stato, poi il nome. */
-  const stato = el("p", "riga-oggi-stato");
-  if (alPolso) { stato.textContent = t("oggi.giaMesso"); }
+  const stato = el("span", "carta-dato carta-stato");
+  if (alPolso) { stato.textContent = t("oggi.giaMesso"); stato.style.color = "var(--oro)"; }
   else if (Number.isFinite(b.restanti) && b.restanti > 0) {
     stato.textContent = t("oggi.restano", { q: durata(b.restanti) });
-  } else { stato.textContent = nomeStato(b.stato); }
-  info.append(stato, el("p", "riga-oggi-nome", o.nome));
+    stato.style.color = COLORE[b.stato];
+  } else { stato.textContent = nomeStato(b.stato); stato.style.color = COLORE[b.stato]; }
 
-  /* Chi chiede attenzione porta anche la frase estesa, che dice il
-     perché, da quanto e cosa fare. Prima viveva solo nell'intestazione,
-     quindi la si leggeva per un orologio solo: se due erano scarichi,
-     del secondo sapevi soltanto "scarico". Solo qui, non su tutte le
-     righe: un orologio tranquillo non ha niente da spiegare in tre
-     righe ("restano 34 ore" è già completo), e allargarle tutte
-     costringerebbe a scorrere molto di più per lo stesso contenuto. */
-  if (b.stato !== "moto" && b.motivo) {
-    info.append(el("p", "riga-oggi-perche", b.motivo));
-  }
-
-  /* Il colore vive sul pallino e sul gesto, non sul testo dello stato:
-     con lo stato ora in corpo grande, colorarlo lo renderebbe meno
-     leggibile proprio nel punto in cui deve leggersi meglio. Il colore
-     dice "quanto urge", il testo dice "cosa", due lavori distinti. */
-  if (alPolso) { pallino.style.background = "var(--oro)"; r.classList.add("riga-quieta"); }
-  sx.append(pallino, info);
-  r.append(sx);
-
-  const manuale = o.mano || o.tipo === "manuale";
-  if (alPolso) {
-    const fatto = el("span", "riga-fatto");
-    fatto.innerHTML = ICONA_CHECK;
-    fatto.setAttribute("aria-hidden", "true");
-    r.append(fatto);
-  } else {
-    const gesto = el("button", "riga-gesto");
-    gesto.innerHTML = manuale ? ICONA_CORONA : ICONA_CHECK;
-    gesto.setAttribute("aria-label", manuale ? t("soloCaricato") : t("messo"));
-    gesto.style.color = COLORE[b.stato];
-    gesto.style.borderColor = COLORE[b.stato];
-    gesto.onclick = (e) => {
-      e.stopPropagation();
-      gesto.disabled = true;
-      segnaConLampo(manuale ? segnaCaricaOra : segnaOra, o, gesto);
-    };
-    r.append(gesto);
-  }
-  return r;
+  c.append(pallino,
+           el("div", "carta-nome", o.nome),
+           el("div", "filo"),
+           el("span", "carta-dato", nomeCorto(o.calibroNome)),
+           stato);
+  c.setAttribute("aria-label", o.nome);
+  c.onclick = () => apriScheda(o, "dettaglio");
+  return c;
 }
 
 function costruisciOggi() {
@@ -181,10 +61,15 @@ function costruisciOggi() {
      di cosa fa l'app, per chi la apre la primissima volta. Il
      contenitore usa lo stesso spazio verticale reale già calcolato per
      il resto dell'app (testata + indice sottratti), non un'altezza
-     indovinata: si adatta da solo a schermi di dimensioni diverse.
-     Invariato: non era parte del problema di cui abbiamo parlato. */
+     indovinata: si adatta da solo a schermi di dimensioni diverse. */
   if (!classifica.length) {
     d.classList.add("vuoto-pieno");
+    /* Prima il gruppo stava in cima, con tutto il vuoto sotto: il
+       messaggio più importante della schermata finiva schiacciato in
+       alto. Due spaziatori invisibili (flex:1 ciascuno) intorno al
+       gruppo lo mettono nel centro vero dello spazio sopra la
+       presentazione — non un margine indovinato, uno spazio che si
+       ricalcola da solo a ogni dimensione di schermo. */
     d.append(el("div", "vuoto-spaziatore"));
     const gruppoAlto = el("div", "vuoto-gruppo-alto");
     gruppoAlto.append(el("p", "vuoto dopo", t("vuoto.oggi")));
@@ -196,6 +81,9 @@ function costruisciOggi() {
     return d;
   }
 
+  d.append(el("span", "etichetta data-oggi", new Date().toLocaleDateString(locale(),
+    { weekday: "long", day: "numeric", month: "long" })));
+
   const eOggi = (o) => o.ultimoPolso && sameDay(o.ultimoPolso, Date.now());
   const liberi = classifica.filter(({ o }) => !eOggi(o));
   const proposto = liberi.length ? liberi[0] : null;
@@ -204,34 +92,51 @@ function costruisciOggi() {
     .sort((a, b) => a.b.restanti - b.b.restanti)[0];
   const primo = proposto || cala || classifica[0];
 
-  /* Il risalto si guadagna con l'urgenza, non con la posizione. Prima
-     il primo orologio riceveva sempre la carta grande, bordo, sfondo e
-     bottone pieno, anche quando il suo unico messaggio era "non c'è
-     niente da fare": la cosa più ingombrante dello schermo dedicata al
-     contenuto meno urgente possibile, mentre un orologio nella stessa
-     identica situazione, due righe sotto, stava in una riga di due
-     parole. Due pesi diversi per lo stesso dato.
+  /* L'anello apre la scheda del suo orologio: con un orologio solo non
+     c'era nessuna riga da toccare per arrivare a Modifica ed Elimina. */
+  const anello = anelloOrologio(primo.o, primo.b);
+  anello.classList.add("tocca");
+  anello.setAttribute("role", "button");
+  anello.setAttribute("tabindex", "0");
+  anello.setAttribute("aria-label", primo.o.nome);
+  anello.addEventListener("click", () => apriScheda(primo.o, "dettaglio"));
+  anello.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); apriScheda(primo.o, "dettaglio"); }
+  });
+  d.append(anello);
 
-     "moto" è l'unico stato che non chiede niente: gli altri quattro
-     (riserva, fermo, scarico, azionare) chiedono tutti qualcosa. Se in
-     cima non c'è nessuno che chiede, nessuna carta grande: tutti in
-     elenco, compreso il primo. Il giorno in cui qualcuno sta davvero
-     male, quello e solo quello si prende il trattamento diverso. */
-  /* Guarda tutta la collezione, non solo il primo. Prima bastava che il
-     primo in classifica fosse in moto perché l'intestazione dichiarasse
-     "nessuno chiede attenzione", anche con altri orologi scarichi più
-     in basso: il titolo diceva l'opposto dell'elenco sotto. Ora la
-     quiete è vera solo se nessuno, davvero nessuno, chiede qualcosa. */
-  const inAllarme = classifica.filter((x) => x.b.stato !== "moto");
-  const chiedeDavvero = inAllarme.length > 0;
-  /* Chi guida l'intestazione è il più grave, che dopo la correzione dei
-     punteggi coincide col primo, ma cercarlo esplicitamente rende la
-     cosa indipendente dall'ordinamento invece che fidarsi che regga. */
-  const capofila = chiedeDavvero ? inAllarme[0] : primo;
+  const sotto = el("div", "sotto-anello");
+  if (proposto) {
+    sotto.append(el("p", "motivo", primo.b.motivo));
+  } else {
+    const rigaQuiete = el("div", "riga-titolo-quiete");
+    rigaQuiete.append(el("p", "titolo-quiete", t("oggi.nulla")),
+      infoTocco(t("primoUso.titolo"),
+        [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
+    sotto.append(rigaQuiete);
+    sotto.append(el("p", "motivo secondario",
+      Number.isFinite(primo.b.restanti) && primo.b.restanti > 0
+        ? primo.o.nome + " " + t("oggi.prossimoOra", { q: durata(primo.b.restanti) })
+        : t("oggi.tuttiCarichi")));
+  }
+  d.append(sotto);
 
+  if (proposto) {
+    const rigaAz = el("div", "riga-azione-principale");
+    const az = el("button", "azione dopo", t("messo"));
+    az.onclick = () => segna(proposto.o);
+    rigaAz.append(az, infoTocco(t("info.gesti.titolo"),
+      [t("info.gesti.testo1"), t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4")], "info-azione"));
+    d.append(rigaAz);
+    if (proposto.o.mano || proposto.o.tipo === "manuale") {
+      const car = el("button", "quieta dopo-corto", t("soloCaricato"));
+      car.onclick = () => segnaCarica(proposto.o);
+      d.append(car);
+    }
+  }
 
   /* Portare un cronografo non vuol dire averlo azionato: la frizione
-     vuole girare. Invariato rispetto a prima. */
+     vuole girare. */
   const crono = orologi.filter((o) => o.tipo === "cronografo" && eOggi(o) &&
     !(o.ultimoCrono && sameDay(o.ultimoCrono, Date.now())));
   crono.forEach((o) => {
@@ -241,64 +146,29 @@ function costruisciOggi() {
     d.append(b);
   });
 
-  /* Tutti, sempre. Non esistendo più una carta separata sopra, non c'è
-     più niente da escludere: l'elenco è la schermata. Prima qui c'era
-     un carosello orizzontale che ripeteva tutta la collezione, eroe
-     compreso, la stessa cosa mostrata due volte a due centimetri di
-     distanza. */
-  const resto = classifica;
-
-  /* Un ramo solo. Prima ce n'erano due, e quello con un solo orologio
-     saltava la riga di titolo: senza intestazione in cima, l'icona
-     info vive lì, quindi con un orologio solo sarebbe sparita insieme
-     alla riga, portandosi via l'unico accesso ai due pannelli. I due
-     rami facevano già quasi la stessa cosa: il titolo della collezione
-     ha senso anche con un orologio, e ora non c'è più niente sopra da
-     cui distinguerlo. */
+  /* La collezione. Il carosello scorre di lato con solo gli orologi
+     veri: prima c'era anche una carta tratteggiata "Aggiungi" in fondo
+     alla fila, nello stesso linguaggio delle carte vere — ma è proprio
+     quell'appartenenza alla fila a renderla goffa, non elegante. Il +
+     accanto al titolo resta l'unico punto d'ingresso: sempre raggiungibile
+     senza scorrere, e visivamente non è una carta, è un comando. */
   const capoRiga = el("div", "titolo-riga dopo");
-  /* L'icona sta accanto al titolo della collezione, non appesa
-     all'orologio più grave del giorno: i due pannelli parlano dell'app
-     (come funzionano i gesti, come viene contato), non di un orologio
-     in particolare. Prima erano due icone alternative, e quale
-     comparisse dipendeva dallo stato della collezione: un comando che
-     apre cose diverse a seconda del giorno è imprevedibile, quindi
-     sono un pannello solo. La riga esiste già e ha due estremi:
-     l'icona ci entra senza aggiungere altezza. */
-  const titoloColl = el("div", "titolo-con-info");
-  titoloColl.append(el("span", "titolo-sezione", t("coll.tutta")),
-    infoTocco(t("info.comeFunziona"),
-      [t("info.gesti.testo2"), t("info.gesti.testo3"), t("info.gesti.testo4"),
-       t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")]));
-  capoRiga.append(titoloColl);
-
+  const capo = el("span", "titolo-sezione", t("coll.tutta"));
   const aggRapida = el("button", "agg-rapida");
   aggRapida.setAttribute("aria-label", t("agg.pieno"));
   aggRapida.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg><span>' + t("agg.breve") + '</span>';
   aggRapida.onclick = () => apriScheda();
-  capoRiga.append(aggRapida);
+  capoRiga.append(capo, aggRapida);
   d.append(capoRiga);
 
-  const elenco = el("div", "elenco-oggi");
-  resto.forEach(({ o, b }) => elenco.append(rigaCompatta(o, b, eOggi(o))));
-  d.append(elenco);
-
-  /* Chiudo il ciclo: gli stati di adesso diventano quelli con cui la
-     prossima apertura si confronterà. Il salvataggio non blocca il
-     disegno, e se fallisce si perde solo un guizzo, non un dato. */
-  primaCostruzione = false;
-  const mappa = {};
-  classifica.forEach(({ o, b }) => { mappa[o.id] = b.stato; });
-  statiPrecedenti = mappa;
-  if (typeof salva === "function" && typeof db !== "undefined" && db) {
-    salva("stato", { chiave: "statiVisti", valore: mappa }).catch(() => {});
-  }
+  const fila = el("div", "carosello");
+  classifica.forEach(({ o, b }) => fila.append(cartaOrologio(o, b, eOggi(o))));
+  d.append(fila);
 
   return d;
 }
 
-/* Date parlate: oggi, ieri, N giorni fa, poi la data piena. Usata anche
-   da foglio.js per "ultima volta indossato": non spostare senza cercare
-   ogni chiamata. */
+/* Date parlate: oggi, ieri, N giorni fa, poi la data piena. */
 function quando(ts) {
   if (ts == null) return t("g.mai");
   const g = giorniDa(ts);

@@ -133,19 +133,9 @@ function bisogno(o) {
      identico a prima anche dopo che qualcosa è successo davvero, e
      dall'anello sembra che il tocco non abbia fatto nulla. */
   if (o.ultimoPolso == null) {
-    /* Un orologio appena inserito non chiede niente: è in moto, sta
-       benissimo, semplicemente non ha ancora una storia. Prima prendeva
-       120 punti contro i 60 di uno realmente scarico, quindi scalava la
-       classifica sopra chi aveva davvero la riserva finita: l'elenco
-       mostrava un orologio tranquillo in cima e gli allarmi sotto, e
-       l'intestazione, che guarda il primo, dichiarava "nessuno chiede
-       attenzione" con due scarichi in pagina. Il punteggio dice quanto
-       urge, non quanto è recente: qui resta basso, sopra il tranquillo
-       puro per farlo notare la prima volta, ma sotto qualunque stato
-       che chiede qualcosa. */
     if (o.ultimaCarica != null)
-      return { punti: 20, stato: "moto", motivo: t("m.caricatoNonIndossato") };
-    return { punti: 35, stato: "moto", motivo: t("m.nuovo") };
+      return { punti: 100, stato: "moto", motivo: t("m.caricatoNonIndossato") };
+    return { punti: 120, stato: "moto", motivo: t("m.nuovo") };
   }
 
   const g = Math.max(0, giorniDa(o.ultimoPolso));
@@ -173,14 +163,7 @@ function bisogno(o) {
       return { punti: 90 + luce, stato: "riserva",
                motivo: t(o.tipo === "kinetic" ? "m.kin.basso" : "m.eco.basso", { g: lg, l: ll }) };
     return { punti: g, stato: "moto", restanti: (limite - luce) * 24,
-             /* Prima qui c'era m.carico con la capacità nominale intera
-                (etichettaRiserva), anche a metà del periodo senza luce:
-                "Autonomia piena" quando in realtà ne restava la metà. Ora
-                usa la riserva REALE già calcolata sulla riga sopra
-                (restanti), passata attraverso durata() per lo stesso
-                linguaggio umano già usato altrove ("14 ore", "90
-                giorni"). */
-             motivo: t("m.eco.carico", { r: durata((limite - luce) * 24) }) };
+             motivo: t("m.carico", { r: etichettaRiserva(o, true) }) };
   }
 
   if (o.tipo === "quarzo" || o.tipo === "elettrico" || o.tipo === "diapason") {
