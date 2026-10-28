@@ -14,11 +14,11 @@ function testata() {
   marchio.append(document.createTextNode(NOME_APP), el("span", "marchio-punto", "."));
   const azioni = el("div", "testata-azioni");
 
-  /* La pillola dell'ora: dice in che fascia siamo e, toccata, spiega
-     che i colori seguono l'ora del giorno. È il posto dove la regola
-     si legge senza cercarla. */
+  /* La pillola del tema: porta l'icona della fascia in corso, toccata
+     spiega che i colori seguono l'ora del giorno e quale fascia è. È il
+     posto dove la regola si legge senza cercarla. */
   const ora = document.documentElement.dataset.ora || oraCorrente();
-  const pillola = bottone("pillola", t("ora." + ora), ora, () => apriAspetto());
+  const pillola = bottone("pillola", t("tema"), ora, () => apriAspetto());
   pillola.setAttribute("aria-label", t("aspetto.spiega", { ora: t("ora." + ora) }));
 
   const imp = el("button", "tondo");

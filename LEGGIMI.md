@@ -1,5 +1,9 @@
 # Bariletto
 
+## Versione 179
+
+La pillola in testata dice «Tema» (prima diceva il nome della fascia, «Notte»): l'icona resta quella della fascia in corso, e toccandola si legge la regola dei colori. Cache `bariletto-v179`. Il banco di prova semina le date a mezzogiorno: con il cambio dell'ora legale, «41 giorni fa» in millisecondi cadeva oltre la mezzanotte e il conto in giorni di calendario scivolava di uno.
+
 ## Versione 178: la pila
 
 La pagina è una pila sola con tutta la collezione (`pilaCarte()` in `pagina.js`), ordinata per giorni senza polso: il più dimenticato per primo, chi porti oggi in fondo. Sostituisce sia il mazzo della 177 sia l'elenco sotto la carta.
