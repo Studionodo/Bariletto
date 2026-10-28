@@ -1,5 +1,81 @@
 # Bariletto
 
+## Versione 151: la rotazione, riscritta da zero
+
+L'interfaccia è stata riscritta da capo. Restano intatti l'archivio dei
+movimenti (`movimenti.js`, `archivio/`), il database dei calibri
+(`calibri.js`), il calcolo della riserva (`bisogno()` e `gesti()` in
+`dominio.js`), il database sul telefono e il backup. Il nucleo del
+cronocomparatore (`crono.js`) è copiato riga per riga dal prototipo
+collaudato.
+
+**La domanda dell'app è cambiata.** Non più «chi chiede attenzione oggi»,
+ma «da quanti giorni non indossi questo orologio». In cima alla pagina
+c'è quello che riposa da più tempo, con «Indossato» e «Caricato»; sotto,
+la collezione ordinata allo stesso modo. Ogni riga apre la scheda.
+
+**Una pagina, un foglio.** La pagina è la collezione. Tutto il resto sale
+dal basso nel foglio, che funziona come una pila: scheda dell'orologio,
+modulo, catalogo dei calibri, voce d'archivio, cronocomparatore,
+impostazioni. `apriFoglio`, `avantiFoglio`, `indietroFoglio` in
+`cornice.js`; ogni schermata si registra in `COSTRUTTORI`.
+
+| file | cosa fa |
+|---|---|
+| `cornice.js` | attrezzi, ora del giorno, il foglio, l'avvio |
+| `pagina.js` | la pagina: testata, scheda principale, collezione |
+| `scheda.js` | scheda dell'orologio, modulo, catalogo, voce d'archivio |
+| `misura.js` | il cronocomparatore (Beta): microfono, tela, esito |
+| `crono.js` | il calcolo del cronocomparatore, funzioni pure |
+| `impostazioni.js` | soglia, notifiche, colori, archivio, dati, carta, lingua |
+
+**La soglia.** Un orologio diventa «da far girare» dopo 30 giorni senza
+polso né carica (14 e 90 si scelgono nelle impostazioni). È una soglia
+unica per tutti i movimenti: nessuna fonte, né casa né orologiaio,
+distingue un tipo di movimento dall'altro su questo. I 30 giorni sono
+l'unico numero dichiarato da una casa (TAG Heuer) e la pratica più
+diffusa sui forum. L'app lo dice: «un'indicazione di alcuni produttori,
+non una regola».
+
+**La frase non dà consigli tecnici.** Pagina e notifica dicono solo da
+quanti giorni non lo indossi. Il discorso sull'olio sta una volta sola,
+nelle impostazioni, come informazione generale.
+
+**«Caricato» azzera il riposo ma non conta come giorno al polso.**
+Per il movimento conta che giri; per la statistica conta il polso.
+
+**La storia è la verità.** Ogni gesto scrive una voce nel registro.
+Togliendo una voce, le date dell'orologio si ricalcolano da quel che
+resta (`ricalcola()` in `archivio.js`), invece di indovinare. Così si può
+segnare un giorno passato («Indossato un altro giorno») senza rompere
+niente.
+
+**Le misure del cronocomparatore stanno nel registro**, con azione
+`misura`: entrano da sole nel backup e non serve un deposito nuovo nel
+database, quindi nessun aggiornamento di versione di IndexedDB.
+
+**La migrazione.** Gli orologi della v150 non sanno da quando sono in
+collezione. Al primo avvio `assicuraAggiunto()` prende la voce di
+registro più vecchia che li riguarda, oppure oggi. Mai la data di
+acquisto: prima di entrare nell'app un orologio può essere stato portato
+mille volte.
+
+**Le notifiche** usano lo stesso controllo periodico di prima (stesso
+tag, chi le aveva attive le ritrova attive), con la regola nuova. Una
+notifica sola per periodo di riposo: se resta fermo, se ne riparla dopo
+un'altra soglia intera.
+
+**I colori seguono l'ora**, come prima. La regola è scritta in due posti:
+la pillola in testata (toccandola si legge) e le impostazioni.
+
+**Il banco di prova** (`prova/`) ora apre l'app in un Chromium vero.
+Si lancia con `node prova/prova.mjs`.
+
+Quello che segue è la storia delle versioni precedenti: vale per
+l'archivio e il dominio, non più per l'interfaccia.
+
+---
+
 ## Una pagina sola
 
 Non ci sono più pareti. Una colonna che scorre, in un ordine solo:

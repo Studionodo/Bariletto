@@ -30,6 +30,9 @@ function daCalibro(idCalibro, nome, linea, extra = {}) {
     notaData: c.notaData || null,
     fonte: c.fonte || "derivato",
     ultimoPolso: null, ultimaLuce: null, ultimoCrono: null, ultimaCarica: null,
+    /* Da quando è in collezione: serve a contare i giorni di un orologio
+       mai indossato, che altrimenti non avrebbe un punto di partenza. */
+    aggiunto: Date.now(),
     ...extra,
   };
 }
@@ -107,7 +110,81 @@ function normalizza(o) {
     ultimaCarica: istante(o.ultimaCarica),
     dataAcquisto: istante(o.dataAcquisto),
     ultimaRevisione: istante(o.ultimaRevisione),
+    aggiunto: istante(o.aggiunto),
   };
+}
+
+/* ========================== la rotazione ==========================
+   Il cuore della versione nuova: da quanti giorni un orologio non gira.
+   «Girare» vuol dire indossato oppure caricato: per il movimento conta
+   che si muova, non che stia al polso. La frase che lo dice all'utente
+   però parla solo del polso, perché è l'unica cosa che lui ricorda.
+
+   La soglia è una sola per tutti i movimenti. Nessuna fonte, né casa
+   né orologiaio, distingue un cronografo da un tre lancette su questo:
+   inventarlo violerebbe la regola che vale per tutto l'archivio. I 30
+   giorni di partenza sono l'unico numero dichiarato da una casa
+   (TAG Heuer, «circa una volta al mese») e la pratica più diffusa. */
+
+const SOGLIE = [14, 30, 90];
+const SOGLIA_PREDEFINITA = 30;
+let soglia = SOGLIA_PREDEFINITA;
+
+/* Giorni di calendario, non blocchi di 24 ore: indossato ieri sera alle
+   23 e guardato stamattina alle 8 è «ieri», non «oggi». */
+function inizioGiorno(ms) { const d = new Date(ms); d.setHours(0, 0, 0, 0); return d.getTime(); }
+function giorniCalendario(ms) {
+  if (ms == null) return null;
+  return Math.max(0, Math.round((inizioGiorno(Date.now()) - inizioGiorno(ms)) / 86400000));
+}
+
+/* L'ultima volta che ha girato: indossato o caricato. Se non è mai
+   successo, conta da quando è entrato in collezione. */
+function ultimoGiro(o) {
+  const v = [o.ultimoPolso, o.ultimaCarica, o.ultimoPolso == null && o.ultimaCarica == null ? o.aggiunto : null]
+    .filter((x) => x != null);
+  return v.length ? Math.max(...v) : null;
+}
+const giorniRiposo = (o) => giorniCalendario(ultimoGiro(o)) ?? 0;
+
+/* La frase parla del polso: da quando non lo indossi. Mai indossato
+   vale «da quando l'hai aggiunto». */
+const giorniSenzaPolso = (o) => giorniCalendario(o.ultimoPolso ?? o.aggiunto) ?? 0;
+
+const alPolsoOggi = (o) => o.ultimoPolso != null && giorniCalendario(o.ultimoPolso) === 0;
+const daFarGirare = (o) => !alPolsoOggi(o) && giorniRiposo(o) >= soglia;
+
+/* Il più a riposo in cima. Chi è al polso oggi scende in fondo: non ha
+   niente da chiedere. A parità, ordine alfabetico, così l'elenco non
+   salta da un'apertura all'altra. */
+function ordinaPerRiposo(lista) {
+  return [...lista].sort((a, b) =>
+    (alPolsoOggi(a) - alPolsoOggi(b)) ||
+    (giorniRiposo(b) - giorniRiposo(a)) ||
+    a.nome.localeCompare(b.nome));
+}
+
+/* Lo stato della carica in una riga breve, senza consigli: «in moto,
+   restano 14 ore», «fermo». Viene da bisogno(), che resta il calcolo
+   della riserva per calibro: qui se ne prende solo il fatto. */
+function statoCarica(o) {
+  const b = bisogno(o);
+  if (o.tipo === "quarzo" || o.tipo === "elettrico" || o.tipo === "diapason")
+    return { testo: t("c.batteria"), colore: "var(--argento-off)" };
+  if (o.ultimoPolso == null && o.ultimaCarica == null)
+    return { testo: t("c.maiGirato"), colore: "var(--argento-off)" };
+  if (b.stato === "scarico" || b.stato === "fermo")
+    return { testo: t("c.fermo"), colore: "var(--viola)" };
+  if (Number.isFinite(b.restanti) && b.restanti > 0)
+    return { testo: t("c.restano", { q: durata(b.restanti) }), colore: b.stato === "riserva" ? "var(--viola)" : "var(--argento-off)" };
+  return { testo: t("c.inMoto"), colore: "var(--argento-off)" };
+}
+
+/* «oggi», «ieri», «da 12 giorni»: la misura del riposo detta a parole. */
+function riposoDetto(g) {
+  if (g <= 0) return t("r.oggi");
+  if (g === 1) return t("r.ieri");
+  return t("r.da", { g: plurale(g, "giorno_", "giorniPl") });
 }
 
 /* La prossima revisione consigliata: un intervallo fisso di tre anni,

@@ -171,13 +171,20 @@ async function importaBackup(testo) {
 }
 
 
-/* ============================= azioni ============================= */
+
+
+/* ============================= azioni =============================
+   Ogni gesto scrive due cose: lo stato dell'orologio (le date che
+   servono al calcolo) e una voce di registro (la storia). La storia è
+   la verità: quando si toglie una voce, le date si ricalcolano da
+   quello che resta, invece di indovinare a che punto eravamo.
+   ------------------------------------------------------------------ */
 
 const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
 
 /* Fra il tocco e il ridisegno c'è un'attesa sul database: in quel varco il
    bottone è ancora vivo e un secondo tocco riparte. Tre tocchi rapidi su
-   «L'ho messo» scrivevano tre voci. Qui il secondo tocco viene ignorato. */
+   «Indossato» scrivevano tre voci. Qui il secondo tocco viene ignorato. */
 let inCorso = false;
 async function unaVolta(fn) {
   if (inCorso) return;
@@ -185,123 +192,169 @@ async function unaVolta(fn) {
   try { await fn(); } finally { inCorso = false; }
 }
 
-/* Ogni voce porta con sé lo stato di prima: senza, annullare significherebbe
-   indovinare a che punto eravamo. Con, è una restituzione esatta. */
 /* Se il controllo periodico aveva già mostrato una notifica per questo
-   orologio, e ora l'hai indossato, caricato o azionato — il motivo di
-   quella notifica non c'è più. Lasciarla lì vorrebbe dire continuare a
-   dire una cosa non più vera finché non arriva il prossimo controllo,
-   che potrebbe essere ore dopo. Solo dove l'API esiste. */
+   orologio, e ora l'hai indossato o caricato, il motivo di quella
+   notifica non c'è più. Il tag vecchio («riserva-») resta nella pulizia
+   per chi aggiorna con una notifica della versione precedente ancora
+   aperta. */
 async function ripulisciNotifica(id) {
   if (!("serviceWorker" in navigator) || !("Notification" in self)) return;
   try {
     const reg = await navigator.serviceWorker.ready;
-    const notifiche = await reg.getNotifications({ tag: "riserva-" + id });
-    notifiche.forEach((n) => n.close());
+    for (const tag of ["riposo-" + id, "riserva-" + id]) {
+      (await reg.getNotifications({ tag })).forEach((n) => n.close());
+    }
   } catch (e) { /* nessuna notifica da ripulire, o API non disponibile */ }
 }
 
-/* Solo la primissima volta in assoluto che uno dei tre gesti viene
-   usato: dopo, la stessa spiegazione resta raggiungibile dall'icona
-   accanto a "Nessuno chiede attenzione", non sparisce per sempre — ma
-   il popup che blocca compare una volta sola nella vita dell'app. */
-async function mostraPrimoUsoSeServe() {
-  const visto = await tx("stato", "readonly", (s) => s.get("vistoPrimoConteggio"));
-  if (visto) return;
-  await salva("stato", { chiave: "vistoPrimoConteggio", valore: true });
-  apriInfoBloccante(t("primoUso.titolo"),
-    [t("primoUso.testo1"), t("primoUso.testo2"), t("primoUso.testo3")],
-    t("primoUso.bottone"));
-}
+const fotografia = (o) => ({ ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
+                             ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica });
+const piuRecente = (a, b) => (a == null ? b : b == null ? a : Math.max(a, b));
 
-async function segnaOra(o) {
-  const ora = Date.now();
-  const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
-                  ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
-  o.ultimoPolso = ora;
-  /* Su un carica-manuale il gesto del mattino è la corona, non il polso:
-     il bottone lo dice, e qui si registra per quello che è. */
-  if (o.tipo === "manuale") o.ultimaCarica = ora;
-  /* Indossarlo espone il quadrante alla luce: è una conseguenza fisica.
-     Il cronografo invece va premuto: quello non si deduce. */
-  if (o.tipo === "ecodrive") o.ultimaLuce = ora;
+/* Indossato. «quando» permette di segnare un giorno passato: l'hai
+   messo ieri e te ne ricordi oggi. Una data passata non fa mai
+   arretrare lo stato: se nel frattempo l'hai indossato di nuovo, vale
+   la volta più recente. Due voci nello stesso giorno per lo stesso
+   orologio non servono a niente: la seconda viene ignorata. */
+async function segnaOra(o, quando = Date.now()) {
+  if (registro.some((v) => v.orologio === o.id && v.azione === "reg.portato" && sameDay(v.quando, quando))) return;
+  const prima = fotografia(o);
+  o.ultimoPolso = piuRecente(o.ultimoPolso, quando);
+  /* Su un carica-manuale il gesto del mattino è la corona, non il polso. */
+  if (o.tipo === "manuale") o.ultimaCarica = piuRecente(o.ultimaCarica, quando);
+  /* Indossarlo espone il quadrante alla luce: è una conseguenza fisica. */
+  if (o.tipo === "ecodrive") o.ultimaLuce = piuRecente(o.ultimaLuce, quando);
   await salva("orologi", o);
-  await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.portato", quando: ora, prima });
+  await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.portato", quando, prima });
   registro = await leggiTutti("registro");
-  scelto = o.id;
   ripulisciNotifica(o.id);
-  disegna();
-  mostraPrimoUsoSeServe();
-}
-
-/* Annulla l'atto di INDOSSARE, non l'ultima cosa fatta: se nel frattempo
-   hai anche caricato l'orologio, quella resta vera. E ripristina solo i
-   campi che «L'ho messo» aveva toccato, non tutto lo stato di allora. */
-async function annullaOggiOra(o) {
-  const v = [...registro]
-    .filter((x) => x.orologio === o.id && x.azione === "reg.portato" && sameDay(x.quando, Date.now()))
-    .sort((a, b) => b.quando - a.quando)[0];
-  if (!v) return;
-  if (v.prima) {
-    o.ultimoPolso = v.prima.ultimoPolso;
-    if (o.tipo === "ecodrive") o.ultimaLuce = v.prima.ultimaLuce;
-    if (o.tipo === "manuale") o.ultimaCarica = v.prima.ultimaCarica;
-  }
-  await salva("orologi", o);
-  await cancella("registro", v.id);
-  registro = await leggiTutti("registro");
-  disegna();
-}
-
-/* Togliere una voce dal Registro.
-   Se è l'ultima scritta per quell'orologio, le date tornano com'erano:
-   quella voce sa cosa c'era prima. Se è una voce più vecchia, sparisce
-   dalla storia e le date restano dove sono — perché lo stato di oggi
-   discende dalle voci successive, non da quella. */
-async function togliVoceOra(v) {
-  const o = orologi.find((x) => x.id === v.orologio);
-  const ultima = [...registro].filter((x) => x.orologio === v.orologio)
-                              .sort((a, b) => b.quando - a.quando)[0];
-  if (o && v.prima && ultima && ultima.id === v.id) {
-    Object.assign(o, v.prima);
-    await salva("orologi", o);
-  }
-  await cancella("registro", v.id);
-  registro = await leggiTutti("registro");
-  voceArmata = null;
-  /* Chi cancella non deve sapere chi sta guardando: ridisegna la pagina
-     e, se è aperto, anche il foglio del registro. */
   ridisegnaTutto();
 }
 
-const segna       = (o) => unaVolta(() => segnaOra(o));
-const annullaOggi = (o) => unaVolta(() => annullaOggiOra(o));
-const togliVoce   = (v) => unaVolta(() => togliVoceOra(v));
-const segnaCarica = (o) => unaVolta(() => segnaCaricaOra(o));
-const segnaCrono  = (o) => unaVolta(() => segnaCronoOra(o));
-
-/* Caricare senza indossare: gli orologi nel cassetto si caricano lo stesso. */
+/* Caricato: il movimento ha girato, ma non era al polso. Azzera il
+   conto dei giorni di riposo, non conta come giorno indossato. */
 async function segnaCaricaOra(o) {
+  if (registro.some((v) => v.orologio === o.id && v.azione === "reg.caricato" && sameDay(v.quando, Date.now()))) return;
   const ora = Date.now();
-  const prima = { ultimoPolso: o.ultimoPolso, ultimaLuce: o.ultimaLuce,
-                  ultimoCrono: o.ultimoCrono, ultimaCarica: o.ultimaCarica };
+  const prima = fotografia(o);
   o.ultimaCarica = ora;
   await salva("orologi", o);
   await salva("registro", { orologio: o.id, nome: o.nome, azione: "reg.caricato", quando: ora, prima });
   registro = await leggiTutti("registro");
   ripulisciNotifica(o.id);
-  disegna();
-  mostraPrimoUsoSeServe();
+  ridisegnaTutto();
 }
 
-/* Il cronografo si segna solo se lo dici tu. */
+/* Il cronografo si segna solo se lo dici tu: portarlo non vuol dire
+   averlo azionato. */
 async function segnaCronoOra(o) {
   const ora = Date.now();
+  const prima = fotografia(o);
   o.ultimoCrono = ora;
   await salva("orologi", o);
-  await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora });
+  await salva("registro", { orologio: o.id, nome: o.nome, azione: "crono.segnato", quando: ora, prima });
   registro = await leggiTutti("registro");
-  ripulisciNotifica(o.id);
-  disegna();
-  mostraPrimoUsoSeServe();
+  ridisegnaTutto();
+}
+
+/* Una misura del cronocomparatore è un fatto della storia di
+   quell'orologio come gli altri: sta nel registro, e per questo entra
+   da sola nel backup senza un deposito nuovo nel database. Non tocca
+   nessuna data: misurare non vuol dire indossare. */
+async function salvaMisuraOra(o, r, posizione) {
+  await salva("registro", {
+    orologio: o.id, nome: o.nome, azione: "misura", quando: Date.now(),
+    misura: { posizione, marcia: r.marcia, incertezza: r.incertezza,
+              battuta: Number.isFinite(r.battuta) ? r.battuta : null,
+              bph: r.bph, copertura: r.copertura },
+  });
+  registro = await leggiTutti("registro");
+  ridisegnaTutto();
+}
+
+/* Le date di un orologio rifatte dalla sua storia, dopo che una voce è
+   uscita. Per ogni campo vale la più recente fra le voci rimaste e lo
+   stato che c'era prima della voce tolta: quello stato racconta tutto
+   ciò che era successo prima, le voci rimaste quello che è successo dopo. */
+function ricalcola(o, tolta) {
+  const resto = registro.filter((x) => x.orologio === o.id && x.id !== tolta.id);
+  const ultima = (...azioni) => {
+    const v = resto.filter((x) => azioni.includes(x.azione)).map((x) => x.quando);
+    return v.length ? Math.max(...v) : null;
+  };
+  const prima = (campo) => (tolta.prima ? tolta.prima[campo] ?? null : null);
+  if (tolta.azione === "reg.portato") {
+    o.ultimoPolso = piuRecente(ultima("reg.portato"), prima("ultimoPolso"));
+    if (o.tipo === "ecodrive") o.ultimaLuce = piuRecente(ultima("reg.portato"), prima("ultimaLuce"));
+    if (o.tipo === "manuale") o.ultimaCarica = piuRecente(ultima("reg.portato", "reg.caricato"), prima("ultimaCarica"));
+  } else if (tolta.azione === "reg.caricato") {
+    o.ultimaCarica = piuRecente(
+      ultima(o.tipo === "manuale" ? "reg.portato" : "reg.caricato", "reg.caricato"), prima("ultimaCarica"));
+  } else if (tolta.azione === "crono.segnato") {
+    o.ultimoCrono = piuRecente(ultima("crono.segnato"), prima("ultimoCrono"));
+  }
+}
+
+async function togliVoceOra(v) {
+  const o = orologi.find((x) => x.id === v.orologio);
+  if (o && v.azione !== "misura") {
+    ricalcola(o, v);
+    await salva("orologi", o);
+  }
+  await cancella("registro", v.id);
+  registro = await leggiTutti("registro");
+  ridisegnaTutto();
+}
+
+/* Annulla l'indossato di oggi: è togliere quella voce. */
+async function annullaOggiOra(o) {
+  const v = registro.find((x) => x.orologio === o.id && x.azione === "reg.portato" && sameDay(x.quando, Date.now()));
+  if (v) await togliVoceOra(v);
+}
+
+const segna       = (o, quando) => unaVolta(() => segnaOra(o, quando));
+const segnaCarica = (o) => unaVolta(() => segnaCaricaOra(o));
+const segnaCrono  = (o) => unaVolta(() => segnaCronoOra(o));
+const annullaOggi = (o) => unaVolta(() => annullaOggiOra(o));
+const togliVoce   = (v) => unaVolta(() => togliVoceOra(v));
+const salvaMisura = (o, r, p) => unaVolta(() => salvaMisuraOra(o, r, p));
+
+
+/* ======================= impostazioni e passaggio ===================== */
+
+async function leggiStato(chiave, prefinito) {
+  try {
+    const v = await tx("stato", "readonly", (s) => s.get(chiave));
+    return v && v.valore !== undefined ? v.valore : prefinito;
+  } catch (e) { return prefinito; }
+}
+const scriviStato = (chiave, valore) => salva("stato", { chiave, valore });
+
+async function leggiSoglia() {
+  const v = Number(await leggiStato("soglia", SOGLIA_PREDEFINITA));
+  return SOGLIE.includes(v) ? v : SOGLIA_PREDEFINITA;
+}
+async function cambiaSoglia(n) {
+  if (!SOGLIE.includes(n)) return;
+  soglia = n;
+  await scriviStato("soglia", n);
+  ridisegnaTutto();
+}
+
+/* Gli orologi della versione precedente non sanno da quando sono in
+   collezione. Senza quella data uno mai indossato non avrebbe un punto
+   da cui contare. Si prende la voce di registro più vecchia che lo
+   riguarda; se non ce n'è nessuna, oggi. Si fa una volta sola: dopo,
+   il campo è scritto nel database. */
+async function assicuraAggiunto() {
+  for (const o of orologi) {
+    if (o.aggiunto != null) continue;
+    const sue = registro.filter((v) => v.orologio === o.id).map((v) => v.quando);
+    /* Non la data di acquisto: prima di entrare nell'app l'orologio può
+       essere stato portato mille volte, e contare da lì direbbe una
+       cosa falsa. */
+    const date = [...sue, o.ultimoPolso, o.ultimaCarica].filter((x) => x != null);
+    o.aggiunto = date.length ? Math.min(...date, Date.now()) : Date.now();
+    await salva("orologi", o);
+  }
 }

@@ -150,7 +150,11 @@ else:
 # finiva letto come t("a") e l'elenco si riempiva di chiavi fantasma che
 # non erano mai state cercate da nessuno.
 usate = set()
-for nome in ("oggi.js", "altro.js", "foglio.js", "cornice.js", "dominio.js", "archivio.js"):
+# Tutti i file dell'interfaccia, letti da index.html: un elenco scritto a
+# mano qui restava indietro a ogni riscrittura.
+FILE_APP = [f for f in re.findall(r'<script src="\./([^"]+)"', leggi("index.html"))
+            if f not in ("calibri.js", "movimenti.js", "lingua.js")]
+for nome in FILE_APP:
     usate |= set(re.findall(r'(?<![A-Za-z0-9_.])t\("([^"]+)"', leggi(nome)))
 # Le chiavi composte per concatenazione — t("stato." + s) — arrivano qui
 # come prefisso spezzato: si scartano, i loro valori stanno in DINAMICHE.
@@ -163,7 +167,13 @@ DINAMICHE = {"stato.moto", "stato.riserva", "stato.fermo", "stato.scarico",
              "t.automatico", "t.manuale", "t.cronografo", "t.ecodrive",
              "t.kinetic", "t.springdrive", "t.quarzo",
              "fonte.ufficiale", "fonte.comunita", "fonte.derivato",
-             "g.data.24h", "g.data.90min"}
+             "g.data.24h", "g.data.90min",
+             "t.elettrico", "t.diapason", "misura",
+             "ora.alba", "ora.giorno", "ora.crepuscolo", "ora.notte",
+             "soglia.14", "soglia.30", "soglia.90",
+             "pos.qsu", "pos.qgiu", "pos.csu", "pos.cgiu", "pos.csx", "pos.cdx",
+             "mis.q.buona", "mis.q.media", "mis.q.scarsa",
+             "notif.attivo", "notif.non-supportato", "notif.rifiutato", "notif.errore"}
 
 if "it" in chiavi:
     fantasma = {k for k in usate if k not in chiavi["it"]} - DINAMICHE
