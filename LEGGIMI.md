@@ -1,5 +1,13 @@
 # Bariletto
 
+## Versione 177: il mazzo
+
+Quando più di un orologio chiede attenzione, la carta grande diventa un mazzo che si scorre di lato (`mazzo()` in `pagina.js`). Solo gli orologi da far girare, al massimo cinque carte: oltre, l'ultima dice quanti ne restano e porta all'elenco. I bottoni stanno fuori dal mazzo e valgono per la carta davanti; dopo il gesto la carta esce e lascia il posto alla successiva. La carta guardata si ricorda per id fra un ridisegno e l'altro.
+
+L'ordine di elenco e mazzo segue ora i giorni senza polso, lo stesso numero mostrato accanto al nome (`ordinaPerRiposo` in `dominio.js`). Chi chiede attenzione resta deciso da `daFarGirare`, dove la carica conta.
+
+Cache del service worker: `bariletto-v177`. La numerazione segue ora quella dei commit (dopo la v175).
+
 ## Versione 151: la rotazione, riscritta da zero
 
 L'interfaccia è stata riscritta da capo. Restano intatti l'archivio dei

@@ -128,8 +128,59 @@ try {
   });
   ok(n[0] === 1 && n[1] === 1, "una notifica sola per periodo di riposo", n[2]);
 
+  /* Il mazzo: sette orologi che chiedono attenzione, uno al polso oggi. */
+  await p.evaluate(async () => {
+    const G = 86400000, ora = Date.now();
+    const base = orologi.find((x) => x.nome === "Seiko SKX007");
+    const giorni = { "Seiko SKX007": 41, "Omega Speedmaster Professional": 75, "Orient Bambino": 33 };
+    for (const x of orologi) if (giorni[x.nome]) { x.ultimoPolso = ora - giorni[x.nome] * G; x.ultimaCarica = null; await salva("orologi", x); }
+    const nuovi = [["Tudor Black Bay", 120], ["Longines Spirit", 64], ["Hamilton Khaki", 52], ["Sinn 556", 90]];
+    for (const [nome, g] of nuovi) await salva("orologi", { ...base, id: "prova-" + g, nome, ultimoPolso: ora - g * G, aggiunto: ora - 200 * G });
+    orologi = await leggiTutti("orologi");
+    disegna();
+  });
+  await attendi(300);
+  const leggi = () => p.evaluate(() => ({
+    carte: [...document.querySelectorAll(".mazzo > .carta")].map((c) => c.dataset.id === "altri" ? c.textContent : c.querySelector(".eroe-nome").textContent),
+    punti: document.querySelectorAll(".mazzo-punti .punto").length,
+    acceso: [...document.querySelectorAll(".mazzo-punti .punto")].findIndex((x) => x.classList.contains("acceso")),
+    davanti: mazzoVisto && mazzoVisto.id,
+  }));
+  let m = await leggi();
+  ok(m.carte.length === 5 && m.punti === 5, "mazzo: al massimo cinque carte", m.carte.length + " carte");
+  ok(m.carte[0] === "Tudor Black Bay" && m.carte[1] === "Sinn 556" && m.carte[3] === "Longines Spirit", "mazzo: dal più dimenticato", m.carte.slice(0, 4).join(", "));
+  ok(/Altri 3 orologi/.test(m.carte[4]), "mazzo: l'ultima carta conta gli altri", m.carte[4]);
+
+  const box = await p.$eval(".mazzo", (e) => { const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+  const sbirciata = await p.$eval(".mazzo > .carta:nth-child(2)", (e) => window.innerWidth - e.getBoundingClientRect().left);
+  ok(sbirciata > 20 && sbirciata < 60, "mazzo: la seconda carta si affaccia", Math.round(sbirciata) + " px");
+  await p.mouse.move(box.x, box.y); await p.mouse.wheel(260, 0); await attendi(900);
+  m = await leggi();
+  ok(m.acceso === 1 && m.davanti === "prova-90", "scorrendo, punti e bottoni seguono la carta", m.davanti + " / punto " + m.acceso);
+
+  await p.click(".fila-azioni .bottone.primario"); await attendi(900);
+  ok(await o("Sinn 556", (x) => alPolsoOggi(x)), "Indossato vale per la carta davanti");
+  m = await leggi();
+  ok(m.carte[1] === "Omega Speedmaster Professional" && m.davanti === "speedy-cccc3", "la carta esce, al suo posto la successiva", m.carte[1]);
+  ok(/Altri 2 orologi/.test(m.carte[4]), "il conto degli altri si aggiorna", m.carte[4]);
+
+  await p.evaluate(() => disegna()); await attendi(200);
+  m = await leggi();
+  ok(m.davanti === "speedy-cccc3" && m.acceso === 1, "un ridisegno non rimanda alla prima carta", m.davanti);
+  await p.screenshot({ path: path.join(os.tmpdir(), "bariletto-mazzo.png") });
+
+  const numeri = await p.$$eval(".riga-orologio .riga-numero", (n) => n.map((x) => +x.textContent));
+  ok(numeri.every((v, i) => !i || v <= numeri[i - 1]), "l'elenco è in ordine col numero che mostra", numeri.join(" "));
+
+  await p.evaluate(async () => {
+    for (const x of orologi) if (x.nome !== "Tudor Black Bay" && daFarGirare(x)) { x.ultimoPolso = Date.now() - 2 * 86400000; await salva("orologi", x); }
+    orologi = await leggiTutti("orologi"); disegna();
+  });
+  await attendi(200);
+  ok(!(await p.$(".mazzo")) && await p.textContent(".eroe-nome") === "Tudor Black Bay", "un solo orologio in attesa: carta singola");
+
   const testo = await p.evaluate(() => document.body.innerText);
-  const crude = [...testo.matchAll(/\b(?:bak|arch|reg|st|coll|sch|mis|eroe|imp|notif|soglia|ora|r|c|g|s|m)\.[a-zA-Z]+\b/g)].map((x) => x[0]);
+  const crude = [...testo.matchAll(/\b(?:bak|arch|reg|st|coll|sch|mis|eroe|mazzo|imp|notif|soglia|ora|r|c|g|s|m)\.[a-zA-Z]+\b/g)].map((x) => x[0]);
   ok(!crude.length, "nessuna chiave di dizionario a schermo", [...new Set(crude)].join(", "));
   ok(!errori.length, "nessun errore in console", errori.join(" | "));
 } catch (e) {

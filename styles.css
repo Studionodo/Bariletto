@@ -237,11 +237,60 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .eroe-nome {
   font-family: var(--display); font-variation-settings: 'opsz' 96, 'SOFT' 20;
   font-weight: 620; font-size: 1.85rem; line-height: 1.08; letter-spacing: -.01em;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word; hyphens: auto;
 }
+.eroe-nome.lungo { font-size: 1.45rem; line-height: 1.12; }
 .eroe-calibro { margin-top: 6px; font-size: .95rem; color: var(--argento-off); }
 .eroe-frase { margin-top: 18px; font-size: 1.12rem; line-height: 1.45; color: var(--argento); }
 .eroe-carica { margin-top: 4px; font-size: .95rem; }
+
+/* ------------------------------------------------------------ il mazzo
+   Esce dal margine della pagina fino ai bordi dello schermo, così la
+   carta successiva si affaccia dal bordo destro. Lo spazio sotto serve
+   all'ombra, che altrimenti lo scorrimento taglierebbe. */
+.mazzo {
+  display: flex; gap: 12px;
+  margin: 0 calc(-1 * var(--margine)) -12px;
+  padding: 0 var(--margine) 22px;
+  scroll-padding-inline: var(--margine);
+  overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.mazzo::-webkit-scrollbar { display: none; }
+.mazzo > .carta {
+  flex: 0 0 calc(100% - 34px);
+  scroll-snap-align: start; scroll-snap-stop: always;
+  /* Cinque sfocature che scorrono insieme pesano sui telefoni medi:
+     nel mazzo la carta è appena più piena e non sfoca il fondo. */
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  background: color-mix(in srgb, var(--wall) 84%, transparent);
+  transition: opacity .24s ease, transform .24s ease;
+}
+.mazzo > .carta.esce { opacity: 0; transform: translateY(-10px) scale(.96); }
+.mazzo > .carta.arriva { animation: arriva .38s var(--molla) both; }
+@keyframes arriva { from { opacity: .35; transform: translateX(28px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.carta-altri {
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 10px;
+  text-align: left; width: auto;
+}
+.carta-altri .eroe-nome { font-size: 1.9rem; }
+.carta-freccia {
+  margin-top: 6px; width: 48px; height: 48px; border-radius: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--filo-forte); color: var(--oro);
+}
+
+.mazzo-punti { display: flex; justify-content: center; gap: 8px; margin: 8px 0 0; }
+.mazzo-punti .punto {
+  width: 6px; height: 6px; border-radius: 3px;
+  background: var(--filo-forte);
+  transition: width .3s var(--molla), background .3s;
+}
+.mazzo-punti .punto.acceso { width: 18px; background: var(--argento-off); }
+.fila-azioni.spenta { visibility: hidden; }
 
 /* ----------------------------------------------------------- bottoni */
 .fila-azioni { display: flex; gap: 12px; margin: 14px 0 6px; }

@@ -154,13 +154,16 @@ const giorniSenzaPolso = (o) => giorniCalendario(o.ultimoPolso ?? o.aggiunto) ??
 const alPolsoOggi = (o) => o.ultimoPolso != null && giorniCalendario(o.ultimoPolso) === 0;
 const daFarGirare = (o) => !alPolsoOggi(o) && giorniRiposo(o) >= soglia;
 
-/* Il più a riposo in cima. Chi è al polso oggi scende in fondo: non ha
-   niente da chiedere. A parità, ordine alfabetico, così l'elenco non
-   salta da un'apertura all'altra. */
+/* In cima chi non indossi da più tempo: è lo stesso numero che l'elenco
+   mostra accanto al nome, così l'ordine si legge a occhio. La carica
+   non conta qui: decide solo chi chiede attenzione (daFarGirare).
+   Chi è al polso oggi scende in fondo: non ha niente da chiedere.
+   A parità, ordine alfabetico, così l'elenco non salta da
+   un'apertura all'altra. */
 function ordinaPerRiposo(lista) {
   return [...lista].sort((a, b) =>
     (alPolsoOggi(a) - alPolsoOggi(b)) ||
-    (giorniRiposo(b) - giorniRiposo(a)) ||
+    (giorniSenzaPolso(b) - giorniSenzaPolso(a)) ||
     a.nome.localeCompare(b.nome));
 }
 
