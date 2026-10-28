@@ -1,10 +1,11 @@
 /* ------------------------------------------------------------------
    La pagina: una sola.
 
-   In cima l'orologio che riposa da più tempo, con i due gesti per
-   rispondergli. Sotto, tutta la collezione ordinata allo stesso modo:
-   il più dimenticato per primo, chi è al polso oggi in fondo.
-   Ogni riga apre la scheda del suo orologio, nel foglio.
+   Al centro la pila: tutta la collezione, una carta per orologio,
+   ordinata dal più dimenticato a chi porti oggi. La carta davanti è
+   grande e dice tutto; le altre stanno di lato, ruotate, con il nome e
+   il numero. Sotto, i due gesti per la carta davanti e una riga sola
+   che riassume e apre l'elenco completo, nel foglio.
    ------------------------------------------------------------------ */
 
 function testata() {
@@ -49,41 +50,55 @@ function anelloRiposo(g) {
   return box;
 }
 
-function eroe(o) {
-  const s = el("section", "eroe riquadro");
-  const g = giorniRiposo(o);
-  const oggi = alPolsoOggi(o);
+/* Un nome lungo scende di corpo invece di spezzarsi a metà parola:
+   «Speedmas-ter» su due righe si legge peggio di un carattere più piccolo. */
+function classeNome(base, nome) {
+  const parolaLunga = Math.max(...nome.split(/\s+/).map((w) => w.length));
+  return base + (parolaLunga >= 10 || nome.length > 20 ? " lungo" : "");
+}
 
-  const alto = el("div", "eroe-alto");
-  alto.append(anelloRiposo(oggi ? 0 : g));
-  const testo = el("div", "eroe-testo");
-  testo.append(el("span", "etichetta",
-    t(oggi ? "eroe.alPolso" : daFarGirare(o) ? "eroe.daGirare" : "eroe.riposo")));
-  /* Un nome lungo scende di corpo invece di spezzarsi a metà parola:
-     «Speedmas-ter» su due righe si legge peggio di un carattere più piccolo. */
-  const parolaLunga = Math.max(...o.nome.split(/\s+/).map((w) => w.length));
-  testo.append(el("h1", "eroe-nome" + (parolaLunga >= 10 || o.nome.length > 20 ? " lungo" : ""), o.nome));
-  testo.append(el("p", "eroe-calibro", nomeCorto(o.calibroNome)));
-  alto.append(testo);
-  s.append(alto);
-
-  /* La frase dice solo da quanti giorni non lo indossi: nessun
-     consiglio tecnico, non siamo orologiai. */
+/* La frase dice solo da quanti giorni non lo indossi: nessun consiglio
+   tecnico, non siamo orologiai. */
+function fraseRiposo(o) {
   const gs = giorniSenzaPolso(o);
-  const frase = oggi ? t("eroe.fraseOggi")
-    : o.ultimoPolso == null ? (gs < 1 ? t("eroe.fraseNuovo") : t("eroe.fraseMai", { g: plurale(gs, "giorno_", "giorniPl") }))
-    : gs === 1 ? t("eroe.fraseIeri")
-    : t("eroe.frase", { g: riposoDetto(gs) });
-  s.append(el("p", "eroe-frase", frase));
+  if (alPolsoOggi(o)) return t("eroe.fraseOggi");
+  if (o.ultimoPolso == null) return gs < 1 ? t("eroe.fraseNuovo") : t("eroe.fraseMai", { g: plurale(gs, "giorno_", "giorniPl") });
+  if (gs === 1) return t("eroe.fraseIeri");
+  return t("eroe.frase", { g: riposoDetto(gs) });
+}
 
+/* Una carta della pila. Due facce sovrapposte: quella piena (anello,
+   nome, frase) per quando è davanti, quella di sintesi (nome e numero)
+   per quando sta di lato. Lo scorrimento le dissolve l'una nell'altra. */
+function cartaPila(o, i) {
+  const oggi = alPolsoOggi(o);
+  const gs = giorniSenzaPolso(o);
+  const carta = el("div", "carta");
+  carta.dataset.id = o.id;
+  const volto = el("div", "carta-volto");
+
+  const piena = el("div", "carta-piena");
+  const etichetta = oggi ? "eroe.alPolso" : daFarGirare(o) ? "eroe.daGirare" : i === 0 ? "eroe.riposo" : "eroe.aRiposo";
+  piena.append(el("span", "etichetta piccola", t(etichetta)));
+  piena.append(anelloRiposo(oggi ? 0 : giorniRiposo(o)));
+  piena.append(el("h2", classeNome("carta-nome", o.nome), o.nome));
+  piena.append(el("p", "carta-calibro", nomeCorto(o.calibroNome)));
+  piena.append(el("p", "carta-frase", fraseRiposo(o)));
   const sc = statoCarica(o);
-  const riga = el("p", "eroe-carica");
+  const riga = el("p", "carta-carica", sc.testo);
   riga.style.color = sc.colore;
-  riga.textContent = sc.testo;
-  s.append(riga);
+  piena.append(riga);
 
-  s.addEventListener("click", (e) => { if (!e.target.closest("button")) apriFoglio("orologio", { id: o.id }); });
-  return s;
+  const sintesi = el("div", "carta-sintesi");
+  sintesi.setAttribute("aria-hidden", "true");
+  sintesi.append(el("span", classeNome("carta-nome", o.nome), o.nome));
+  if (oggi) sintesi.append(el("span", "sintesi-oggi", t("r.oggi")));
+  else if (o.ultimoPolso == null && gs < 1) sintesi.append(el("span", "sintesi-oggi", t("r.nuovo")));
+  else sintesi.append(el("span", "sintesi-numero" + (daFarGirare(o) ? " alto" : ""), String(gs)));
+
+  volto.append(piena, sintesi, el("div", "carta-ombra"));
+  carta.append(volto);
+  return carta;
 }
 
 /* I due gesti. «Indossato» è il gesto pieno, «Caricato» quello
@@ -107,136 +122,258 @@ function azioniGiorno(o) {
   return fila;
 }
 
+
 /* ------------------------------------------------------------------
-   Il mazzo.
-   Quando più di un orologio chiede attenzione, le carte si scorrono di
-   lato, una alla volta: si vede un pezzo della successiva, così si
-   capisce che ce n'è un'altra. Massimo cinque carte: oltre, l'ultima
-   dice quanti ne restano e porta all'elenco.
+   La pila.
 
-   I due bottoni stanno fuori dal mazzo e valgono per la carta che si
-   vede. Si rifanno mentre scorri, appena una carta prende più di metà
-   dello spazio: quello che tocchi è sempre per l'orologio davanti a te.
+   Il motore è lo scorrimento nativo del telefono: inerzia, aggancio
+   alla carta, accessibilità vengono da lì. Ogni carta sta in un posto
+   largo PASSO; uno spazio vuoto a ciascun capo lascia centrare anche
+   la prima e l'ultima. Così la carta i è al centro esattamente quando
+   lo scorrimento vale i × PASSO, e la posizione si ritrova con un
+   conto, senza misurare niente.
 
-   La pagina si ridisegna da capo (un gesto, il cambio d'ora): la carta
-   che stavi guardando si ricorda per id, e se non c'è più (l'hai
-   appena indossata) si resta allo stesso posto del mazzo.
+   Sopra lo scorrimento, a ogni fotogramma, ogni carta si sposta, ruota
+   e rimpicciolisce secondo la sua distanza dal centro. Si toccano solo
+   trasformazioni e opacità: lavoro della scheda grafica, non del
+   processore. Le carte lontane non si disegnano.
+
+   La pagina si ridisegna da capo dopo ogni gesto e al cambio d'ora: si
+   ricorda il posto (l'indice), non l'orologio. Dopo «Indossato» quel
+   pezzo scivola in fondo e al suo posto arriva il prossimo da far
+   girare, che è proprio quello che serve. Un orologio appena aggiunto
+   invece si porta al centro (pilaVerso).
    ------------------------------------------------------------------ */
-const MAZZO_MAX = 5;
-let mazzoVisto = null;          /* { id, indice } della carta davanti */
-let mazzoArrivo = false;        /* la carta precedente è appena uscita */
+const PASSO = 112;
+let pilaIndice = 0;
+let pilaPunta = null;
+let pilaArrivo = false;
+const pilaVerso = (id) => { pilaPunta = id; };
+/* Un solo ascoltatore per tutta la vita della pagina: la pila si
+   ridisegna spesso, e uno nuovo a ogni ridisegno si accumulerebbe. */
+let pilaRidisponi = () => {};
+addEventListener("resize", () => pilaRidisponi(), { passive: true });
 
-function mazzo(chiedono) {
-  const carte = chiedono.length > MAZZO_MAX ? chiedono.slice(0, MAZZO_MAX - 1) : chiedono;
-  const resto = chiedono.length - carte.length;
+const movimentoRidotto = () => !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 
-  const sc = el("div", "mazzo");
-  carte.forEach((o) => {
-    const c = eroe(o);
-    c.classList.add("carta");
-    c.dataset.id = o.id;
-    sc.append(c);
+function pilaCarte(ordinati) {
+  const sc = el("div", "pila");
+  sc.tabIndex = 0;
+  sc.setAttribute("role", "group");
+  sc.setAttribute("aria-label", t("pila.etichetta"));
+  sc.append(el("div", "pila-spazio"));
+  const carte = ordinati.map((o, i) => {
+    const posto = el("div", "pila-posto");
+    const c = cartaPila(o, i);
+    posto.append(c);
+    sc.append(posto);
+    c.addEventListener("click", () => {
+      if (i === centro) apriFoglio("orologio", { id: o.id });
+      else vai(i);
+    });
+    return c;
   });
-  if (resto > 0) {
-    const a = el("button", "eroe riquadro carta carta-altri");
-    a.dataset.id = "altri";
-    a.append(el("span", "etichetta", t("eroe.daGirare")),
-             el("span", "eroe-nome", t("mazzo.altri", { n: resto })));
-    const f = el("span", "carta-freccia");
-    f.innerHTML = icona("avanti", 22);
-    a.append(f);
-    a.onclick = () => {
-      const capo = q(".capo-sezione");
-      if (capo) capo.scrollIntoView({ behavior: movimentoRidotto() ? "auto" : "smooth", block: "start" });
-    };
-    sc.append(a);
-  }
+  sc.append(el("div", "pila-spazio"));
 
-  const tutte = [...sc.children];
-  const punti = el("div", "mazzo-punti");
-  punti.setAttribute("aria-hidden", "true");
-  tutte.forEach(() => punti.append(el("span", "punto")));
+  /* Dove sei: puntini finché si contano a occhio, poi un numero. */
+  const dove = el("div", "pila-dove");
+  dove.setAttribute("aria-hidden", "true");
+  const conPunti = ordinati.length > 1 && ordinati.length <= 12;
+  if (conPunti) ordinati.forEach(() => dove.append(el("span", "punto")));
 
-  /* La fila dei gesti: si sostituisce quando cambia la carta davanti.
-     Sulla carta «altri» non c'è un orologio: la fila resta al suo posto
-     ma spenta, così niente sotto salta. */
+  /* Per chi usa un lettore di schermo: la carta davanti, detta a voce. */
+  const voce = el("span", "sr");
+  voce.setAttribute("aria-live", "polite");
+
   let fila = el("div", "fila-azioni");
-  const metti = (i) => {
-    const c = tutte[i];
-    const o = c && orologi.find((x) => x.id === c.dataset.id);
-    const nuova = o ? azioniMazzo(o, c) : azioniGiorno(carte[carte.length - 1]);
-    if (!o) nuova.classList.add("spenta");
+  let centro = -1;
+
+  function davanti(i) {
+    if (i === centro) return;
+    centro = i;
+    pilaIndice = i;
+    const o = ordinati[i];
+    const nuova = azioniPila(o);
     fila.replaceWith(nuova);
     fila = nuova;
-    [...punti.children].forEach((p, k) => p.classList.toggle("acceso", k === i));
-    mazzoVisto = { id: c.dataset.id, indice: i };
-  };
+    if (conPunti) [...dove.children].forEach((p, k) => p.classList.toggle("acceso", k === i));
+    else if (ordinati.length > 1) dove.textContent = (i + 1) + " / " + ordinati.length;
+    voce.textContent = o.nome + ", " + (alPolsoOggi(o) ? t("r.oggi") : riposoDetto(giorniSenzaPolso(o)));
+    carte.forEach((c, k) => c.classList.toggle("davanti", k === i));
+  }
 
-  let davanti = -1;
-  const guarda = () => {
-    const i = cartaDavanti(sc, tutte);
-    if (i !== davanti) { davanti = i; metti(i); }
-  };
+  /* Le misure della carta si leggono una volta: la larghezza viene dal
+     foglio di stile, che la adatta allo schermo. */
+  let larga = 0;
+  function disponi() {
+    if (!larga) larga = carte[0].offsetWidth || 256;
+    const piano = movimentoRidotto();
+    const x = sc.scrollLeft / PASSO;
+    carte.forEach((c, k) => {
+      const d = k - x, a = Math.abs(d), s = Math.sign(d);
+      if (a > 3.6) { c.style.visibility = "hidden"; return; }
+      c.style.visibility = "";
+      const n = Math.min(a, 1), r = Math.max(a - 1, 0), rr = Math.min(r, 3);
+      /* La prima vicina si affaccia oltre il bordo della carta davanti;
+         le altre si accostano strette dietro di lei. */
+      const voluto = s * (n * larga * 0.5 + rr * larga * 0.13);
+      /* Il bordo esterno si allontana: la carta sfugge verso il lato. */
+      const giro = piano ? 0 : s * (n * 52 + rr * 4);
+      const scala = 1 - n * 0.14 - rr * 0.08;
+      c.style.transform = "translateX(" + (voluto - d * PASSO).toFixed(1) + "px) perspective(1000px) rotateY(" +
+        giro.toFixed(1) + "deg) scale(" + scala.toFixed(3) + ")";
+      c.style.zIndex = String(1000 - Math.round(a * 100));
+      /* Di una carta a destra si vede il lato destro: nome e numero
+         vanno da quella parte, dove restano leggibili. */
+      const destra = d > 0.5;
+      if (c.classList.contains("a-destra") !== destra) c.classList.toggle("a-destra", destra);
+      c.style.setProperty("--piena", Math.max(0, 1 - a * 1.8).toFixed(3));
+      c.style.setProperty("--sintesi", Math.min(1, Math.max(0, (a - 0.3) * 2)).toFixed(3));
+      c.style.setProperty("--ombra", (n * 0.3 + rr * 0.15).toFixed(3));
+    });
+    davanti(Math.max(0, Math.min(carte.length - 1, Math.round(x))));
+  }
+
+  function vai(i, subito) {
+    i = Math.max(0, Math.min(carte.length - 1, i));
+    sc.scrollTo({ left: i * PASSO, behavior: subito || movimentoRidotto() ? "auto" : "smooth" });
+  }
+
   let attesa = 0;
   sc.addEventListener("scroll", () => {
     if (attesa) return;
-    attesa = requestAnimationFrame(() => { attesa = 0; guarda(); });
+    attesa = requestAnimationFrame(() => { attesa = 0; disponi(); });
   }, { passive: true });
+  sc.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); vai(centro + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); vai(centro - 1); }
+    else if (e.key === "Home") { e.preventDefault(); vai(0); }
+    else if (e.key === "End") { e.preventDefault(); vai(carte.length - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); apriFoglio("orologio", { id: ordinati[centro].id }); }
+  });
 
-  /* Dove ripartire: la stessa carta di prima, o lo stesso posto. */
-  let inizio = 0;
-  if (mazzoVisto) {
-    const k = tutte.findIndex((c) => c.dataset.id === mazzoVisto.id);
-    inizio = k >= 0 ? k : Math.min(mazzoVisto.indice, tutte.length - 1);
+  /* Da dove ripartire. */
+  let inizio = Math.min(pilaIndice, carte.length - 1);
+  if (pilaPunta) {
+    const k = ordinati.findIndex((o) => o.id === pilaPunta);
+    if (k >= 0) inizio = k;
+    pilaPunta = null;
   }
-  if (mazzoArrivo && tutte[inizio]) tutte[inizio].classList.add("arriva");
-  mazzoArrivo = false;
-  davanti = inizio;
-  metti(inizio);
+  if (pilaArrivo) carte[inizio].classList.add("arriva");
+  pilaArrivo = false;
+  davanti(inizio);
 
-  /* La posizione si dà dopo che la pagina è nel documento, ma prima che
-     il browser la dipinga: nessun salto visibile dalla prima carta. */
+  /* La posizione si dà quando la pagina è già nel documento ma il
+     browser non l'ha ancora dipinta: nessun salto visibile. */
   queueMicrotask(() => {
-    if (!sc.isConnected || !inizio) return;
-    const bordo = sc.getBoundingClientRect().left + parseFloat(getComputedStyle(sc).scrollPaddingLeft || 0);
-    sc.scrollLeft += tutte[inizio].getBoundingClientRect().left - bordo;
+    if (!sc.isConnected) return;
+    sc.scrollLeft = inizio * PASSO;
+    disponi();
   });
+  pilaRidisponi = () => { if (sc.isConnected) { larga = 0; disponi(); } };
 
-  return [sc, punti, fila];
+  return [sc, dove, fila, voce];
 }
 
-/* La carta davanti è quella col bordo sinistro più vicino al punto
-   d'aggancio. A fine corsa l'ultima non arriva fino a lì, ma resta
-   comunque la più vicina. */
-function cartaDavanti(sc, tutte) {
-  const aggancio = sc.getBoundingClientRect().left + parseFloat(getComputedStyle(sc).scrollPaddingLeft || 0);
-  let migliore = 0, distanza = Infinity;
-  tutte.forEach((c, i) => {
-    const d = Math.abs(c.getBoundingClientRect().left - aggancio);
-    if (d < distanza) { distanza = d; migliore = i; }
-  });
-  return migliore;
-}
-
-/* Gli stessi due gesti della carta singola. Nel mazzo, prima di segnare,
-   la carta esce: dopo il gesto non chiede più attenzione e lascia il
-   posto alla successiva. */
-function azioniMazzo(o, carta) {
+/* I gesti della carta davanti. Dopo il gesto la pagina si ridisegna:
+   la carta che arriva al centro entra con un piccolo movimento, così
+   si capisce che è un'altra. */
+function azioniPila(o) {
   const fila = azioniGiorno(o);
   fila.querySelectorAll("button").forEach((b) => {
     const gesto = b.onclick;
-    b.onclick = () => {
-      if (carta.classList.contains("esce")) return;
-      fila.querySelectorAll("button").forEach((x) => { x.disabled = true; });
-      carta.classList.add("esce");
-      mazzoArrivo = true;
-      setTimeout(gesto, movimentoRidotto() ? 0 : 240);
-    };
+    b.onclick = () => { pilaArrivo = true; gesto(); };
   });
   return fila;
 }
 
-const movimentoRidotto = () => window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Il solo riassunto della pagina: quanti chiedono attenzione e quanti
+   sono in tutto. Toccato, apre l'elenco completo con la ricerca. */
+function riassunto() {
+  const n = orologi.length;
+  const girare = orologi.filter(daFarGirare).length;
+  const b = el("button", "riassunto");
+  if (girare) {
+    b.append(el("span", "riassunto-girare", t("pila.daGirare", { n: girare })), el("span", "riassunto-punto", "·"));
+  }
+  b.append(el("span", null, plurale(n, "orologio_", "orologiPl")));
+  const f = el("span", "riassunto-freccia");
+  f.innerHTML = icona("su", 16);
+  b.append(f);
+  b.onclick = () => apriFoglio("elenco", {});
+  const box = el("div", "riassunto-box");
+  box.append(b);
+  return box;
+}
+
+function costruisciPagina() {
+  const d = el("div", "pagina");
+  d.append(testata());
+
+  d.append(el("p", "data-oggi", new Date().toLocaleDateString(locale(),
+    { weekday: "long", day: "numeric", month: "long" })));
+
+  if (!orologi.length) {
+    const v = el("section", "vuoto riquadro");
+    v.append(el("h1", "vuoto-titolo", t("vuoto.titolo")),
+             el("p", "prosa", t("vuoto.testo")));
+    v.append(bottone("bottone primario largo", t("aggiungiPrimo"), "piu", () => apriFoglio("modulo", {})));
+    d.append(v);
+    return d;
+  }
+
+  d.append(...pilaCarte(ordinaPerRiposo(orologi)), riassunto());
+  return d;
+}
+
+
+/* ------------------------------------------------------------------
+   L'elenco, nel foglio.
+   La pila serve a decidere cosa mettere; l'elenco a trovare un
+   orologio preciso quando sono tanti. In ordine alfabetico, con la
+   ricerca, e da qui si aggiunge. La ricerca filtra le righe in posto:
+   il campo non perde il fuoco mentre scrivi.
+   ------------------------------------------------------------------ */
+const senzaAccenti = (s) => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+COSTRUTTORI.elenco = {
+  classe: "alto",
+  disegna(d, f) {
+    const corpo = capoFoglio(f, t("coll.titolo") + " · " + orologi.length,
+      bottone("chip", t("agg.breve"), "piu", () => avantiFoglio("modulo", {})));
+
+    const cerca = el("input", "campo");
+    cerca.type = "search";
+    cerca.placeholder = t("el.cerca");
+    cerca.setAttribute("aria-label", t("el.cerca"));
+    cerca.value = d.filtro || "";
+    corpo.append(cerca);
+
+    corpo.append(el("h3", "etichetta piccola elenco-capo", t("el.ordine")));
+    const box = el("div", "elenco");
+    const righe = [...orologi]
+      .sort((a, b) => a.nome.localeCompare(b.nome, locale()))
+      .map((o) => {
+        const r = rigaOrologio(o);
+        r.dataset.cerca = senzaAccenti(o.nome + " " + (o.linea || "") + " " + (o.calibroNome || ""));
+        box.append(r);
+        return r;
+      });
+    const nulla = el("p", "nota", t("el.nulla"));
+    corpo.append(box, nulla);
+    corpo.append(el("p", "piede-soglia", t("piede.soglia", { g: plurale(soglia, "giorno_", "giorniPl") })));
+
+    function filtra() {
+      d.filtro = cerca.value;
+      const q0 = senzaAccenti(cerca.value.trim());
+      let visti = 0;
+      righe.forEach((r) => { const si = !q0 || r.dataset.cerca.includes(q0); r.hidden = !si; if (si) visti++; });
+      nulla.hidden = visti > 0;
+    }
+    cerca.oninput = filtra;
+    filtra();
+  },
+};
 
 function rigaOrologio(o) {
   const r = el("button", "riga-orologio");
@@ -258,45 +395,6 @@ function rigaOrologio(o) {
   r.setAttribute("aria-label", o.nome + ", " + (oggi ? t("r.oggi") : riposoDetto(g)));
   r.onclick = () => apriFoglio("orologio", { id: o.id });
   return r;
-}
-
-function costruisciPagina() {
-  const d = el("div", "pagina");
-  d.append(testata());
-
-  d.append(el("p", "data-oggi", new Date().toLocaleDateString(locale(),
-    { weekday: "long", day: "numeric", month: "long" })));
-
-  if (!orologi.length) {
-    const v = el("section", "vuoto riquadro");
-    v.append(el("h1", "vuoto-titolo", t("vuoto.titolo")),
-             el("p", "prosa", t("vuoto.testo")));
-    v.append(bottone("bottone primario largo", t("aggiungiPrimo"), "piu", () => apriFoglio("modulo", {})));
-    d.append(v);
-    return d;
-  }
-
-  const ordinati = ordinaPerRiposo(orologi);
-  const chiedono = ordinati.filter(daFarGirare);
-  if (chiedono.length > 1) {
-    d.append(...mazzo(chiedono));
-  } else {
-    mazzoVisto = null; mazzoArrivo = false;
-    const primo = chiedono[0] || ordinati.find((o) => !alPolsoOggi(o)) || ordinati[0];
-    d.append(eroe(primo), azioniGiorno(primo));
-  }
-
-  const capo = el("div", "capo-sezione");
-  capo.append(el("h2", "etichetta", t("coll.titolo") + " · " + orologi.length));
-  capo.append(bottone("chip", t("agg.breve"), "piu", () => apriFoglio("modulo", {})));
-  d.append(capo);
-
-  const elenco = el("div", "elenco");
-  ordinati.forEach((o) => elenco.append(rigaOrologio(o)));
-  d.append(elenco);
-
-  d.append(el("p", "piede-soglia", t("piede.soglia", { g: plurale(soglia, "giorno_", "giorniPl") })));
-  return d;
 }
 
 /* La regola dei colori, detta dove la si cerca: toccando la pillola. */

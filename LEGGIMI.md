@@ -1,5 +1,18 @@
 # Bariletto
 
+## Versione 178: la pila
+
+La pagina è una pila sola con tutta la collezione (`pilaCarte()` in `pagina.js`), ordinata per giorni senza polso: il più dimenticato per primo, chi porti oggi in fondo. Sostituisce sia il mazzo della 177 sia l'elenco sotto la carta.
+
+- Il motore è lo scorrimento nativo con aggancio: ogni carta ha un posto largo `PASSO` (112 px, ripetuto in `styles.css` per `.pila-spazio` e `.pila-posto`), così la carta i è al centro quando lo scorrimento vale i × PASSO. Sopra, a ogni fotogramma, ogni carta si sposta, ruota e rimpicciolisce secondo la distanza dal centro; si toccano solo trasformazioni e opacità. Oltre 3,6 posti la carta non si disegna.
+- Ogni carta ha due facce: piena (anello, nome, frase, carica) e sintesi (nome e giorni senza polso), che si dissolvono l'una nell'altra mentre la carta va di lato. Di una carta a destra la sintesi si allinea a destra, il lato che si vede.
+- Tocco su una carta di lato: viene al centro. Tocco su quella al centro: la scheda. Frecce, Inizio, Fine e Invio dalla tastiera. Il lettore di schermo sente nome e giorni della carta al centro.
+- Dopo un gesto la pila resta allo stesso posto: l'indossato scivola in fondo e al centro arriva il prossimo. Un orologio appena aggiunto viene portato al centro (`pilaVerso`).
+- Sotto la pila, una riga sola: «N da far girare · M orologi». Apre il foglio `elenco`: tutti gli orologi in ordine alfabetico, ricerca per nome, linea o calibro (senza accenti, senza ridisegnare), Aggiungi, e la frase sulla soglia.
+- Puntini fino a 12 orologi, poi «4 / 20».
+
+Cache del service worker: `bariletto-v178`.
+
 ## Versione 177: il mazzo
 
 Quando più di un orologio chiede attenzione, la carta grande diventa un mazzo che si scorre di lato (`mazzo()` in `pagina.js`). Solo gli orologi da far girare, al massimo cinque carte: oltre, l'ultima dice quanti ne restano e porta all'elenco. I bottoni stanno fuori dal mazzo e valgono per la carta davanti; dopo il gesto la carta esce e lascia il posto alla successiva. La carta guardata si ricorda per id fra un ridisegno e l'altro.

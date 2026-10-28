@@ -25,6 +25,7 @@ const ICONA = {
   piu: '<path d="M12 5v14M5 12h14"/>',
   indietro: '<path d="M15 5l-7 7 7 7"/>',
   avanti: '<path d="M9 5l7 7-7 7"/>',
+  su: '<path d="M6 15l6-6 6 6"/>',
   polso: '<path d="M8 3h8l-1 4H9zM9 17h6l1 4H8z"/><circle cx="12" cy="12" r="5"/><path d="M12 10v2l1.3 1.3"/>',
   corona: '<circle cx="11" cy="12" r="6"/><path d="M17 10.5h2.5v3H17"/><path d="M11 9v3h2.5"/>',
   microfono: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',

@@ -608,7 +608,7 @@ async function salvaBozzaOra(d) {
   orologi = await leggiTutti("orologi");
   /* Da nuovo si arriva alla sua scheda; da modifica si torna alla scheda. */
   if (vecchio && pila.length > 1) { indietroFoglio(); disegna(); }
-  else { sostituisciFoglio("orologio", { id: o.id }); disegna(); }
+  else { if (!vecchio) pilaVerso(o.id); sostituisciFoglio("orologio", { id: o.id }); disegna(); }
 }
 
 const eliminaOrologio = (id) => unaVolta(() => eliminaOrologioOra(id));

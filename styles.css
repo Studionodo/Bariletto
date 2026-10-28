@@ -211,9 +211,91 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 }
 .etichetta.piccola { font-size: .7rem; }
 
-/* ------------------------------------------------------------ l'eroe */
-.eroe { padding: 22px 22px 20px; cursor: pointer; }
-.eroe-alto { display: flex; align-items: center; gap: 18px; }
+/* ------------------------------------------------------------ la pila
+   Lo scorrimento è quello nativo; le carte le muove lo script, che
+   scrive su ciascuna trasformazione e tre opacità (--piena, --sintesi,
+   --ombra). Esce dal margine della pagina fino ai bordi dello schermo:
+   le carte di lato devono poter arrivare al bordo. */
+:root { --carta-l: min(256px, 68vw); --carta-a: 344px; }
+.pila {
+  position: relative; z-index: 0;
+  display: flex; align-items: flex-start;
+  height: calc(var(--carta-a) + 40px);
+  margin: 0 calc(-1 * var(--margine));
+  overflow-x: auto; overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  outline: none;
+}
+.pila::-webkit-scrollbar { display: none; }
+.pila:focus-visible .carta.davanti .carta-volto { outline: 2px solid var(--arancio); outline-offset: 3px; }
+.pila-spazio { flex: 0 0 calc(50% - 56px); }
+.pila-posto { position: relative; flex: 0 0 112px; height: 100%; scroll-snap-align: center; }
+.carta {
+  position: absolute; top: 14px; left: 50%;
+  width: var(--carta-l); height: var(--carta-a);
+  margin-left: calc(var(--carta-l) / -2);
+  transform-origin: 50% 50%;
+  will-change: transform;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.carta-volto {
+  position: absolute; inset: 0; overflow: hidden;
+  border-radius: var(--r-riquadro);
+  /* Opaca: le carte si sovrappongono, una trasparente lascerebbe
+     vedere le altre attraverso. Niente sfocatura: sei carte sfocate
+     che scorrono insieme pesano sui telefoni medi. */
+  background: color-mix(in srgb, var(--wall) 86%, var(--slab));
+  border: 1px solid var(--filo);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 34px -18px rgba(0,0,0,.6);
+}
+.carta.davanti .carta-volto {
+  border-color: var(--filo-forte);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 26px 50px -18px rgba(0,0,0,.7);
+}
+.carta.arriva .carta-volto { animation: arriva .42s var(--molla) both; }
+@keyframes arriva { from { opacity: .3; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.carta-piena {
+  position: absolute; inset: 0; padding: 20px 20px 18px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  opacity: var(--piena, 1);
+}
+.carta-piena .anello-riposo { width: 112px; height: 112px; margin-top: 14px; }
+.carta-piena .anello-numero { font-size: 2.3rem; }
+.carta-piena .anello-sotto { max-width: 62px; font-size: .64rem; }
+.carta-nome {
+  margin-top: 14px;
+  font-family: var(--display); font-variation-settings: 'opsz' 96, 'SOFT' 20;
+  font-weight: 620; font-size: 1.6rem; line-height: 1.1; letter-spacing: -.01em;
+  overflow-wrap: break-word; hyphens: auto; max-width: 100%;
+}
+.carta-nome.lungo { font-size: 1.3rem; line-height: 1.14; }
+.carta-calibro { margin-top: 5px; font-size: .9rem; color: var(--argento-off); }
+.carta-frase { margin-top: 12px; font-size: 1rem; line-height: 1.4; color: var(--argento); }
+.carta-carica { margin-top: 3px; font-size: .9rem; }
+
+.carta-sintesi {
+  position: absolute; inset: 0; padding: 22px 20px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  opacity: var(--sintesi, 0); pointer-events: none;
+}
+.carta.a-destra .carta-sintesi { align-items: flex-end; text-align: right; }
+.carta-sintesi .carta-nome { margin-top: 0; font-size: 1.5rem; }
+.carta-sintesi .carta-nome.lungo { font-size: 1.25rem; }
+.sintesi-numero {
+  font-family: var(--display); font-variation-settings: 'opsz' 144, 'WONK' 0;
+  font-weight: 560; font-size: 4.2rem; line-height: 1; color: var(--argento);
+}
+.sintesi-numero.alto { color: var(--arancio); }
+.sintesi-oggi { font-size: .9rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--oro); }
+.carta-ombra {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: var(--room); opacity: var(--ombra, 0);
+}
+
 .anello-riposo { position: relative; width: 128px; height: 128px; flex-shrink: 0; }
 .anello-riposo svg { width: 100%; height: 100%; display: block; }
 .anello-riposo .traccia { fill: none; stroke: rgba(255,255,255,.10); stroke-width: 9; }
@@ -232,65 +314,41 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 }
 .anello-sotto { margin-top: 4px; font-size: .68rem; line-height: 1.15; color: var(--argento-off); max-width: 76px; }
 
-.eroe-testo { min-width: 0; flex: 1; }
-.eroe-testo .etichetta { display: block; margin-bottom: 8px; }
-.eroe-nome {
-  font-family: var(--display); font-variation-settings: 'opsz' 96, 'SOFT' 20;
-  font-weight: 620; font-size: 1.85rem; line-height: 1.08; letter-spacing: -.01em;
-  overflow-wrap: break-word; hyphens: auto;
+.pila-dove {
+  display: flex; justify-content: center; align-items: center; gap: 7px;
+  min-height: 14px; margin-top: -8px;
+  font-size: .8rem; font-weight: 600; letter-spacing: .08em; color: var(--argento-off);
 }
-.eroe-nome.lungo { font-size: 1.45rem; line-height: 1.12; }
-.eroe-calibro { margin-top: 6px; font-size: .95rem; color: var(--argento-off); }
-.eroe-frase { margin-top: 18px; font-size: 1.12rem; line-height: 1.45; color: var(--argento); }
-.eroe-carica { margin-top: 4px; font-size: .95rem; }
-
-/* ------------------------------------------------------------ il mazzo
-   Esce dal margine della pagina fino ai bordi dello schermo, così la
-   carta successiva si affaccia dal bordo destro. Lo spazio sotto serve
-   all'ombra, che altrimenti lo scorrimento taglierebbe. */
-.mazzo {
-  display: flex; gap: 12px;
-  margin: 0 calc(-1 * var(--margine)) -12px;
-  padding: 0 var(--margine) 22px;
-  scroll-padding-inline: var(--margine);
-  overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-.mazzo::-webkit-scrollbar { display: none; }
-.mazzo > .carta {
-  flex: 0 0 calc(100% - 34px);
-  scroll-snap-align: start; scroll-snap-stop: always;
-  /* Cinque sfocature che scorrono insieme pesano sui telefoni medi:
-     nel mazzo la carta è appena più piena e non sfoca il fondo. */
-  -webkit-backdrop-filter: none; backdrop-filter: none;
-  background: color-mix(in srgb, var(--wall) 84%, transparent);
-  transition: opacity .24s ease, transform .24s ease;
-}
-.mazzo > .carta.esce { opacity: 0; transform: translateY(-10px) scale(.96); }
-.mazzo > .carta.arriva { animation: arriva .38s var(--molla) both; }
-@keyframes arriva { from { opacity: .35; transform: translateX(28px) scale(.97); } to { opacity: 1; transform: none; } }
-
-.carta-altri {
-  display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 10px;
-  text-align: left; width: auto;
-}
-.carta-altri .eroe-nome { font-size: 1.9rem; }
-.carta-freccia {
-  margin-top: 6px; width: 48px; height: 48px; border-radius: 16px;
-  display: inline-flex; align-items: center; justify-content: center;
-  border: 1px solid var(--filo-forte); color: var(--oro);
-}
-
-.mazzo-punti { display: flex; justify-content: center; gap: 8px; margin: 8px 0 0; }
-.mazzo-punti .punto {
-  width: 6px; height: 6px; border-radius: 3px;
-  background: var(--filo-forte);
+.pila-dove .punto {
+  width: 6px; height: 6px; border-radius: 3px; background: var(--filo-forte);
   transition: width .3s var(--molla), background .3s;
 }
-.mazzo-punti .punto.acceso { width: 18px; background: var(--argento-off); }
-.fila-azioni.spenta { visibility: hidden; }
+.pila-dove .punto.acceso { width: 18px; background: var(--argento-off); }
+
+.riassunto-box { display: flex; justify-content: center; margin-top: 18px; }
+.riassunto {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 48px; padding: 0 20px; border-radius: 999px;
+  background: var(--carta); border: 1px solid var(--filo-forte);
+  font-size: .95rem; font-weight: 500; color: var(--argento);
+}
+.riassunto-girare { color: var(--arancio); font-weight: 600; }
+.riassunto-punto { color: var(--argento-off); }
+.riassunto-freccia { color: var(--oro); display: inline-flex; }
+
+.elenco-capo { display: block; margin: 18px 4px 10px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+[hidden] { display: none !important; }
+
+/* Schermi bassi: la carta si accorcia perché i bottoni restino a vista. */
+@media (max-height: 720px) {
+  :root { --carta-a: 300px; }
+  .carta-piena .anello-riposo { width: 88px; height: 88px; margin-top: 8px; }
+  .carta-piena .anello-numero { font-size: 1.8rem; }
+  .carta-piena .anello-sotto { font-size: .6rem; }
+  .carta-nome { margin-top: 10px; }
+  .carta-frase { margin-top: 8px; font-size: .95rem; }
+}
 
 /* ----------------------------------------------------------- bottoni */
 .fila-azioni { display: flex; gap: 12px; margin: 14px 0 6px; }

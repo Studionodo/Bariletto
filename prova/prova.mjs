@@ -66,13 +66,14 @@ const o = (nome, fn) => p.evaluate(([n, f]) => new Function("o", "return (" + f 
 
 try {
   await p.goto(U + "seme.html"); await p.waitForFunction(() => document.title === "seminato");
-  await p.goto(U + "index.html"); await p.waitForSelector(".eroe"); await attendi(500);
+  await p.goto(U + "index.html"); await p.waitForSelector(".pila .carta"); await attendi(500);
 
   ok(await p.evaluate(() => orologi.every((x) => x.aggiunto != null)), "migrazione: ogni orologio ha «aggiunto»");
-  ok(await p.textContent(".eroe-nome") === "Seiko SKX007", "in cima il più a riposo", await p.textContent(".eroe-nome"));
-  ok((await p.$$(".riga-orologio")).length === 4, "quattro righe in collezione");
+  const davanti = () => p.textContent(".carta.davanti .carta-piena .carta-nome");
+  ok(await davanti() === "Seiko SKX007", "davanti il più a riposo", await davanti());
+  ok((await p.$$(".pila .carta")).length === 4, "una carta per orologio nella pila");
 
-  await p.click(".riga-orologio >> nth=0"); await attendi(500);
+  await p.click(".carta.davanti"); await attendi(500);
   await p.click(".foglio .bottone.primario"); await attendi(400);
   ok(await o("Seiko SKX007", (x) => alPolsoOggi(x)), "Indossato segna oggi");
   await p.click(".foglio .bottone.secondario.largo"); await attendi(400);
@@ -97,13 +98,15 @@ try {
   ok(await p.evaluate(() => registro.some((v) => v.azione === "misura")), "la misura entra nella storia");
   await p.keyboard.press("Escape"); await attendi(200); await p.keyboard.press("Escape"); await attendi(500);
 
-  await p.click(".capo-sezione .chip"); await attendi(400);
+  await p.click(".riassunto"); await attendi(400);
+  await p.click(".foglio-capo .chip"); await attendi(400);
   await p.fill(".foglio input[type=search]", "4r36"); await attendi(200);
   await p.click(".esiti .riga-calibro >> nth=0"); await attendi(200);
   await p.fill(".campo-blocco input >> nth=0", "Seiko Presage");
   await p.click("#salva"); await attendi(500);
   ok(await p.evaluate(() => orologi.some((x) => x.nome === "Seiko Presage" && x.calibro === "4R36" && x.aggiunto)), "nuovo orologio dal calibro");
-  await p.keyboard.press("Escape"); await attendi(500);
+  await p.keyboard.press("Escape"); await attendi(300); await p.keyboard.press("Escape"); await attendi(500);
+  ok(await davanti() === "Seiko Presage", "l'orologio appena aggiunto arriva al centro", await davanti());
 
   await p.click(".testata .tondo"); await attendi(400);
   await p.click(".scelta:has-text('14')"); await attendi(200);
@@ -128,7 +131,7 @@ try {
   });
   ok(n[0] === 1 && n[1] === 1, "una notifica sola per periodo di riposo", n[2]);
 
-  /* Il mazzo: sette orologi che chiedono attenzione, uno al polso oggi. */
+  /* La pila con più orologi, e l'elenco nel foglio. */
   await p.evaluate(async () => {
     const G = 86400000, ora = Date.now();
     const base = orologi.find((x) => x.nome === "Seiko SKX007");
@@ -137,50 +140,66 @@ try {
     const nuovi = [["Tudor Black Bay", 120], ["Longines Spirit", 64], ["Hamilton Khaki", 52], ["Sinn 556", 90]];
     for (const [nome, g] of nuovi) await salva("orologi", { ...base, id: "prova-" + g, nome, ultimoPolso: ora - g * G, aggiunto: ora - 200 * G });
     orologi = await leggiTutti("orologi");
-    disegna();
+    pilaIndice = 0; disegna();
   });
-  await attendi(300);
-  const leggi = () => p.evaluate(() => ({
-    carte: [...document.querySelectorAll(".mazzo > .carta")].map((c) => c.dataset.id === "altri" ? c.textContent : c.querySelector(".eroe-nome").textContent),
-    punti: document.querySelectorAll(".mazzo-punti .punto").length,
-    acceso: [...document.querySelectorAll(".mazzo-punti .punto")].findIndex((x) => x.classList.contains("acceso")),
-    davanti: mazzoVisto && mazzoVisto.id,
+  await attendi(400);
+  const stato = () => p.evaluate(() => ({
+    nomi: [...document.querySelectorAll(".pila .carta")].map((c) => c.querySelector(".carta-piena .carta-nome").textContent),
+    centro: pilaIndice,
+    davanti: document.querySelector(".carta.davanti .carta-piena .carta-nome").textContent,
+    acceso: [...document.querySelectorAll(".pila-dove .punto")].findIndex((x) => x.classList.contains("acceso")),
+    nascoste: [...document.querySelectorAll(".pila .carta")].filter((c) => c.style.visibility === "hidden").length,
   }));
-  let m = await leggi();
-  ok(m.carte.length === 5 && m.punti === 5, "mazzo: al massimo cinque carte", m.carte.length + " carte");
-  ok(m.carte[0] === "Tudor Black Bay" && m.carte[1] === "Sinn 556" && m.carte[3] === "Longines Spirit", "mazzo: dal più dimenticato", m.carte.slice(0, 4).join(", "));
-  ok(/Altri 3 orologi/.test(m.carte[4]), "mazzo: l'ultima carta conta gli altri", m.carte[4]);
+  let m = await stato();
+  ok(m.nomi.slice(0, 4).join() === "Tudor Black Bay,Sinn 556,Omega Speedmaster Professional,Longines Spirit",
+     "pila: dal più dimenticato", m.nomi.slice(0, 4).join(", "));
+  ok(m.nascoste >= 4, "le carte lontane non si disegnano", m.nascoste + " di " + m.nomi.length);
+  const giorniVisti = await p.$$eval(".pila .sintesi-numero", (n) => n.map((x) => +x.textContent));
+  ok(giorniVisti.every((v, i) => !i || v <= giorniVisti[i - 1]), "l'ordine segue il numero mostrato", giorniVisti.join(" "));
 
-  const box = await p.$eval(".mazzo", (e) => { const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
-  const sbirciata = await p.$eval(".mazzo > .carta:nth-child(2)", (e) => window.innerWidth - e.getBoundingClientRect().left);
-  ok(sbirciata > 20 && sbirciata < 60, "mazzo: la seconda carta si affaccia", Math.round(sbirciata) + " px");
-  await p.mouse.move(box.x, box.y); await p.mouse.wheel(260, 0); await attendi(900);
-  m = await leggi();
-  ok(m.acceso === 1 && m.davanti === "prova-90", "scorrendo, punti e bottoni seguono la carta", m.davanti + " / punto " + m.acceso);
+  const box = await p.$eval(".pila", (e) => { const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+  await p.mouse.move(box.x, box.y); await p.mouse.wheel(112, 0); await attendi(900);
+  m = await stato();
+  ok(m.centro === 1 && m.davanti === "Sinn 556" && m.acceso === 1, "scorrendo, centro, punti e bottoni seguono", m.davanti + " / punto " + m.acceso);
 
-  await p.click(".fila-azioni .bottone.primario"); await attendi(900);
-  ok(await o("Sinn 556", (x) => alPolsoOggi(x)), "Indossato vale per la carta davanti");
-  m = await leggi();
-  ok(m.carte[1] === "Omega Speedmaster Professional" && m.davanti === "speedy-cccc3", "la carta esce, al suo posto la successiva", m.carte[1]);
-  ok(/Altri 2 orologi/.test(m.carte[4]), "il conto degli altri si aggiorna", m.carte[4]);
+  await p.click(".fila-azioni .bottone.primario"); await attendi(700);
+  ok(await o("Sinn 556", (x) => alPolsoOggi(x)), "Indossato vale per la carta al centro");
+  m = await stato();
+  ok(m.centro === 1 && m.davanti === "Omega Speedmaster Professional" && m.nomi[m.nomi.length - 1] === "Sinn 556",
+     "dopo il gesto arriva il prossimo, l'indossato va in fondo", m.davanti);
 
+  const lato = await p.$eval(".pila .carta:not(.davanti)", (c) => c.closest(".pila").querySelectorAll(".carta").length);
+  /* Il bordo destro dello schermo: lì c'è solo la carta di lato. */
+  await p.mouse.click(380, box.y); await attendi(900);
+  m = await stato();
+  ok(m.centro === 2 && m.davanti === "Longines Spirit", "toccando una carta di lato, viene al centro", m.davanti + " (" + lato + ")");
+  await p.click(".carta.davanti"); await attendi(400);
+  ok(await p.textContent(".foglio .foglio-titolo") !== null && (await p.$(".foglio .storia")) !== null, "toccando quella al centro, si apre la scheda");
+  await p.keyboard.press("Escape"); await attendi(500);
+
+  await p.focus(".pila"); await p.keyboard.press("ArrowRight"); await attendi(900);
+  ok((await stato()).centro === 3, "la pila si muove con le frecce");
   await p.evaluate(() => disegna()); await attendi(200);
-  m = await leggi();
-  ok(m.davanti === "speedy-cccc3" && m.acceso === 1, "un ridisegno non rimanda alla prima carta", m.davanti);
-  await p.screenshot({ path: path.join(os.tmpdir(), "bariletto-mazzo.png") });
+  ok((await stato()).centro === 3, "un ridisegno non rimanda alla prima carta");
+  await p.screenshot({ path: path.join(os.tmpdir(), "bariletto-pila.png") });
 
-  const numeri = await p.$$eval(".riga-orologio .riga-numero", (n) => n.map((x) => +x.textContent));
-  ok(numeri.every((v, i) => !i || v <= numeri[i - 1]), "l'elenco è in ordine col numero che mostra", numeri.join(" "));
-
-  await p.evaluate(async () => {
-    for (const x of orologi) if (x.nome !== "Tudor Black Bay" && daFarGirare(x)) { x.ultimoPolso = Date.now() - 2 * 86400000; await salva("orologi", x); }
-    orologi = await leggiTutti("orologi"); disegna();
-  });
-  await attendi(200);
-  ok(!(await p.$(".mazzo")) && await p.textContent(".eroe-nome") === "Tudor Black Bay", "un solo orologio in attesa: carta singola");
+  const riassunto = await p.textContent(".riassunto");
+  ok(/6 da far girare/.test(riassunto) && /9 orologi/.test(riassunto), "il riassunto conta", riassunto.trim());
+  await p.click(".riassunto"); await attendi(500);
+  const righe = await p.$$eval(".foglio .elenco .riga-orologio", (r) => r.map((x) => x.querySelector(".riga-nome").textContent));
+  ok(righe.length === 9 && righe.join() === [...righe].sort((a, b) => a.localeCompare(b, "it")).join(), "l'elenco: tutti, in ordine alfabetico", righe.length + " righe");
+  await p.fill(".foglio input[type=search]", "sinn"); await attendi(150);
+  const visibili = await p.$$eval(".foglio .elenco .riga-orologio", (r) => r.filter((x) => !x.hidden).length);
+  ok(visibili === 1 && await p.isHidden(".foglio .nota:has-text('Nessun')"), "la ricerca filtra", visibili + " visibili");
+  await p.fill(".foglio input[type=search]", "6r35"); await attendi(150);
+  ok(await p.$$eval(".foglio .elenco .riga-orologio", (r) => r.filter((x) => !x.hidden).length) >= 1, "si cerca anche per calibro");
+  await p.fill(".foglio input[type=search]", "zzzz"); await attendi(150);
+  ok(await p.isVisible(".foglio .nota:has-text('Nessun')"), "nessun esito: lo dice");
+  await p.screenshot({ path: path.join(os.tmpdir(), "bariletto-elenco.png") });
+  await p.keyboard.press("Escape"); await attendi(500);
 
   const testo = await p.evaluate(() => document.body.innerText);
-  const crude = [...testo.matchAll(/\b(?:bak|arch|reg|st|coll|sch|mis|eroe|mazzo|imp|notif|soglia|ora|r|c|g|s|m)\.[a-zA-Z]+\b/g)].map((x) => x[0]);
+  const crude = [...testo.matchAll(/\b(?:bak|arch|reg|st|coll|sch|mis|eroe|pila|el|imp|notif|soglia|ora|r|c|g|s|m)\.[a-zA-Z]+\b/g)].map((x) => x[0]);
   ok(!crude.length, "nessuna chiave di dizionario a schermo", [...new Set(crude)].join(", "));
   ok(!errori.length, "nessun errore in console", errori.join(" | "));
 } catch (e) {
